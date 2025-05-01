@@ -7,7 +7,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className='border-b mb-10 shadow-xl'>
+    <div className='border-b  shadow-xl'>
       <nav className='flex items-center justify-between px-6 md:px-20 py-4'>
         <img className='h-16' src={Logo} alt="Logo" />
 
