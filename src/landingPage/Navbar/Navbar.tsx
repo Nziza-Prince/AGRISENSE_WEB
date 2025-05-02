@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Logo from '../assets/logo.png'
+import Logo from '../../assets/logo.png'
 import { Button } from '@/components/ui/button'
 import ToggleMenuIcon from './Hambagur'
 
