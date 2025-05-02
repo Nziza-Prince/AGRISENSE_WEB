@@ -16,7 +16,7 @@ const FilterBar: FC = () => {
   const [activeMenu, setActiveMenu] = useState<"location" | "soil" | "market" | null>(null)
 
   return (
-    <div className="mb-36 bg-white mx-20 sm:mx-8 px-4 md:px-20 py-4 border-b-4 shadow-xl">
+    <div className="mb-48 bg-white mx-20 sm:mx-8 px-4 md:px-20 py-4 border-b-4 shadow-xl">
       {/* Headings */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b-4 pb-2 mb-4 space-y-2 sm:space-y-0">
         <div className="flex flex-wrap sm:space-x-12 space-x-6 font-bold text-lg ml-2 sm:ml-5">

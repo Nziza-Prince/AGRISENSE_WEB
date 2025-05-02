@@ -24,7 +24,7 @@ const PopularServices: React.FC = () => {
     ];
   
     return (
-      <div className="bg-[#2C6E49F2] p-8 flex flex-col items-center justify-center">
+      <div className="mb-20 bg-[#2C6E49F2] p-8 flex flex-col items-center justify-center">
         <div className="text-center mb-8">
           <p className="text-white text-lg font-bold mb-5">Popular Services We Provide</p>
           <h1 className="text-2xl font-bold text-white">Boost your farm’s productivity today!</h1>
