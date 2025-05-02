@@ -1,12 +1,8 @@
-import { useState } from 'react'
-import Navbar from './landingPage/Navbar/Navbar'
-import Hero from './landingPage/HeroSection/Hero'
-
+import LandingPage from './landingPage/LandingPage'
 function App() {
   return (
     <>
-<Navbar/>
-<Hero/>
+<LandingPage/>
     </>
   )
 }

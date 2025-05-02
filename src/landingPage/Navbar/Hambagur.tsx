@@ -9,7 +9,7 @@ interface ToggleMenuIconProps {
 
 const ToggleMenuIcon: React.FC<ToggleMenuIconProps> = ({ isOpen }) => {
   return (
-    <div className="relative w-6 h-6">
+    <div className="relative w-6 h-6 cursor-pointer">
       <AnimatePresence mode="wait" initial={false}>
         {isOpen ? (
           <motion.div
