@@ -2,7 +2,7 @@ import React from 'react'
 import Navbar from './Navbar/Navbar'
 import HeroSection from './HeroSection/Hero'
 import PopularServices from './Popular-Services/PopularServices'
-import AboutUs from './AboutUs'
+import AboutUs from './AboutUs/AboutUs'
 
 const LandingPage = () => {
   return (
