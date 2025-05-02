@@ -30,7 +30,7 @@ const words: WordType[] = [
 
 const HowDoWeWork = () => {
   return (
-    <div className="mb-56 flex flex-col items-center px-6">
+    <div className="mb-36 flex flex-col items-center px-6">
       <h1 className="text-[#2C6E49] text-4xl font-bold mb-10 text-center">How Do We Work</h1>
       <p className="text-lg text-center max-w-3xl mb-20 font-medium text-gray-700">
         Agrisense leverages AI to provide crop recommendations, irrigation schedules, and pest alerts,

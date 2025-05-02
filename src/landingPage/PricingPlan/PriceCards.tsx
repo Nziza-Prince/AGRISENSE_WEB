@@ -41,7 +41,7 @@ const PriceCards = () => {
         {plans.map((plan, index) => (
           <div
             key={index}
-            className="group bg-white border p-6 shadow-2xl hover:bg-[#2C6E49] hover:text-white transition duration-600 cursor-pointer hover:border-white hover-shadow-[#2C6E49]"
+            className="group bg-white border p-6 shadow-2xl hover:bg-[#377552] hover:text-white transition duration-600 cursor-pointer hover:border-white hover-shadow-[#2C6E49]"
           >
             <div className="mb-4 border-b-4 border-gray-600 group-hover:border-white  pb-4">
               <img

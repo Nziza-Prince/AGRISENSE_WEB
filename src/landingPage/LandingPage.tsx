@@ -5,6 +5,7 @@ import PopularServices from './Popular-Services/PopularServices'
 import AboutUs from './AboutUs/AboutUs'
 import HowDoWeWork from './HowDoWeWork/HowDoWeWork'
 import PricingPlan from './PricingPlan/PricingPlan'
+import Counter from './Counter/Counter'
 
 const LandingPage = () => {
   return (
@@ -15,6 +16,7 @@ const LandingPage = () => {
       <PopularServices/>
       <HowDoWeWork/>
       <PricingPlan/>
+      <Counter/>
     </div>
   )
 }

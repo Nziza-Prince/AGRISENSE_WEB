@@ -4,7 +4,7 @@ import AboutUsImage from "/assets/about us.png"
 
 const AboutUs: FC = () => {
   return (
-    <section className="flex flex-col md:flex-row items-center justify-center my-20 mt-24 gap-16 md:gap-36 px-6 md:px-24 lg:px-48 py-6 bg-white ">
+    <section className="flex flex-col md:flex-row items-center justify-center my-20 gap-16 md:gap-36 px-6 md:px-24 lg:px-48 py-6 bg-white ">
       {/* Left Side: Image + overlapping cards */}
       <div className="relative w-full max-w-[350px] h-[450px] mx-auto md:mx-0">
         {/* Main Image */}
