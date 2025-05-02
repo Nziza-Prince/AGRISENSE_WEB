@@ -22,7 +22,7 @@ const Navbar = () => {
 
         {/* CTA Button */}
         <div className='hidden md:block'>
-          <Button className='bg-[#2C6E49] px-6 py-2 font-bold text-white'>Get Started</Button>
+          <Button className='bg-[#2C6E49] cursor-pointer hover:bg-green-900 px-6 py-2 font-bold text-white'>Get Started</Button>
         </div>
 
         {/* Mobile Menu Icon */}
@@ -41,7 +41,7 @@ const Navbar = () => {
           <a className='font-bold text-gray-600' href="#">Services</a>
           <a className='font-bold text-gray-600' href="#">Blogs</a>
           <a className='font-bold text-gray-600' href="#">Contact</a>
-          <Button className='bg-[#2C6E49] px-6 py-2 font-bold text-white w-full'>Get Started</Button>
+          <Button className='bg-[#2C6E49] cursor-pointer hover:bg-green-900 px-6 py-2 font-bold text-white w-full'>Get Started</Button>
         </div>
       )}
     </div>
