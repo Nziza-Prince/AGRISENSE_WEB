@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="absolute left-1/2 transform -translate-x-1/2 top-4 sm:top-8 z-10 w-full max-w-[calc(100%-32px)] sm:max-w-[calc(100%-64px)] md:max-w-3xl mx-auto">
         <div className="bg-white rounded-md shadow-lg p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center">
           <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-0">Ready to Get Started ?</h3>
-          <button className="bg-[#0a7c42] hover:bg-[#086835] text-white px-4 sm:px-6 py-2 rounded-md text-sm sm:text-base">
+          <button className="cursor-pointer bg-[#0a7c42] hover:bg-[#086835] text-white px-4 sm:px-6 py-2 rounded-md text-sm sm:text-base">
             Contact us
           </button>
         </div>

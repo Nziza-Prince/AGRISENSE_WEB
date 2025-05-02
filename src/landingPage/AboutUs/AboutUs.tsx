@@ -8,7 +8,7 @@ const AboutUs: FC = () => {
       {/* Left Side: Image + overlapping cards */}
       <div className="relative w-full max-w-[350px] h-[450px] mx-auto md:mx-0">
         {/* Main Image */}
-        <div className="w-full h-full border-4 border-blue-500 rounded-lg overflow-hidden">
+        <div className="w-full h-full rounded-lg overflow-hidden">
           <img
             src={AboutUsImage || "/placeholder.svg"}
             alt="Tree in water drop"
