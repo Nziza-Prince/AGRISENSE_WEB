@@ -71,7 +71,7 @@ const TestimonialCarousel: React.FC = () => {
 
   return (
     <div className="py-12 px-4 bg-[#f0f7f4]">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-center mb-8">
           <button 
             onClick={() => scroll('left')}
@@ -92,7 +92,7 @@ const TestimonialCarousel: React.FC = () => {
         
         <div 
           ref={scrollContainerRef}
-          className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar"
+          className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {testimonials.map((testimonial) => (

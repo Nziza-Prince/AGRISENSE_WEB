@@ -9,6 +9,7 @@ import Counter from './Counter/Counter'
 import SmartFarming from './smartFarmingBlog/smartFarming';
 import WeatherSection from './WeatherSection'
 import TestimonialCarousel from './Testimonies'
+import Footer from './Footer'
 
 const LandingPage = () => {
   return (
@@ -23,6 +24,7 @@ const LandingPage = () => {
       <SmartFarming/>
       <WeatherSection/>
       <TestimonialCarousel/>
+      <Footer/>
     </div>
   )
 }
