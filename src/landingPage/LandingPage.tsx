@@ -4,6 +4,7 @@ import HeroSection from './HeroSection/Hero'
 import PopularServices from './Popular-Services/PopularServices'
 import AboutUs from './AboutUs/AboutUs'
 import HowDoWeWork from './HowDoWeWork/HowDoWeWork'
+import PricingPlan from './PricingPlan/PricingPlan'
 
 const LandingPage = () => {
   return (
@@ -13,6 +14,7 @@ const LandingPage = () => {
       <AboutUs/>
       <PopularServices/>
       <HowDoWeWork/>
+      <PricingPlan/>
     </div>
   )
 }
