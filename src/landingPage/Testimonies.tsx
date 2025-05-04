@@ -50,6 +50,22 @@ const testimonials: Testimonial[] = [
     image: "/assets/testimony.png",
     text: "I am thrilled with the AI-based soil analysis technology! The AI-based soil analysis helped me choose the right crops, and the real-time monitoring has given me insights into unexpected storms. I've seen a 30% increase in my yields. Highly recommend!",
     rating: 5
+  },
+  {
+    id: 6,
+    name: "Chance Regine",
+    isVerified: true,
+    image: "/assets/testimony.png",
+    text: "I am thrilled with the AI-based soil analysis technology! The AI-based soil analysis helped me choose the right crops, and the real-time monitoring has given me insights into unexpected storms. I've seen a 30% increase in my yields. Highly recommend!",
+    rating: 5
+  },
+  {
+    id: 7,
+    name: "Chance Regine",
+    isVerified: true,
+    image: "/assets/testimony.png",
+    text: "I am thrilled with the AI-based soil analysis technology! The AI-based soil analysis helped me choose the right crops, and the real-time monitoring has given me insights into unexpected storms. I've seen a 30% increase in my yields. Highly recommend!",
+    rating: 5
   }
 ];
 
