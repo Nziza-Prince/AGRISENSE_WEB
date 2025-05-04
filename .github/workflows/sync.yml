@@ -19,7 +19,7 @@ jobs:
 
       - name: Add upstream
         run: |
-          git remote add upstream https://github.com/AGRISENSEPROJECT/AGRISENSE_WEB
+          git remote add upstream https://github.com/AGRISENSEPROJECT/AGRISENSE_WEB.git
           git fetch upstream
           git checkout main
           git merge upstream/main || echo "Nothing to merge"
