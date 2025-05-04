@@ -4,11 +4,11 @@ import AboutUsImage from "/assets/about us.png"
 
 const AboutUs: FC = () => {
   return (
-    <section className="flex flex-col md:flex-row items-center justify-center mt-32 sm:mt-36 md:mt-40 mb-20 gap-16 md:gap-36 px-6 md:px-24 lg:px-48 py-6 bg-white">
+    <section className="flex flex-col md:flex-row items-center justify-center mt-24 sm:mt-24 md:mt-24 mb-20 gap-16 md:gap-36 px-6 md:px-24 lg:px-48 py-6 bg-white">
       {/* Left Side: Image + overlapping cards */}
       <div className="relative w-full max-w-[350px] h-[450px] mx-auto md:mx-0">
         {/* Main Image */}
-        <div className="w-full h-full border-4 border-blue-500 rounded-lg overflow-hidden">
+        <div className="w-full h-full rounded-lg overflow-hidden">
           <img
             src={AboutUsImage || "/placeholder.svg"}
             alt="Tree in water drop"
@@ -17,7 +17,7 @@ const AboutUs: FC = () => {
         </div>
 
         {/* Overlapping Cards */}
-        <div className="absolute -left-10 sm:-left-20 top-10 flex flex-col space-y-4 z-10">
+        <div className="absolute text-lg font-semibold left-10 sm:-left-20 top-10 flex flex-col space-y-4 z-10">
           <Card className="w-28 sm:w-32 text-center p-4 shadow-lg bg-white">
             <div className="text-sm font-semibold">10,000+</div>
             <div className="text-xs text-gray-600">Farmers Reached</div>

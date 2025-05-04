@@ -1,5 +1,5 @@
 import React from 'react'
-import ProductCard, { Service } from './ProductCard';
+import  { Service } from './ProductCard';
 import SupplierMarketInsights from '/assets/serviceImages/SupplierMarketInsights.png'
 import WeatherClimate from '/assets/serviceImages/WeatherAndClimate.png'
 import FarmManagement from '/assets/serviceImages/FarmManagement.png'

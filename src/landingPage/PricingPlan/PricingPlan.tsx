@@ -1,5 +1,4 @@
-import React from 'react';
-import { FaStar } from 'react-icons/fa';
+
 import PriceCards from './PriceCards';
 
 
