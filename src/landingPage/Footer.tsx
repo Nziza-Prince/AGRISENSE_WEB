@@ -4,8 +4,7 @@ const Footer = () => {
   return (
     <footer className="relative mt-20">
       {/* Top Wave */}
-      <div className="bg-[#0a7c42] h-12 sm:h-16 relative">
-      </div>
+      <div className="bg-[#0a7c42] h-12 sm:h-16 relative"></div>
 
       {/* Contact Card */}
       <div className="absolute left-1/2 transform -translate-x-1/2 top-4 sm:top-8 z-10 w-full max-w-[calc(100%-32px)] sm:max-w-[calc(100%-64px)] md:max-w-3xl mx-auto">
@@ -18,7 +17,7 @@ const Footer = () => {
       </div>
 
       {/* Main Footer */}
-      <div className="bg-[#0a7c42] pt-20 sm:pt-24 pb-6 sm:pb-8 text-white">
+      <div className="bg-[#0a7c42] pt-32 sm:pt-28 md:pt-24 pb-6 sm:pb-8 text-white">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center sm:text-left">
             {/* Location and Social */}
