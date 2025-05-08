@@ -1,10 +1,9 @@
-import React from 'react';
 import SideBar from './SideBar';
 import Navbar from './Navbar';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowUp, Calendar, Leaf, Scale, CheckIcon } from 'lucide-react';
+import { ArrowUp, Leaf } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from "recharts"
 
