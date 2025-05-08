@@ -1,21 +1,24 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 interface SidebarLinks {
   title: string;
   icon: string;
+  path: string;
 }
+
 
 const SideBar = () => {
   const Links: SidebarLinks[] = [
-    { title: "Dashboard", icon: "/assets/Dashboardicons/Dashboard.svg" },
-    { title: "Crop Care", icon: "/assets/Dashboardicons/cropcare.svg" },
-    { title: "Soil Detects", icon: "/assets/Dashboardicons/soilDetects.svg" },
-    { title: "Weather", icon: "/assets/Dashboardicons/weather.svg" },
-    { title: "Analytics", icon: "/assets/Dashboardicons/analysis.svg" },
-    { title: "Community", icon: "/assets/Dashboardicons/community.svg" },
-    { title: "Help & Support", icon: "/assets/Dashboardicons/help.svg" },
-    { title: "Settings", icon: "/assets/Dashboardicons/settings.svg" },
-    { title: "Logout", icon: "/assets/Dashboardicons/Logout.svg" }
+    { title: "Dashboard", icon: "/assets/Dashboardicons/Dashboard.svg", path: "/dashboard" },
+    { title: "Crop Care", icon: "/assets/Dashboardicons/cropcare.svg", path: "/crop-care" },
+    { title: "Soil Detects", icon: "/assets/Dashboardicons/soilDetects.svg", path: "/soil-detects" },
+    { title: "Weather", icon: "/assets/Dashboardicons/weather.svg", path: "/weather" },
+    { title: "Analytics", icon: "/assets/Dashboardicons/analysis.svg", path: "/analytics" },
+    { title: "Community", icon: "/assets/Dashboardicons/community.svg", path: "/community" },
+    { title: "Help & Support", icon: "/assets/Dashboardicons/help.svg", path: "/help-and-support" },
+    { title: "Settings", icon: "/assets/Dashboardicons/settings.svg", path: "/settings" },
+    { title: "Logout", icon: "/assets/Dashboardicons/Logout.svg", path: "/" }
   ];
 
   return (
@@ -30,13 +33,23 @@ const SideBar = () => {
 
       {/* Navigation Links */}
       <nav className="flex flex-col gap-4">
-        {Links.map((link, index) => (
-          <div key={index} className="flex items-center gap-3 px-3 py-2 hover:bg-green-100 rounded-md cursor-pointer transition">
-            <img className="w-5 h-5" src={link.icon} alt={`${link.title} icon`} />
-            <span className="text-sm font-medium">{link.title}</span>
-          </div>
-        ))}
-      </nav>
+  {Links.map((link, index) => (
+    <NavLink
+      to={link.path}
+      key={index}
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-3 py-2 rounded-md transition ${
+          isActive
+            ? "bg-green-100 text-green-700 font-semibold"
+            : "text-gray-700 hover:bg-green-100"
+        }`
+      }
+    >
+      <img className="w-5 h-5" src={link.icon} alt={`${link.title} icon`} />
+      <span className="text-sm">{link.title}</span>
+    </NavLink>
+  ))}
+</nav>
     </aside>
   );
 };

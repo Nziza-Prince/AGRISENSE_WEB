@@ -4,9 +4,16 @@ import Navbar from './Navbar';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowUp, Calendar, Leaf, Scale } from "lucide-react"
+import { ArrowUp, Calendar, Leaf, Scale, CheckIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from "recharts"
+
+interface Card{
+  title:string
+  metrics:string
+  percentage:string
+  icon:string
+}
 
 const Dashboard = () => {
   const data = [
@@ -39,6 +46,14 @@ const Dashboard = () => {
     { month: "JUN", series1: 7, series2: 5, highlight: true },
   ]
 
+  const cards:Card[] = [
+    {title:"Total crops",metrics:"12 Types",percentage:"+2%",icon:'/assets/cardIcon.svg'},
+    {title:"Total crops",metrics:"12 Types",percentage:"+2%",icon:'/assets/cardIcon.svg'},
+    {title:"Total crops",metrics:"12 Types",percentage:"+2%",icon:'/assets/cardIcon.svg'},
+    {title:"Total crops",metrics:"12 Types",percentage:"+2%",icon:'/assets/cardIcon.svg'}
+
+  ]
+
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -47,18 +62,18 @@ const Dashboard = () => {
       <main className="flex-1 flex flex-col overflow-auto bg-white">
         <Navbar />
 
-        <div className="flex-1 p-6 bg-white">
+    <div className="flex-1 p-6 bg-white">
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#0B6E4F]">Good Morning !</h1>
-          <p className="text-gray-500">Welcome back to the your current dashboard</p>
+          <p className="text-gray-500 md:test-sm">Welcome back to the your current dashboard</p>
         </div>
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-2 md:flex-col lg:flex-row">
           <div className="bg-white rounded-lg shadow-sm p-3 flex items-center">
             <span className="text-amber-500 mr-2">★</span>
             <span className="font-semibold">34°C</span>
-            <span className="text-gray-500 ml-2">- Sunny with clear skies</span>
+            <span className="text-gray-500 ml-2 md:text-sm">- Sunny with clear skies</span>
           </div>
           <Button className="px-8 font-bold bg-[#377552] hover:bg-[#2D6A4F]">Explore more</Button>
         </div>
@@ -66,17 +81,19 @@ const Dashboard = () => {
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Cards section - left side */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-1/2 mt-12">
-          {/* Total Crops Card */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 w-full lg:w-1/2 mt-12">
+
+       {cards.map(card=>(
+
           <Card className="border shadow-sm h-[130px]">
             <CardContent className="">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-gray-500 text-sm mb-1">Total crops</p>
-                  <p className="text-lg font-bold">12 Types</p>
+                  <p className="text-gray-500 text-sm mb-1">{card.title}</p>
+                  <p className="text-lg font-bold">{card.metrics}</p>
                   <p className="text-green-500 text-xs mt-1">
                     <ArrowUp className="inline h-3 w-3 mr-1" />
-                    3% in good state
+                    {card.percentage} in good state
                   </p>
                 </div>
                 <div className="bg-green-100 p-2 rounded-md">
@@ -85,63 +102,8 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Current Yield Card */}
-          <Card className="border shadow-sm h-[130px]">
-            <CardContent className="">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-gray-500 text-sm mb-1">Current Yield</p>
-                  <p className="text-lg font-bold">450 tons</p>
-                  <p className="text-green-500 text-xs mt-1">
-                    <ArrowUp className="inline h-3 w-3 mr-1" />
-                    7% in good state
-                  </p>
-                </div>
-                <div className="bg-green-100 p-2 rounded-md">
-                  <Scale className="h-4 w-4 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Growth Status Card */}
-          <Card className="border shadow-sm h-[130px]">
-            <CardContent className="">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-gray-500 text-sm mb-1">Growth Status</p>
-                  <p className="text-lg font-bold">85%</p>
-                  <p className="text-green-500 text-xs mt-1">
-                    <ArrowUp className="inline h-3 w-3 mr-1" />
-                    5% in good state
-                  </p>
-                </div>
-                <div className="bg-green-100 p-2 rounded-md">
-                  <div className="text-xs font-bold text-green-600 bg-blue-500 text-white px-1">30 × 30</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Upcoming Harvest Card */}
-          <Card className="border shadow-sm h-[130px]">
-            <CardContent className="">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-gray-500 text-sm mb-1">Upcoming Harvest</p>
-                  <p className="text-lg font-bold">Sep 19, 2024</p>
-                  <p className="text-green-500 text-xs mt-1">
-                    <ArrowUp className="inline h-3 w-3 mr-1" />
-                    2% in good state
-                  </p>
-                </div>
-                <div className="bg-green-100 p-2 rounded-md">
-                  <Calendar className="h-4 w-4 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+       ))}
+          {/* Total Crops Card */}
         </div>
 
         {/* Crop Harvest Summary Chart - right side */}
