@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useRef, useState } from "react"
 import { Line } from "react-chartjs-2"
 import {
@@ -16,10 +14,12 @@ import {
   type ChartOptions,
 } from "chart.js"
 
+
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
 export function WeatherForecastChart() {
-  const chartRef = useRef<ChartJS>(null)
+  const chartRef = useRef<ChartJS<"line">>(null)
   const [chartData, setChartData] = useState<ChartData<"line">>({
     datasets: [],
   })

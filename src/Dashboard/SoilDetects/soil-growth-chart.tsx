@@ -12,11 +12,10 @@ import {
   type ChartData,
   type ChartOptions,
 } from "chart.js"
-
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 export function SoilGrowthChart() {
-  const chartRef = useRef<ChartJS>(null)
+  const chartRef = useRef<ChartJS<"line">>(null);
   const [chartData, setChartData] = useState<ChartData<"line">>({
     datasets: [],
   })

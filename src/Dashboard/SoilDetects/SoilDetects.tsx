@@ -1,5 +1,3 @@
-"use client"
-
 import SideBar from "../SideBar"
 import Navbar from "../Navbar"
 import { SoilTypeCards } from "./soil-type-cards"
