@@ -2,7 +2,7 @@
 import { Route, Routes } from 'react-router-dom'
 import Dashboard from './Dashboard/Dashbooard'
 import LandingPage from './landingPage/LandingPage'
-import CropCare from './Dashboard/CropCare'
+import CropCare from './Dashboard/Cropcare/CropCare'
 import SoilDetects from './Dashboard/SoilDetects'
 import Weather from './Dashboard/Weather'
 import Analytics from './Dashboard/Analytics'
