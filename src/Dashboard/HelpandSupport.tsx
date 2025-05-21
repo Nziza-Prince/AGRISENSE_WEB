@@ -9,9 +9,7 @@ const HelpandSupport = () => {
       
       <main className="flex-1 flex flex-col overflow-auto bg-white">
         <Navbar />
-
-        <h1>Help & Support</h1>
-
+           <h1>Help & Support</h1>
        </main>
     </div>
   )

@@ -129,7 +129,7 @@ const Dashboard = () => {
                   </Pie>
                   <Legend
                     layout="vertical"
-                    verticalAlign="middle"
+                     verticalAlign="middle"
                     align="right"
                     wrapperStyle={{ paddingLeft: "20px" }}
                   />
