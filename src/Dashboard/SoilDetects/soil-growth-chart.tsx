@@ -72,7 +72,7 @@ export function SoilGrowthChart() {
         y: {
           beginAtZero: true,
           grid: {
-            drawBorder: false,
+            display: false,
           },
           ticks: {
             maxTicksLimit: 5,
@@ -81,7 +81,6 @@ export function SoilGrowthChart() {
         x: {
           grid: {
             display: false,
-            drawBorder: false,
           },
         },
       },

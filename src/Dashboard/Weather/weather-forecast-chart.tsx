@@ -89,7 +89,7 @@ export function WeatherForecastChart() {
           beginAtZero: true,
           max: 10,
           grid: {
-            drawBorder: false,
+            display: false,
           },
           ticks: {
             maxTicksLimit: 6,
@@ -98,7 +98,6 @@ export function WeatherForecastChart() {
         x: {
           grid: {
             display: false,
-            drawBorder: false,
           },
         },
       },

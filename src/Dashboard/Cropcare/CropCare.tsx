@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 const CropCare = () => {
   const [selectedCrop, setSelectedCrop] = useState<string | null>(null)
 
+  console.log(selectedCrop)
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />

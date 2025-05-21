@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import SideBar from "../SideBar"
 import Navbar from "../Navbar"
-import { WeatherForecastChart } from "./weather-forecast-chart"
+import  {WeatherForecastChart}  from "./weather-forecast-chart"
 import { CropRecommendationsTable } from "./crop-recommendations-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
