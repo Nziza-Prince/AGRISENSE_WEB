@@ -13,7 +13,6 @@ import AboutUs from './landingPage/AboutUs/AboutUs'
 import PopularServices from './landingPage/Popular-Services/PopularServices'
 import SmartFarming from './landingPage/smartFarmingBlog/smartFarming'
 import Footer from './landingPage/Footer'
-
 function App() {
   return (
     <>
@@ -33,6 +32,8 @@ function App() {
 <Route path="/services" element={<PopularServices />} />
 <Route path="/blogs" element={<SmartFarming />} />
 <Route path="/contacts" element={<Footer />} />
+
+
 {/* <Route path="/pricing" element={<PricingPlan />} />  */}
 
 </Routes>
