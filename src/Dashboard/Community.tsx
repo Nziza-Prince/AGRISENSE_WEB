@@ -1,8 +1,12 @@
 
+import { useEffect } from 'react';
 import Navbar from './Navbar'
 import SideBar from './SideBar'
 
 const Community = () => {
+      useEffect(() => {
+        document.title = 'Community | AGRISENSE';
+      }, []);
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />

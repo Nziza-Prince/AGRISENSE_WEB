@@ -8,6 +8,9 @@ import { CropRecommendationsTable } from "./crop-recommendations-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const Weather = () => {
+  useEffect(() => {
+    document.title = 'Weather | AGRISENSE';
+  }, []);
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {

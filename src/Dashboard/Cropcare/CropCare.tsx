@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import SideBar from "../SideBar"
 import Navbar from "../Navbar"
 import { CropTable } from "./crop-table"
@@ -9,6 +9,9 @@ import { TemperatureGauge } from "./temperature-gauge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const CropCare = () => {
+    useEffect(() => {
+      document.title = 'CropCare | AGRISENSE';
+    }, []);
   const [selectedCrop, setSelectedCrop] = useState<string | null>(null)
 
   console.log(selectedCrop)

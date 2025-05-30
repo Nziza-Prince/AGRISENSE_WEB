@@ -4,8 +4,12 @@ import { SoilTypeCards } from "./soil-type-cards"
 import { SoilGrowthChart } from "./soil-growth-chart"
 import { CropTimeline } from "./crop-timeline"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect } from "react"
 
 const SoilDetects = () => {
+      useEffect(() => {
+        document.title = 'Soil Detection | AGRISENSE';
+      }, []);
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />
