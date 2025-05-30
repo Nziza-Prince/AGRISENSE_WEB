@@ -10,8 +10,12 @@ import SmartFarming from './smartFarmingBlog/smartFarming';
 import WeatherSection from './WeatherSection'
 import TestimonialCarousel from './Testimonies'
 import Footer from './Footer'
+import { useEffect } from 'react'
 
 const LandingPage = () => {
+      useEffect(() => {
+        document.title = 'Landing | AGRISENSE';
+      }, []);
   return (
     <div id="home">
       <Navbar />

@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowUp, Leaf } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from "recharts"
+import { useEffect } from 'react';
 
 interface Card{
   title:string
@@ -15,6 +16,10 @@ interface Card{
 }
 
 const Dashboard = () => {
+  useEffect(() => {
+    document.title = 'Dashboard | AGRISENSE';
+  }, []);
+  
   const data = [
     { name: "Maize plantations", value: 40, color: "#4D8D6E" },
     { name: "Bean plantations", value: 25, color: "#B5D9C3" },
