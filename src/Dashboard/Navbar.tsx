@@ -17,7 +17,7 @@ const Navbar = () => {
         {/* Notification Bell */}
         <div className="relative">
           <img src="/assets/Dashboardicons/notification.svg" alt="Notification" className="w-6 h-6" />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
+          <span className="absolute top-0 right-0 w-2 h-2 bg-[#377552] rounded-full"></span>
         </div>
 
         {/* Profile */}

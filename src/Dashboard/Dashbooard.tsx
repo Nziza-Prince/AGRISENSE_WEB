@@ -101,7 +101,7 @@ const Dashboard = () => {
                   </p>
                 </div>
                 <div className="bg-green-100 p-2 rounded-md">
-                  <Leaf className="h-4 w-4 text-green-600" />
+                  <Leaf className="h-4 w-4 text-[#377552]" />
                 </div>
               </div>
             </CardContent>

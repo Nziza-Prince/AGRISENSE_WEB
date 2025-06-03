@@ -15,9 +15,9 @@ const FilterBar: FC = () => {
       {/* Headings */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b-4 pb-2 mb-3 sm:mb-4 space-y-2 sm:space-y-0">
         <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 md:gap-8 lg:gap-12 font-bold text-base sm:text-lg">
-          <span className={activeMenu === "location" ? "text-green-600" : ""}>Location</span>
-          <span className={activeMenu === "soil" ? "text-green-600" : ""}>Soil Type</span>
-          <span className={activeMenu === "market" ? "text-green-600" : ""}>Market</span>
+          <span className={activeMenu === "location" ? "text-[#377552]" : ""}>Location</span>
+          <span className={activeMenu === "soil" ? "text-[#377552]" : ""}>Soil Type</span>
+          <span className={activeMenu === "market" ? "text-[#377552]" : ""}>Market</span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

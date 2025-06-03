@@ -22,7 +22,7 @@ const AboutUs: FC = () => {
             <div className="text-sm font-semibold">10,000+</div>
             <div className="text-xs text-gray-600">Farmers Reached</div>
           </Card>
-          <Card className="w-28 sm:w-32 text-center p-4 bg-green-600 text-white shadow-lg">
+          <Card className="w-28 sm:w-32 text-center p-4 bg-[#377552] text-white shadow-lg">
             <div className="text-sm font-semibold">100,000</div>
             <div className="text-xs">Hectares Covered</div>
           </Card>
@@ -35,7 +35,7 @@ const AboutUs: FC = () => {
 
       {/* Right Side */}
       <div className="flex-1 pt-2 text-left mt-10 md:mt-3 text-base sm:text-lg md:text-lg lg:text-xl max-w-md md:max-w-sm lg:max-w-md xl:max-w-2xl mx-auto md:mx-0">
-        <h2 className="text-3xl font-bold text-green-700 mb-4">About Us</h2>
+        <h2 className="text-3xl font-bold text-[#377552] mb-4">About Us</h2>
 
         <div className="mb-6">
           <h3 className="mb-2 font-semibold text-gray-800">Our mission</h3>
@@ -51,7 +51,7 @@ const AboutUs: FC = () => {
             AgriSense leverages AI to provide real-time crop recommendations, soil analysis, and market insights,
             solving farming challenges with data-driven solutions.
           </p>
-          <span className="text-green-600 text-lg cursor-pointer">more ➝</span>
+          <span className="text-[#377552] text-lg cursor-pointer">more ➝</span>
         </div>
       </div>
     </section>
