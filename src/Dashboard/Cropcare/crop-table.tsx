@@ -133,7 +133,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
   return (
     <div className="rounded-md border">
       <Table>
-        <TableHeader className="bg-green-600">
+        <TableHeader className="bg-[#377552]">
           <TableRow>
             <TableHead className="text-white font-medium w-12"></TableHead>
             <TableHead className="text-white font-medium">Crop Name</TableHead>
@@ -170,7 +170,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="text-green-600 font-medium">{crop.months}</TableCell>
+              <TableCell className="text-[#377552] font-medium">{crop.months}</TableCell>
               <TableCell className="font-medium">{crop.funds}</TableCell>
               <TableCell>{crop.growthRate}</TableCell>
               <TableCell>
