@@ -58,7 +58,7 @@ export function TemperatureGauge({ value, min = 0, max = 40 }: TemperatureGaugeP
 
     // Draw label
     ctx.font = "14px Arial"
-    ctx.fillStyle = "#64748b"
+    ctx.fillStyle = "#377552"
     ctx.fillText("Field Temperature", centerX, centerY + 20)
   }, [value, min, max])
 

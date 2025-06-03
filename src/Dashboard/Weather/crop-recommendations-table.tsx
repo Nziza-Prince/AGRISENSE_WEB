@@ -44,17 +44,17 @@ export function CropRecommendationsTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="bg-green-700 text-white font-medium">Crop Type</TableHead>
-            <TableHead className="bg-green-700 text-white font-medium">Hot & Dry (Arid)</TableHead>
-            <TableHead className="bg-green-700 text-white font-medium">Warm & Moderate</TableHead>
-            <TableHead className="bg-green-700 text-white font-medium">Rainy & Humid</TableHead>
-            <TableHead className="bg-green-700 text-white font-medium">Cold & Frosty</TableHead>
+            <TableHead className="bg-[#377552] text-white font-medium">Crop Type</TableHead>
+            <TableHead className="bg-[#377552] text-white font-medium">Hot & Dry (Arid)</TableHead>
+            <TableHead className="bg-[#377552] text-white font-medium">Warm & Moderate</TableHead>
+            <TableHead className="bg-[#377552] text-white font-medium">Rainy & Humid</TableHead>
+            <TableHead className="bg-[#377552] text-white font-medium">Cold & Frosty</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {recommendations.map((rec) => (
             <TableRow key={rec.id}>
-              <TableCell className="bg-green-600 text-white font-medium">{rec.cropType}</TableCell>
+              <TableCell className="bg-[#377552] text-white font-medium">{rec.cropType}</TableCell>
               <TableCell>{rec.hotDry}</TableCell>
               <TableCell>{rec.warmModerate}</TableCell>
               <TableCell>{rec.rainyHumid}</TableCell>

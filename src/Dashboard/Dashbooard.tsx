@@ -95,13 +95,13 @@ const Dashboard = () => {
                 <div>
                   <p className="text-gray-500 text-sm mb-1">{card.title}</p>
                   <p className="text-lg font-bold">{card.metrics}</p>
-                  <p className="text-green-500 text-xs mt-1">
+                  <p className="text-[#377552] text-sm mt-1">
                     <ArrowUp className="inline h-3 w-3 mr-1" />
                     {card.percentage} in good state
                   </p>
                 </div>
                 <div className="bg-green-100 p-2 rounded-md">
-                  <Leaf className="h-4 w-4 text-green-600" />
+                  <Leaf className="h-4 w-4 text-[#377552]" />
                 </div>
               </div>
             </CardContent>
