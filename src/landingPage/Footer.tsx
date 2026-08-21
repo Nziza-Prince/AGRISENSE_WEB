@@ -27,6 +27,10 @@ const Footer = () => {
                 <MapPin className="mr-2" size={18} />
                 <span className="font-medium text-sm sm:text-base">Nyabihu, RWANDA</span>
               </div>
+              <p className="max-w-xs text-sm text-white/80">
+                AgriSense Rwanda helps farmers make better soil, weather, crop, and market
+                decisions from one platform.
+              </p>
               <div className="flex space-x-4 mt-1 sm:mt-2">
                 <a
                   href={CONTACT.social.instagram}
@@ -119,7 +123,7 @@ const Footer = () => {
           </div>
 
           <div className="mt-8 pt-6 border-t border-green-600/30 text-center text-xs sm:text-sm text-white/70">
-            <p>© {new Date().getFullYear()} AgriSense. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} AgriSense Rwanda. All rights reserved.</p>
           </div>
         </div>
       </div>

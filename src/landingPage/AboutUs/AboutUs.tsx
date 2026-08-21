@@ -41,16 +41,17 @@ const AboutUs: FC = () => {
         <div className="mb-6">
           <h3 className="mb-2 font-semibold text-gray-800">Our mission</h3>
           <p className="text-gray-700 font-medium">
-            AgriSense connects technology with agriculture, offering smart insights for farmers, suppliers, governments,
-            and NGOs.
+            AgriSense Rwanda connects technology with agriculture, offering smart insights for
+            farmers, suppliers, governments, and NGOs.
           </p>
         </div>
 
         <div>
           <h3 className="mb-2 font-semibold text-gray-800">Our story</h3>
           <p className="text-gray-700 font-medium mb-4">
-            AgriSense leverages AI to provide real-time crop recommendations, soil analysis, and market insights,
-            solving farming challenges with data-driven solutions.
+            AgriSense Rwanda leverages AI to provide real-time crop recommendations, soil analysis,
+            weather guidance, and market insights, solving farming challenges with data-driven
+            solutions built for farms in Rwanda.
           </p>
           <a
             href="#services"

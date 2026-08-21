@@ -84,8 +84,8 @@ const Waitlist = () => {
               <span className="text-lime-300">AgriSense</span>
             </h2>
             <p className="mt-4 text-white/85 text-lg max-w-md">
-              Join our early-access waitlist and get a welcome email with features,
-              benefits, and next steps.
+              Join the AgriSense Rwanda early-access waitlist and get a welcome email with
+              features, benefits, and next steps for smarter farming.
             </p>
 
             <ul className="mt-6 space-y-2.5">

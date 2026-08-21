@@ -129,8 +129,9 @@ const AboutPage = () => {
             Growing a smarter, more sustainable future for African agriculture
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-white/90">
-            AgriSense bridges technology and agriculture — delivering AI-powered insights that help
-            farmers, suppliers, governments, and NGOs make better decisions, every season.
+            AgriSense Rwanda bridges technology and agriculture, delivering AI-powered insights
+            that help farmers, suppliers, governments, and NGOs make better decisions every
+            season.
           </p>
         </div>
       </section>

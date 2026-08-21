@@ -18,8 +18,9 @@
     <meta name="geo.region" content="RW" />
     <meta name="geo.placename" content="Nyabihu" />
     <meta name="author" content="AgriSense" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://agrisense.rw/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <!-- Do NOT hardcode homepage canonical here — it made /about and /blog look like duplicates. -->
+    <!-- seo-bootstrap.js sets canonical + og:url from location.pathname immediately. -->
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <meta property="og:type" content="website" />
@@ -31,7 +32,6 @@
       property="og:description"
       content="AI soil analysis, live weather, crop guidance, and a marketplace for farmers across Rwanda."
     />
-    <meta property="og:url" content="https://agrisense.rw/" />
     <meta property="og:image" content="https://agrisense.rw/assets/about-us-team.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -41,6 +41,8 @@
       content="AI soil analysis, live weather, crop guidance, and a marketplace for farmers across Rwanda."
     />
     <meta name="twitter:image" content="https://agrisense.rw/assets/about-us-team.png" />
+
+    <script src="/seo-bootstrap.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -125,6 +127,22 @@
     </style>
   </head>
   <body class="">
+    <noscript>
+      <main style="max-width:40rem;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.5">
+        <h1>AgriSense Rwanda</h1>
+        <p>
+          AgriSense is Rwanda’s smart farming platform for AI soil analysis, live farm weather,
+          crop recommendations, and a farmer–supplier marketplace.
+        </p>
+        <ul>
+          <li><a href="https://agrisense.rw/">Home</a></li>
+          <li><a href="https://agrisense.rw/about">About AgriSense</a></li>
+          <li><a href="https://agrisense.rw/services">Services</a></li>
+          <li><a href="https://agrisense.rw/blog">Smart farming blog</a></li>
+          <li><a href="https://agrisense.rw/contact">Contact</a></li>
+        </ul>
+      </main>
+    </noscript>
     <div id="root">
       <div id="app-splash">
         <div class="splash-inner">

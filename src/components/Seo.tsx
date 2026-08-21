@@ -64,6 +64,7 @@ const Seo = () => {
     upsertMeta("name", "geo.placename", "Nyabihu");
     upsertMeta("name", "language", "English");
 
+    // Always set self-referencing canonical for the current path (never force homepage).
     upsertLink("canonical", url);
     upsertLink("alternate", url, { hreflang: "en" });
     upsertLink("alternate", url, { hreflang: "x-default" });

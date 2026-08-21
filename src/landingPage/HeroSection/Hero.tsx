@@ -42,7 +42,7 @@ export default function HeroSection() {
                     {/* Eyebrow badge */}
                     <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/25 bg-white/10 px-4 py-1.5 backdrop-blur-sm">
                         <Sparkles className="h-4 w-4 text-lime-300" />
-                        <span className="text-sm font-medium text-white/90">AI-Powered Smart Farming Platform</span>
+                        <span className="text-sm font-medium text-white/90">AgriSense Rwanda Smart Farming Platform</span>
                     </div>
 
                     {/* Headline */}
@@ -54,9 +54,10 @@ export default function HeroSection() {
                         </span>
                     </h1>
 
-                    <p className="mt-5 max-w-xl text-base sm:text-xl text-white/85 leading-relaxed">
-                        Turn real-time soil, weather and crop data into confident decisions.
-                        AgriSense helps you boost yields, cut waste and farm sustainably — all from one dashboard.
+                    <p className="mt-5 max-w-2xl text-base sm:text-xl text-white/85 leading-relaxed">
+                        Turn real-time soil, weather, and crop data into confident decisions with
+                        AgriSense Rwanda. AgriSense helps farmers across Rwanda boost yields, cut
+                        waste, and farm sustainably from one smart dashboard.
                     </p>
 
           {/* CTAs */}
