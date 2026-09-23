@@ -52,9 +52,9 @@ const audiences = [
 ];
 
 const stats = [
-  { value: "60+", label: "Farmers onboarded" },
+  { value: "10", label: "Farmers onboarded" },
   { value: "120", label: "Hectares covered" },
-  { value: "5+", label: "Suppliers connected" },
+  { value: "1", label: "Connected cooperative" },
   { value: "5", label: "Team members" },
 ];
 

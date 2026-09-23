@@ -11,8 +11,8 @@ const HIGHLIGHTS = [
 ]
 
 const STATS = [
-    { value: "60+", label: "Farmers onboarded" },
-    { value: "25+", label: "Farms monitored" },
+    { value: "10", label: "Farmers onboarded" },
+    { value: "3", label: "Farms monitored" },
     { value: "5", label: "Districts reached" },
 ]
 

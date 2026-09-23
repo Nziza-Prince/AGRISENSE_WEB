@@ -11,18 +11,18 @@ const Counter = () => {
   const contents: ContentType[] = [
     {
       image: '/assets/counter/HappyCustomer.svg',
-      count: 60,
+      count: 10,
       description: 'Farmers onboarded',
     },
     {
       image: '/assets/counter/completedProjects.svg',
-      count: 12,
-      description: 'Pilot farms',
+      count: 3,
+      description: 'Farms monitored',
     },
     {
       image: '/assets/counter/yearsOfExperience.svg',
-      count: 2,
-      description: 'Years building',
+      count: 1,
+      description: 'Connected cooperative',
     },
     {
       image: '/assets/counter/professionalTeam.svg',
@@ -52,7 +52,7 @@ const Counter = () => {
               className="w-12 h-14 md:w-14 md:h-14"
             />
             <h1 className="text-2xl md:text-3xl font-bold">
-              {inView ? <CountUp end={item.count} duration={1} /> : 0}+
+              {inView ? <CountUp end={item.count} duration={1} /> : 0}
             </h1>
             <p className="text-sm md:text-base">{item.description}</p>
           </div>

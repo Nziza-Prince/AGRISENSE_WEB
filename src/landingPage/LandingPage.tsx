@@ -15,6 +15,7 @@ import FaqSection from './FaqSection'
 import Footer from './Footer'
 import AppDownloadFab from '@/components/AppDownloadFab'
 import { useEffect } from 'react'
+import Reveal from './Reveal'
 
 const LandingPage = () => {
       useEffect(() => {
@@ -24,24 +25,24 @@ const LandingPage = () => {
     <div id="home">
       <Navbar />
       <main id="main-content">
-      <HeroSection />
+      <Reveal><HeroSection /></Reveal>
       <div id="about">
-        <AboutUs />
+        <Reveal><AboutUs /></Reveal>
       </div>
       <div id="services">
-        <PopularServices />
+        <Reveal><PopularServices /></Reveal>
       </div>
-      <HowDoWeWork />
-      <PricingPlan />
-      <Counter />
-      <Partners />
+      <Reveal><HowDoWeWork /></Reveal>
+      <Reveal><PricingPlan /></Reveal>
+      <Reveal><Counter /></Reveal>
+      <Reveal><Partners /></Reveal>
       <div id="blogs">
-        <SmartFarming />
+        <Reveal><SmartFarming /></Reveal>
       </div>
-      <WeatherSection />
-      <TestimonialCarousel />
-      <Waitlist />
-      <FaqSection />
+      <Reveal><WeatherSection /></Reveal>
+      <Reveal><TestimonialCarousel /></Reveal>
+      <Reveal><Waitlist /></Reveal>
+      <Reveal><FaqSection /></Reveal>
       </main>
       <div id="contact">
         <Footer />
