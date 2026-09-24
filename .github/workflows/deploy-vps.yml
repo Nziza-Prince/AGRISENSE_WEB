@@ -1,8 +1,6 @@
 name: Deploy Web to VPS
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -39,7 +37,7 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "${VPS_PORT:-222}" -H "$VPS_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${VPS_PORT:-22}" -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy dist to VPS
         env:
@@ -48,7 +46,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -p ${VPS_PORT:-222} -o StrictHostKeyChecking=yes" \
+            -e "ssh -i ~/.ssh/deploy_key -p ${VPS_PORT:-22} -o StrictHostKeyChecking=yes" \
             dist/ "${VPS_USER}@${VPS_HOST}:/opt/agrisense/deploy/web/"
 
       - name: Verify
