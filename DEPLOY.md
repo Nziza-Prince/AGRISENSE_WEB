@@ -1,14 +1,14 @@
-# Web deploy (VPS)
+# Web and API deployment
 
-Push to `main` (or run **Actions → Deploy Web to VPS → Run workflow**) builds the Vite app and rsyncs `dist/` to:
+The production website stays on Vercel at `https://www.agrisense.rw`. Keep the apex and `www` DNS records pointed at Vercel.
 
-`/opt/agrisense/deploy/web/` on your VPS host (configured via the `VPS_HOST` secret).
+Vite reads `VITE_API_BASE_URL=https://api.agrisense.rw` from `.env.production`. The frontend calls `https://api.agrisense.rw/api` directly; check that no Vercel environment variable overrides this value.
 
-Nginx already serves that folder at `/` and proxies `/api` to Nest. No container rebuild needed for frontend-only changes.
+The VPS runs Nginx, NestJS, the model, PostgreSQL, and Redis. Point only the `api` DNS record at the VPS and enable HTTPS there. Its CORS policy already permits the Vercel site at `https://www.agrisense.rw` and `https://agrisense.rw`.
 
-## One-time GitHub secrets
+## Optional VPS web fallback
 
-Repo → **Settings → Secrets and variables → Actions** → add:
+The **Deploy Web to VPS** workflow is manual-only. It builds the Vite app and rsyncs `dist/` to `/opt/agrisense/deploy/web/` when explicitly run. Set these GitHub Actions secrets if you use it:
 
 | Secret | Value |
 |---|---|
