@@ -58,6 +58,14 @@ import NgoReports from './roles/ngo/NgoReports'
 import NgoNotifications from './roles/ngo/NgoNotifications'
 import NgoSettings from './roles/ngo/NgoSettings'
 
+// CFO finance portal
+import FinanceDashboard from './roles/finance/FinanceDashboard'
+import FinanceTransactions from './roles/finance/FinanceTransactions'
+import FinanceAccounts from './roles/finance/FinanceAccounts'
+import FinanceReports from './roles/finance/FinanceReports'
+import FinanceAudit from './roles/finance/FinanceAudit'
+import FinanceNotifications from './roles/finance/FinanceNotifications'
+
 // Supplier portal extras
 import SupplierNotifications from './roles/supplier/SupplierNotifications'
 
@@ -132,6 +140,14 @@ function App() {
       <Route path={routes.ngo.reports} element={<ProtectedRoute allowRoles={['NGO', 'GOVERNMENT']}><NgoReports /></ProtectedRoute>} />
       <Route path={routes.ngo.notifications} element={<ProtectedRoute allowRoles={['NGO', 'GOVERNMENT']}><NgoNotifications /></ProtectedRoute>} />
       <Route path={routes.ngo.settings} element={<ProtectedRoute allowRoles={['NGO', 'GOVERNMENT']}><NgoSettings /></ProtectedRoute>} />
+
+      {/* CFO finance portal */}
+      <Route path={routes.finance.root} element={<ProtectedRoute allowRoles={['CFO', 'ADMIN']}><FinanceDashboard /></ProtectedRoute>} />
+      <Route path={routes.finance.transactions} element={<ProtectedRoute allowRoles={['CFO', 'ADMIN']}><FinanceTransactions /></ProtectedRoute>} />
+      <Route path={routes.finance.accounts} element={<ProtectedRoute allowRoles={['CFO', 'ADMIN']}><FinanceAccounts /></ProtectedRoute>} />
+      <Route path={routes.finance.reports} element={<ProtectedRoute allowRoles={['CFO', 'ADMIN']}><FinanceReports /></ProtectedRoute>} />
+      <Route path={routes.finance.audit} element={<ProtectedRoute allowRoles={['CFO', 'ADMIN']}><FinanceAudit /></ProtectedRoute>} />
+      <Route path={routes.finance.notifications} element={<ProtectedRoute allowRoles={['CFO', 'ADMIN']}><FinanceNotifications /></ProtectedRoute>} />
 
       {/* Legacy redirects — keep old bookmarks working */}
       <Route path="/signin" element={<Navigate to={routes.auth.login} replace />} />

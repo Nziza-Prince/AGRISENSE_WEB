@@ -381,6 +381,7 @@ const ANNOUNCEMENT_ROLES: Array<{ value: "" | AdminUserRole; label: string }> = 
   { value: "SUPPLIER", label: "Suppliers" },
   { value: "NGO", label: "NGOs" },
   { value: "GOVERNMENT", label: "Government" },
+  { value: "CFO", label: "CFO" },
 ];
 
 export const AdminSettings = () => {
