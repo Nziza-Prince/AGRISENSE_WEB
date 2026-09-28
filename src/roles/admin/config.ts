@@ -8,6 +8,7 @@ import {
   Mail,
   Bell,
   CreditCard,
+  Landmark,
 } from "lucide-react";
 import type { RoleNavLink } from "../RoleLayout";
 
@@ -19,6 +20,7 @@ export const adminLinks: RoleNavLink[] = [
   { title: "Suppliers", to: "/admin/suppliers", icon: Store },
   { title: "Waitlist", to: "/admin/waitlist", icon: Mail },
   { title: "Billing", to: "/admin/billing", icon: CreditCard },
+  { title: "Finance", to: "/finance", icon: Landmark },
   { title: "Moderation", to: "/admin/moderation", icon: ShieldCheck },
   { title: "Analytics", to: "/admin/analytics", icon: BarChart3 },
   { title: "Notifications", to: "/admin/notifications", icon: Bell },

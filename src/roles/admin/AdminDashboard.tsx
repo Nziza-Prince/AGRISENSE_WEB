@@ -25,6 +25,7 @@ const roleColor: Record<string, "green" | "amber" | "red" | "blue" | "gray" | "p
   NGO: "purple",
   GOVERNMENT: "amber",
   ADMIN: "gray",
+  CFO: "blue",
 };
 
 const statusColor: Record<string, "green" | "amber" | "red" | "gray"> = {

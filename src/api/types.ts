@@ -513,7 +513,7 @@ export interface CreateMarketplaceOrderDto {
 // Admin
 // ---------------------------------------------------------------------------
 
-export type AdminUserRole = "FARMER" | "SUPPLIER" | "ADMIN" | "NGO" | "GOVERNMENT";
+export type AdminUserRole = "FARMER" | "SUPPLIER" | "ADMIN" | "NGO" | "GOVERNMENT" | "CFO";
 export type AdminUserStatus = "PENDING" | "ACTIVE" | "SUSPENDED" | "BANNED";
 
 export interface AdminUserSummary {
@@ -961,4 +961,180 @@ export interface AdminAssignSubscriptionDto {
 export interface AdminRevokeSubscriptionDto {
   note?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Finance (CFO portal)
+// ---------------------------------------------------------------------------
+
+export type FinanceAccountType =
+  | "BANK"
+  | "CASH"
+  | "MOBILE_MONEY"
+  | "PAYMENT_PLATFORM"
+  | "OTHER";
+
+export type FinanceCategoryKind = "INCOME" | "EXPENSE";
+export type FinanceTransactionType = "INCOME" | "EXPENSE";
+export type FinanceTransactionStatus =
+  | "DRAFT"
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "CANCELLED";
+export type FinanceAuditAction =
+  | "CREATED"
+  | "UPDATED"
+  | "APPROVED"
+  | "REJECTED"
+  | "CANCELLED";
+export type FinanceAuditEntity = "TRANSACTION" | "ACCOUNT" | "CATEGORY";
+export type FinanceRangePreset = "week" | "month" | "quarter" | "year" | "custom";
+
+export interface FinanceAccount {
+  id: string;
+  name: string;
+  type: FinanceAccountType | string;
+  currency?: string;
+  institution?: string | null;
+  accountNumber?: string | null;
+  description?: string | null;
+  isActive?: boolean;
+  balance?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FinanceCategory {
+  id: string;
+  name: string;
+  kind: FinanceCategoryKind | string;
+  description?: string | null;
+  color?: string | null;
+  isActive?: boolean;
+  createdAt?: string;
+}
+
+export interface FinanceTransaction {
+  id: string;
+  type: FinanceTransactionType | string;
+  status: FinanceTransactionStatus | string;
+  amount: number;
+  currency?: string;
+  occurredAt: string;
+  description: string;
+  notes?: string | null;
+  reference?: string | null;
+  counterparty?: string | null;
+  accountId: string;
+  categoryId: string;
+  account?: { id: string; name: string; type?: string };
+  category?: { id: string; name: string; kind?: string };
+  createdById?: string;
+  createdBy?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+  };
+  approvedById?: string | null;
+  approvedAt?: string | null;
+  rejectedAt?: string | null;
+  rejectionReason?: string | null;
+  cancelledAt?: string | null;
+  cancelReason?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FinanceDashboard {
+  currency: string;
+  range: { preset: string; from: string; to: string };
+  totals: {
+    currentBalance: number;
+    totalIncome: number;
+    totalExpenses: number;
+    netCashFlow: number;
+    pendingExpenses: number;
+    pendingExpenseCount: number;
+  };
+  accounts: FinanceAccount[];
+  recentTransactions: FinanceTransaction[];
+  incomeVsExpenses: Array<{
+    period: string;
+    income: number;
+    expenses: number;
+    net: number;
+  }>;
+  expensesByCategory: Array<{
+    categoryId: string;
+    name: string;
+    color?: string | null;
+    amount: number;
+  }>;
+}
+
+export interface FinanceReport {
+  kind: string;
+  currency: string;
+  range: { preset: string; from: string; to: string };
+  summary: { income: number; expenses: number; net: number; count: number };
+  expensesByCategory?: Array<{ categoryId: string; name: string; amount: number }>;
+  rows: FinanceTransaction[];
+}
+
+export interface FinanceAuditLog {
+  id: string;
+  action: FinanceAuditAction | string;
+  entityType: FinanceAuditEntity | string;
+  entityId: string;
+  userId?: string | null;
+  user?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+  } | null;
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface CreateFinanceAccountDto {
+  name: string;
+  type: FinanceAccountType;
+  institution?: string;
+  accountNumber?: string;
+  description?: string;
+}
+
+export interface UpdateFinanceAccountDto extends Partial<CreateFinanceAccountDto> {
+  isActive?: boolean;
+}
+
+export interface CreateFinanceCategoryDto {
+  name: string;
+  kind: FinanceCategoryKind;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateFinanceCategoryDto extends Partial<CreateFinanceCategoryDto> {
+  isActive?: boolean;
+}
+
+export interface CreateFinanceTransactionDto {
+  type: FinanceTransactionType;
+  amount: number;
+  occurredAt: string;
+  description: string;
+  accountId: string;
+  categoryId: string;
+  counterparty?: string;
+  reference?: string;
+  notes?: string;
+  status?: FinanceTransactionStatus;
+}
+
+export interface UpdateFinanceTransactionDto
+  extends Partial<Omit<CreateFinanceTransactionDto, "status">> {}
+
 

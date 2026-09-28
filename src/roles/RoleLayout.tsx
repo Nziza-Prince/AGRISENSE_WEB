@@ -28,6 +28,8 @@ function notificationsPathForRole(role?: string | null): string {
   switch ((role || "").toUpperCase()) {
     case "ADMIN":
       return routes.admin.notifications;
+    case "CFO":
+      return routes.finance.notifications;
     case "SUPPLIER":
       return routes.supplier.notifications;
     case "NGO":

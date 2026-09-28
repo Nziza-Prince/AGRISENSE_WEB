@@ -72,12 +72,23 @@ export const routes = {
     notifications: "/ngo/notifications",
     settings: "/ngo/settings",
   },
+
+  finance: {
+    root: "/finance",
+    transactions: "/finance/transactions",
+    accounts: "/finance/accounts",
+    reports: "/finance/reports",
+    audit: "/finance/audit",
+    notifications: "/finance/notifications",
+  },
 } as const;
 
 export function getDefaultRouteForRole(role?: string | null): string {
   switch ((role || "").toUpperCase()) {
     case "ADMIN":
       return routes.admin.root;
+    case "CFO":
+      return routes.finance.root;
     case "SUPPLIER":
       return routes.supplier.root;
     case "NGO":

@@ -15,6 +15,7 @@ const roleColor: Record<string, "green" | "amber" | "red" | "blue" | "gray" | "p
   NGO: "purple",
   GOVERNMENT: "amber",
   ADMIN: "gray",
+  CFO: "blue",
   Farmer: "green",
   Supplier: "blue",
   Admin: "gray",
@@ -33,9 +34,9 @@ const statusColor: Record<string, "green" | "amber" | "red" | "gray"> = {
   deleted: "gray",
 };
 
-const ROLES = ["ALL", "FARMER", "SUPPLIER", "NGO", "GOVERNMENT", "ADMIN"] as const;
+const ROLES = ["ALL", "FARMER", "SUPPLIER", "NGO", "GOVERNMENT", "CFO", "ADMIN"] as const;
 const STATUSES = ["ALL", "ACTIVE", "PENDING", "SUSPENDED", "BANNED", "DELETED"] as const;
-const ASSIGNABLE_ROLES: AdminUserRole[] = ["FARMER", "SUPPLIER", "NGO", "GOVERNMENT", "ADMIN"];
+const ASSIGNABLE_ROLES: AdminUserRole[] = ["FARMER", "SUPPLIER", "NGO", "GOVERNMENT", "CFO", "ADMIN"];
 
 function accountStatusLabel(user: AdminUserSummary) {
   if (user.deletedAt) return "DELETED";
