@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (_reason?: string) => {
       clearTimers();
       const refreshToken = tokenStore.getRefreshToken() || undefined;

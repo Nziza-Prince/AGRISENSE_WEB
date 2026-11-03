@@ -13,8 +13,10 @@ import {
   type CreateOrgAccountDto,
 } from "@/api";
 import { getUserDisplayName } from "@/lib/user";
+import { ProvincePicker } from "./StaffAccountsPanel";
 
 function getRows<T>(data: unknown, keys: string[]): T[] {
+  if (Array.isArray(data)) return data as T[]; // some endpoints return a bare list
   if (!data || typeof data !== "object") return [];
   const record = data as Record<string, unknown>;
   for (const key of keys) {
@@ -62,7 +64,10 @@ function CreateOrgForm({
         autoApprove: form.autoApprove,
         ...(kind === "supplier"
           ? { businessName: form.businessName?.trim() || undefined }
-          : { organizationName: form.organizationName?.trim() || undefined }),
+          : {
+              organizationName: form.organizationName?.trim() || undefined,
+              assignedRegions: form.assignedRegions ?? [],
+            }),
       };
       if (kind === "supplier") await adminService.createSupplier(dto);
       else await adminService.createNgo(dto);
@@ -132,6 +137,16 @@ function CreateOrgForm({
             className="h-10 rounded-lg border border-gray-200 px-3 text-sm sm:col-span-2"
           />
         )}
+        {kind === "ngo" && (
+          <div className="sm:col-span-2">
+            <p className="mb-2 text-xs font-semibold uppercase text-gray-400">Provinces this NGO works in</p>
+            <ProvincePicker
+              value={form.assignedRegions ?? []}
+              onChange={(assignedRegions) => setForm((f) => ({ ...f, assignedRegions }))}
+            />
+            <p className="mt-1 text-xs text-gray-500">Without a province the NGO portal stays empty. You can change this later.</p>
+          </div>
+        )}
         <label className="flex items-center gap-2 text-sm text-gray-600 sm:col-span-2">
           <input
             type="checkbox"
@@ -197,23 +212,30 @@ export const AdminSuppliers = () => {
         <div className="text-sm text-gray-500">No records.</div>
       ) : (
         <div className="space-y-3">
-          {rows.map((row) => (
+          {rows.map((row) => {
+            // The API lists organisation profiles with the account holder nested in `user`.
+            const person = ((row as { user?: AdminUserSummary }).user ?? row) as AdminUserSummary;
+            const profile = row as { businessName?: string; organizationName?: string; approvalStatus?: string };
+            const orgName = profile.businessName || profile.organizationName;
+            const status = profile.approvalStatus || person.status;
+            return (
             <div
               key={row.id}
               className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <p className="font-semibold text-gray-900">{getUserDisplayName(row)}</p>
-                <p className="text-sm text-gray-500">{row.email || row.phoneNumber || "—"}</p>
-                {row.status && (
-                  <p className="mt-1 text-xs text-gray-400">Status: {String(row.status)}</p>
+                <p className="font-semibold text-gray-900">{orgName || getUserDisplayName(person)}</p>
+                {orgName && <p className="text-sm text-gray-600">{getUserDisplayName(person)}</p>}
+                <p className="text-sm text-gray-500">{person.email || person.phoneNumber || "—"}</p>
+                {status && (
+                  <p className="mt-1 text-xs text-gray-400">Status: {String(status)}</p>
                 )}
               </div>
               {approve && reject ? (
                 <div className="flex gap-2">
                   <button
                     onClick={async () => {
-                      await approve(row.id);
+                      await approve(person.id);
                       await load();
                     }}
                     className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white"
@@ -222,7 +244,7 @@ export const AdminSuppliers = () => {
                   </button>
                   <button
                     onClick={async () => {
-                      await reject(row.id);
+                      await reject(person.id);
                       await load();
                     }}
                     className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600"
@@ -232,7 +254,8 @@ export const AdminSuppliers = () => {
                 </div>
               ) : null}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </Panel>

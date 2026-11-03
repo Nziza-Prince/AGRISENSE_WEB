@@ -64,18 +64,6 @@ const Analytics = () => {
     };
   }, [entitlements.features]);
 
-  if (!entitlements.loading && !entitlements.features.has('analytics')) {
-    return (
-      <DashboardLayout>
-        <PlanFeatureGate
-          planId={entitlements.planId}
-          title="Analytics is a Pro feature"
-          description="Deeper farm analytics, recommendation charts, and insight dashboards unlock on Pro."
-        />
-      </DashboardLayout>
-    );
-  }
-
   const totalAcreage = farms.reduce((s, f) => s + (Number(f.size) || 0), 0);
 
   const soilData = useMemo(() => {
@@ -101,6 +89,19 @@ const Analytics = () => {
       value,
     }));
   }, [recommendations]);
+
+  // Gate after all hooks so the hook order never changes between renders.
+  if (!entitlements.loading && !entitlements.features.has('analytics')) {
+    return (
+      <DashboardLayout>
+        <PlanFeatureGate
+          planId={entitlements.planId}
+          title="Analytics is a Pro feature"
+          description="Deeper farm analytics, recommendation charts, and insight dashboards unlock on Pro."
+        />
+      </DashboardLayout>
+    );
+  }
 
   const totalLikes = posts.reduce((s, p) => s + (p.likes?.length || 0), 0);
   const totalComments = posts.reduce((s, p) => s + (p.comments?.length || 0), 0);

@@ -20,6 +20,20 @@ export { governmentService } from "./services/government";
 export { billingService } from "./services/billing";
 export { financeService } from "./services/finance";
 export {
+  supplierService,
+  formatRwf,
+  buyerName,
+  stockStatus,
+  toNumber,
+  LOW_STOCK_THRESHOLD,
+} from "./services/supplier";
+export type {
+  SupplierProduct,
+  SupplierOrder,
+  SupplierOrderStatus,
+  SupplierSalesReport,
+} from "./services/supplier";
+export {
   chatService,
   unwrapConversations,
   unwrapMessages,

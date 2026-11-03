@@ -4,6 +4,7 @@ import RoleLayout from "../RoleLayout";
 import { Panel, Badge, PaginationControls, getPaginationMeta } from "../ui";
 import { NGO_ACCENT, ngoLinks } from "./config";
 import { extractRows, num, useOrgPortal } from "./useOrgPortal";
+import { useAuth } from "@/context/useAuth";
 import {
   ApiError,
   RWANDA_PROVINCES,
@@ -17,9 +18,22 @@ function regionName(row: RegionalStatRow) {
   return row.province || row.region || row.district || row.name || "Unknown";
 }
 
+const normalizeProvince = (value: string) => value.trim().toLowerCase().replace(/\s+(province|city)$/, "");
+
 const NgoRegions = () => {
   const portal = useOrgPortal();
-  const [province, setProvince] = useState<string>(RWANDA_PROVINCES[0]);
+  const { user } = useAuth();
+
+  // Only offer the provinces this account is assigned to (all five when none are listed).
+  const provinceOptions = useMemo<string[]>(() => {
+    const assigned = ((user as { assignedRegions?: string[] } | null)?.assignedRegions ?? []).filter(Boolean);
+    const mapped = assigned.map(
+      (a) => RWANDA_PROVINCES.find((p) => normalizeProvince(p) === normalizeProvince(a)) ?? a,
+    );
+    return mapped.length > 0 ? Array.from(new Set<string>(mapped)) : [...RWANDA_PROVINCES];
+  }, [user]);
+
+  const [province, setProvince] = useState<string>(provinceOptions[0]);
   const [regional, setRegional] = useState<RegionalStatRow[]>([]);
   const [farms, setFarms] = useState<OrgFarmSummary[]>([]);
   const [page, setPage] = useState(1);
@@ -39,7 +53,7 @@ const NgoRegions = () => {
       setLoading(true);
       try {
         const res = await portal.government.getRegionalStatistics();
-        setRegional(extractRows<RegionalStatRow>(res, ["regions", "items", "data"]));
+        setRegional(extractRows<RegionalStatRow>(res, ["farmsByProvince", "regions", "items", "data"]));
       } catch (err) {
         setError(err instanceof ApiError ? err.message : "Failed to load regional stats.");
       } finally {
@@ -75,7 +89,7 @@ const NgoRegions = () => {
   const cropCounts = useMemo(() => {
     const map = new Map<string, number>();
     farms.forEach((farm) => {
-      const crop = String(farm.cropType || farm.crop || "Unknown");
+      const crop = String(farm.recommendedCrop || farm.cropType || farm.crop || "No analysis yet");
       map.set(crop, (map.get(crop) || 0) + 1);
     });
     return [...map.entries()].sort((a, b) => b[1] - a[1]);
@@ -110,35 +124,15 @@ const NgoRegions = () => {
                   <tr className="border-b text-left text-xs uppercase text-gray-400">
                     <th className="pb-2">Region</th>
                     <th className="pb-2">Farms</th>
-                    <th className="pb-2">Farmers</th>
-                    <th className="pb-2">Main crop</th>
-                    <th className="pb-2">Disease risk</th>
-                    <th className="pb-2">Harvest progress</th>
+                    <th className="pb-2">Farm area (ha)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {regional.map((row, idx) => (
                     <tr key={`${regionName(row)}-${idx}`} className="border-b last:border-0">
                       <td className="py-3 font-medium text-gray-800">{regionName(row)}</td>
-                      <td className="py-3">{num(row.farms ?? row.totalFarms).toLocaleString()}</td>
-                      <td className="py-3">
-                        {num(row.farmers ?? row.totalFarmers).toLocaleString()}
-                      </td>
-                      <td className="py-3">{row.mainCrop || row.crop || "—"}</td>
-                      <td className="py-3">
-                        <Badge
-                          color={
-                            String(row.diseaseRisk || "").toLowerCase().includes("high")
-                              ? "red"
-                              : String(row.diseaseRisk || "").toLowerCase().includes("medium")
-                                ? "amber"
-                                : "green"
-                          }
-                        >
-                          {row.diseaseRisk || "—"}
-                        </Badge>
-                      </td>
-                      <td className="py-3">{row.harvestProgress ?? "—"}</td>
+                      <td className="py-3">{num(row.count ?? row.farms ?? row.totalFarms).toLocaleString()}</td>
+                      <td className="py-3">{num(row.totalSize).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -149,7 +143,7 @@ const NgoRegions = () => {
       )}
 
       <div className="mb-4 flex flex-wrap gap-2">
-        {RWANDA_PROVINCES.map((p) => (
+        {provinceOptions.map((p) => (
           <button
             key={p}
             type="button"
@@ -167,7 +161,7 @@ const NgoRegions = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Panel title={`Crop monitoring · ${province}`} className="lg:col-span-1">
+        <Panel title={`Recommended crops · ${province}`} className="lg:col-span-1">
           {cropCounts.length === 0 ? (
             <p className="text-sm text-gray-500">No crop activity in this page of results.</p>
           ) : (
@@ -178,13 +172,13 @@ const NgoRegions = () => {
                   className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm"
                 >
                   <span className="font-medium text-gray-800">{crop}</span>
-                  <span className="text-gray-500">{count.toLocaleString()} farms</span>
+                  <span className="text-gray-500">{count.toLocaleString()} {count === 1 ? "farm" : "farms"}</span>
                 </li>
               ))}
             </ul>
           )}
           <p className="mt-3 text-xs text-gray-400">
-            Counts reflect the current results page (aggregated crop labels only).
+            Counts the crop most recently recommended for each farm on this page. It shows advice given, not what is planted.
           </p>
         </Panel>
 
@@ -203,7 +197,7 @@ const NgoRegions = () => {
                     <tr className="border-b text-left text-xs uppercase text-gray-400">
                       <th className="pb-2">Farm</th>
                       <th className="pb-2">District</th>
-                      <th className="pb-2">Crop</th>
+                      <th className="pb-2">Recommended crop</th>
                       <th className="pb-2">Size (ha)</th>
                       <th className="pb-2">Status</th>
                     </tr>
@@ -215,7 +209,7 @@ const NgoRegions = () => {
                           {farm.name || farm.farmName || farm.id}
                         </td>
                         <td className="py-3 text-gray-600">{farm.district || "—"}</td>
-                        <td className="py-3">{farm.cropType || farm.crop || "—"}</td>
+                        <td className="py-3">{farm.recommendedCrop || farm.cropType || farm.crop || "—"}</td>
                         <td className="py-3">{farm.sizeHa ?? farm.size ?? "—"}</td>
                         <td className="py-3">
                           <Badge color="green">{farm.status || "Active"}</Badge>

@@ -101,7 +101,7 @@ const NgoDashboard = () => {
             <StatCard
               icon={MapPinned}
               label="Regions covered"
-              value={num(stats?.regionsCovered)}
+              value={num(stats?.regionsCovered ?? stats?.assignedRegions?.length)}
               accent={NGO_ACCENT}
             />
             <StatCard

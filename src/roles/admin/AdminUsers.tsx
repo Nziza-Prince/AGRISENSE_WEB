@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, Badge, PaginationControls, getPaginationMeta } from "../ui";
 import { ADMIN_ACCENT, adminLinks } from "./config";
 import { adminService, ApiError, type AdminUserRole, type AdminUserSummary } from "@/api";
 import { useAuth } from "@/context/useAuth";
 import { getUserDisplayName } from "@/lib/user";
+import StaffAccountsPanel from "./StaffAccountsPanel";
 
 const PAGE_SIZE = 20;
 
@@ -53,6 +54,11 @@ function getUsers(data: unknown): AdminUserSummary[] {
 function isProtectedTarget(actorId: string | undefined, target: AdminUserSummary) {
   if (actorId && target.id === actorId) return true;
   return String(target.role || "").toUpperCase() === "ADMIN";
+}
+
+function initialsOf(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? "?") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }
 
 function formatRoleLabel(role: string) {
@@ -191,75 +197,93 @@ const AdminUsers = () => {
           {info}
         </div>
       )}
+      <StaffAccountsPanel onChanged={() => load(page)} />
       <Panel>
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
+        <div className="mb-5 rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setPage(1);
+                    load(1);
+                  }
+                }}
+                placeholder="Search by name, email or phone"
+                className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3 text-sm text-gray-800 shadow-sm outline-none transition focus:border-[#4338CA] focus:ring-2 focus:ring-[#4338CA]/20"
+              />
+            </div>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as (typeof STATUSES)[number])}
+              className="h-11 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm outline-none focus:border-[#4338CA] focus:ring-2 focus:ring-[#4338CA]/20"
+              aria-label="Filter by status"
+            >
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s === "ALL" ? "All statuses" : formatRoleLabel(s)}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => {
                 setPage(1);
                 load(1);
-              }
-            }}
-            placeholder="Search by name, email, or phone"
-            className="h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none"
-          />
-          <button
-            onClick={() => {
-              setPage(1);
-              load(1);
-            }}
-            className="rounded-lg bg-[#4338CA] px-4 py-2 text-sm font-semibold text-white"
-          >
-            Search / Refresh
-          </button>
+              }}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#4338CA] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3]"
+            >
+              <Search className="h-4 w-4" /> Search
+            </button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Role</span>
+            {ROLES.map((r) => (
+              <button
+                key={r}
+                onClick={() => setRole(r)}
+                className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                  role === r
+                    ? "border-[#4338CA] bg-[#4338CA] text-white shadow-sm"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {r === "ALL" ? "All roles" : formatRoleLabel(r)}
+              </button>
+            ))}
+            {(role !== "ALL" || status !== "ALL" || query) && (
+              <button
+                onClick={() => {
+                  setQuery("");
+                  setRole("ALL");
+                  setStatus("ALL");
+                }}
+                className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-800"
+              >
+                <X className="h-3.5 w-3.5" /> Clear filters
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="mb-4 flex flex-wrap gap-2">
-          {ROLES.map((r) => (
-            <button
-              key={r}
-              onClick={() => setRole(r)}
-              className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
-              style={
-                role === r
-                  ? { backgroundColor: ADMIN_ACCENT, color: "#fff", borderColor: ADMIN_ACCENT }
-                  : { color: "#4b5563" }
-              }
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-
-        <div className="mb-4 flex flex-wrap gap-2">
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatus(s)}
-              className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
-              style={
-                status === s
-                  ? { backgroundColor: "#111827", color: "#fff", borderColor: "#111827" }
-                  : { color: "#4b5563" }
-              }
-            >
-              {s}
-            </button>
-          ))}
-        </div>
+        <p className="mb-3 text-sm text-gray-500">
+          Showing <span className="font-semibold text-gray-800">{rows.length}</span> of{" "}
+          <span className="font-semibold text-gray-800">{total}</span> accounts
+        </p>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full overflow-hidden rounded-xl text-sm">
             <thead>
-              <tr className="border-b text-left text-xs uppercase text-gray-400">
-                <th className="pb-2 font-medium">User</th>
-                <th className="pb-2 font-medium">Email</th>
-                <th className="pb-2 font-medium">Role</th>
-                <th className="pb-2 font-medium">Status</th>
-                <th className="pb-2 font-medium">Joined</th>
-                <th className="pb-2 font-medium">Actions</th>
+              <tr className="bg-gray-50 text-left text-[11px] uppercase tracking-wide text-gray-500">
+                <th className="px-3 py-3 font-semibold">User</th>
+                <th className="px-3 py-3 font-semibold">Email</th>
+                <th className="px-3 py-3 font-semibold">Role</th>
+                <th className="px-3 py-3 font-semibold">Status</th>
+                <th className="px-3 py-3 font-semibold">Joined</th>
+                <th className="px-3 py-3 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -281,26 +305,30 @@ const AdminUsers = () => {
                   const statusKey = accountStatusLabel(u);
                   const isDeleted = Boolean(u.deletedAt);
                   return (
-                    <tr key={u.id} className="border-b last:border-0">
-                      <td className="py-3 text-gray-700">
-                        <p className="font-medium">{getUserDisplayName(u)}</p>
-                        <p className="text-xs text-gray-400">{u.id}</p>
+                    <tr key={u.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-indigo-50/40">
+                      <td className="px-3 py-3 text-gray-700">
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-[#4338CA]">
+                            {initialsOf(getUserDisplayName(u))}
+                          </span>
+                          <p className="font-semibold text-gray-900">{getUserDisplayName(u)}</p>
+                        </div>
                       </td>
-                      <td className="py-3 text-gray-500">{u.email || "—"}</td>
-                      <td className="py-3">
+                      <td className="px-3 py-3 text-gray-600">{u.email || "—"}</td>
+                      <td className="px-3 py-3">
                         <Badge color={roleColor[u.role || ""] || "gray"}>
                           {u.role || "Unknown"}
                         </Badge>
                       </td>
-                      <td className="py-3">
+                      <td className="px-3 py-3">
                         <Badge color={statusColor[statusKey] || "amber"}>
                           {statusKey}
                         </Badge>
                       </td>
-                      <td className="py-3 text-gray-500">
-                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
+                      <td className="whitespace-nowrap px-3 py-3 text-gray-500">
+                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
                       </td>
-                      <td className="py-3">
+                      <td className="px-3 py-3">
                         {protectedRow ? (
                           <span className="text-xs text-gray-400">Protected</span>
                         ) : (

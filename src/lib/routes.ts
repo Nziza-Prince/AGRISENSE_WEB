@@ -43,10 +43,7 @@ export const routes = {
     root: "/supplier",
     products: "/supplier/products",
     orders: "/supplier/orders",
-    buyers: "/supplier/buyers",
-    analytics: "/supplier/analytics",
     notifications: "/supplier/notifications",
-    settings: "/supplier/settings",
   },
 
   admin: {

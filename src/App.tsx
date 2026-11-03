@@ -36,7 +36,6 @@ import Seo from './components/Seo'
 import SupplierDashboard from './roles/supplier/SupplierDashboard'
 import SupplierProducts from './roles/supplier/SupplierProducts'
 import SupplierOrders from './roles/supplier/SupplierOrders'
-import { SupplierBuyers, SupplierAnalytics, SupplierSettings } from './roles/supplier/SupplierPlaceholders'
 
 // Admin console
 import AdminDashboard from './roles/admin/AdminDashboard'
@@ -114,10 +113,7 @@ function App() {
       <Route path={routes.supplier.root} element={<ProtectedRoute allowRoles={['SUPPLIER']}><SupplierDashboard /></ProtectedRoute>} />
       <Route path={routes.supplier.products} element={<ProtectedRoute allowRoles={['SUPPLIER']}><SupplierProducts /></ProtectedRoute>} />
       <Route path={routes.supplier.orders} element={<ProtectedRoute allowRoles={['SUPPLIER']}><SupplierOrders /></ProtectedRoute>} />
-      <Route path={routes.supplier.buyers} element={<ProtectedRoute allowRoles={['SUPPLIER']}><SupplierBuyers /></ProtectedRoute>} />
-      <Route path={routes.supplier.analytics} element={<ProtectedRoute allowRoles={['SUPPLIER']}><SupplierAnalytics /></ProtectedRoute>} />
       <Route path={routes.supplier.notifications} element={<ProtectedRoute allowRoles={['SUPPLIER']}><SupplierNotifications /></ProtectedRoute>} />
-      <Route path={routes.supplier.settings} element={<ProtectedRoute allowRoles={['SUPPLIER']}><SupplierSettings /></ProtectedRoute>} />
 
       {/* Admin console */}
       <Route path={routes.admin.root} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />

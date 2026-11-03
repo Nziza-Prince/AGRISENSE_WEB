@@ -389,9 +389,7 @@ function TeamCard({ member }: { member: TeamMember }) {
               </a>
             )}
           </div>
-        ) : (
-          <p className="text-center text-xs text-gray-400">Contact details coming soon</p>
-        )}
+        ) : null}
       </div>
     </article>
   );

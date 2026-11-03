@@ -210,7 +210,7 @@ export interface CreateFarmCropDto {
   areaPlanted?: number;
 }
 
-export interface UpdateFarmCropDto extends Partial<CreateFarmCropDto> {}
+export type UpdateFarmCropDto = Partial<CreateFarmCropDto>;
 
 export interface FarmListResponse {
   count: number;
@@ -730,6 +730,7 @@ export interface OrgStatistics {
   totalFarms?: number;
   activeFarms?: number;
   regionsCovered?: number;
+  assignedRegions?: string[];
   activePrograms?: number;
   averageFarmSize?: number;
   cropsCultivated?: number;
@@ -748,8 +749,8 @@ export interface RegionalStatRow {
   totalFarmers?: number;
   mainCrop?: string;
   crop?: string;
-  diseaseRisk?: string;
-  harvestProgress?: number | string;
+  count?: number | string;
+  totalSize?: number | string;
   averageFarmSize?: number;
   [key: string]: unknown;
 }
@@ -791,6 +792,7 @@ export interface OrgFarmSummary {
   district?: string;
   cropType?: string;
   crop?: string;
+  recommendedCrop?: string | null;
   size?: number;
   sizeHa?: number;
   status?: string;
@@ -1134,7 +1136,8 @@ export interface CreateFinanceTransactionDto {
   status?: FinanceTransactionStatus;
 }
 
-export interface UpdateFinanceTransactionDto
-  extends Partial<Omit<CreateFinanceTransactionDto, "status">> {}
+export type UpdateFinanceTransactionDto = Partial<
+  Omit<CreateFinanceTransactionDto, "status">
+>;
 
 
