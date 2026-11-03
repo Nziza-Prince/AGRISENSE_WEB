@@ -59,7 +59,7 @@ const SignIn: React.FC = () => {
       const targetRoute =
         needsOnboarding && (session.user.role || "").toUpperCase() === "FARMER"
           ? routes.auth.farmerOnboarding
-          : from || fallbackRoute;
+          : from && from.startsWith(fallbackRoute) ? from : fallbackRoute;
       navigate(targetRoute, {
         replace: true,
         state:
