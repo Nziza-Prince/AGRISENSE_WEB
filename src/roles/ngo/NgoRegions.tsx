@@ -198,7 +198,7 @@ const NgoRegions = () => {
                       <th className="pb-2">Farm</th>
                       <th className="pb-2">District</th>
                       <th className="pb-2">Recommended crop</th>
-                      <th className="pb-2">Size (ha)</th>
+                      <th className="pb-2">Size (m²)</th>
                       <th className="pb-2">Status</th>
                     </tr>
                   </thead>

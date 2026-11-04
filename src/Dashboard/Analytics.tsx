@@ -108,7 +108,7 @@ const Analytics = () => {
 
   const stats = [
     { label: 'Total Farms', value: farms.length, icon: Leaf },
-    { label: 'Total Acreage', value: `${totalAcreage.toFixed(1)}`, icon: Ruler },
+    { label: 'Total area (m²)', value: `${Math.round(totalAcreage).toLocaleString()}`, icon: Ruler },
     { label: 'Recommendations', value: recommendations.length, icon: Sprout },
     { label: 'Community Posts', value: posts.length, icon: Users },
   ];

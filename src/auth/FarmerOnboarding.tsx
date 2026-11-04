@@ -214,7 +214,7 @@ export default function FarmerOnboarding() {
             />
             <TextField
               id="farmSize"
-              label="Farm size (acres)"
+              label="Farm size (square metres, m²)"
               type="number"
               value={String(farm.size || "")}
               onChange={(value) =>

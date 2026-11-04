@@ -329,8 +329,8 @@ const Dashboard = () => {
   const cards: StatCard[] = [
     { title: "Total Farms", metrics: `${farms.length}`, percentage: "active" },
     {
-      title: "Total Acreage",
-      metrics: `${totalAcreage.toFixed(1)} acres`,
+      title: "Total area",
+      metrics: `${Math.round(totalAcreage).toLocaleString()} m²`,
       percentage: "tracked",
     },
     { title: "Prediction Runs", metrics: `${runs.length}`, percentage: "recorded" },
