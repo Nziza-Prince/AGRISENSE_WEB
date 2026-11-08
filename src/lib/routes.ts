@@ -15,6 +15,7 @@ export const routes = {
     verifyOtp: "/auth/verify-otp",
     forgotPassword: "/auth/forgot-password",
     farmerOnboarding: "/auth/farmer-onboarding",
+    callback: "/auth/callback",
   },
 
   legal: {

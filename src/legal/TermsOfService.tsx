@@ -1,161 +1,208 @@
 import { Link } from "react-router-dom";
 import LegalLayout, { LegalSectionBlock } from "./LegalLayout";
 
+const linkClass = "font-medium text-[#2C6E49] hover:underline";
+
 const sections = [
   { id: "acceptance", heading: "1. Acceptance of Terms" },
   { id: "eligibility", heading: "2. Eligibility" },
   { id: "accounts", heading: "3. Your Account" },
   { id: "use", heading: "4. Acceptable Use" },
-  { id: "services", heading: "5. Services & AI Recommendations" },
-  { id: "content", heading: "6. User Content" },
-  { id: "third-party", heading: "7. Third-Party Services" },
-  { id: "ip", heading: "8. Intellectual Property" },
-  { id: "disclaimers", heading: "9. Disclaimers" },
-  { id: "liability", heading: "10. Limitation of Liability" },
-  { id: "termination", heading: "11. Termination" },
-  { id: "changes", heading: "12. Changes to These Terms" },
-  { id: "law", heading: "13. Governing Law" },
-  { id: "contact", heading: "14. Contact Us" },
+  { id: "services", heading: "5. Insights & AI Recommendations" },
+  { id: "content", heading: "6. User Content & Community" },
+  { id: "marketplace", heading: "7. Marketplace & Suppliers" },
+  { id: "payments", heading: "8. Plans, Season Passes & Payments" },
+  { id: "third-party", heading: "9. Third-Party Services" },
+  { id: "ip", heading: "10. Intellectual Property" },
+  { id: "disclaimers", heading: "11. Disclaimers" },
+  { id: "liability", heading: "12. Limitation of Liability" },
+  { id: "termination", heading: "13. Suspension & Termination" },
+  { id: "changes", heading: "14. Changes to These Terms" },
+  { id: "law", heading: "15. Governing Law & Disputes" },
+  { id: "contact", heading: "16. Contact Us" },
 ];
 
 const TermsOfService = () => {
   return (
     <LegalLayout
       title="Terms of Service"
-      lastUpdated="August 3, 2026"
-      intro="These Terms govern your access to and use of the AgriSense platform, including our website, dashboards, and related services. Please read them carefully."
+      lastUpdated="November 8, 2026"
+      intro="These Terms govern your access to and use of AgriSense, including our website, mobile app, and API. Please read them carefully before creating an account."
       sections={sections}
     >
       <LegalSectionBlock id="acceptance" heading="1. Acceptance of Terms">
         <p>
-          By creating an account, accessing, or using AgriSense (the "Service"), you agree to be
-          bound by these Terms of Service and our{" "}
-          <Link to="/legal/privacy" className="font-medium text-[#2C6E49] hover:underline">
+          By creating an account, signing in (including with Google), or otherwise using AgriSense
+          (the "Service"), you agree to these Terms and to our{" "}
+          <Link to="/legal/privacy" className={linkClass}>
             Privacy Policy
           </Link>
-          . If you do not agree, you may not use the Service.
+          . If you do not agree, do not use the Service.
         </p>
       </LegalSectionBlock>
 
       <LegalSectionBlock id="eligibility" heading="2. Eligibility">
         <p>
-          You must be at least 18 years old, or the age of majority in your jurisdiction, and able
-          to form a binding contract to use the Service. If you use the Service on behalf of an
-          organization (such as a cooperative, NGO, government body, or supplier), you represent
-          that you are authorized to bind that organization to these Terms.
+          You must be at least 18 years old and able to form a binding contract. If you use the
+          Service for an organization (such as a cooperative, NGO, government body, or supplier), you
+          confirm that you are authorized to bind that organization to these Terms.
         </p>
       </LegalSectionBlock>
 
       <LegalSectionBlock id="accounts" heading="3. Your Account">
         <p>
-          You are responsible for maintaining the confidentiality of your login credentials and for
-          all activity under your account. You agree to provide accurate information, keep it up to
-          date, and notify us immediately of any unauthorized use. We are not liable for losses
-          arising from your failure to safeguard your account.
+          You must give accurate information and keep it up to date. You are responsible for keeping
+          your credentials secure and for all activity under your account, and you must tell us
+          promptly if you suspect unauthorized use. If you sign in with Google, you are also bound by
+          Google's terms for your Google account. We may ask you to verify your identity, for
+          example with a national ID, before enabling certain features.
         </p>
+        <p>You may not share, sell, or transfer your account to another person.</p>
       </LegalSectionBlock>
 
       <LegalSectionBlock id="use" heading="4. Acceptable Use">
         <p>You agree not to:</p>
         <ul className="list-disc space-y-1.5 pl-6">
-          <li>Use the Service for any unlawful, harmful, or fraudulent purpose.</li>
-          <li>Upload malicious code, spam, or content that infringes the rights of others.</li>
-          <li>Attempt to gain unauthorized access to the Service or other users' accounts.</li>
-          <li>Reverse engineer, scrape, or overload our systems or APIs.</li>
-          <li>Misrepresent your identity or affiliation with any person or organization.</li>
+          <li>Use the Service for any unlawful, harmful, deceptive, or fraudulent purpose.</li>
+          <li>Provide false identity, farm, product, or payment information.</li>
+          <li>Upload malware, spam, or content that infringes others' rights.</li>
+          <li>Harass, threaten, or abuse other users, or post hateful or sexually explicit content.</li>
+          <li>Attempt to access accounts, data, or systems you are not authorized to use.</li>
+          <li>Reverse engineer, scrape, or overload the Service or its APIs.</li>
+          <li>Misrepresent your affiliation with any person or organization.</li>
         </ul>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="services" heading="5. Services & AI Recommendations">
+      <LegalSectionBlock id="services" heading="5. Insights & AI Recommendations">
         <p>
-          AgriSense provides data-driven insights, including crop recommendations, soil and weather
-          analysis, and market information. These outputs are generated using models and third-party
-          data and are provided for informational purposes only.
+          AgriSense provides crop recommendations, soil analysis from photos, weather information,
+          and market insights. These outputs are generated by statistical and machine-learning
+          models and third-party data. They are estimates, can be wrong, and depend on the
+          information you provide. For example, soil photo analysis is not a laboratory test.
         </p>
         <p>
-          <strong>They do not constitute professional agronomic, financial, or legal advice.</strong>{" "}
-          You are solely responsible for decisions you make based on the Service, and we encourage
-          you to consult qualified experts before acting on any recommendation.
-        </p>
-      </LegalSectionBlock>
-
-      <LegalSectionBlock id="content" heading="6. User Content">
-        <p>
-          You retain ownership of content you submit (such as community posts, farm details, and
-          images). By submitting content, you grant AgriSense a worldwide, non-exclusive, royalty-free
-          license to host, store, display, and use it to operate and improve the Service. You are
-          responsible for ensuring you have the rights to any content you upload.
+          <strong>
+            They are for information only and are not professional agronomic, financial, or legal
+            advice.
+          </strong>{" "}
+          You are responsible for the decisions you make. Consider confirming important decisions
+          with a qualified agronomist or your local agricultural extension officer.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="third-party" heading="7. Third-Party Services">
+      <LegalSectionBlock id="content" heading="6. User Content & Community">
         <p>
-          The Service integrates third-party data and services (for example, weather data providers
-          and mapping/geocoding services). We are not responsible for the accuracy, availability, or
-          practices of third parties, and your use of such data may be subject to their terms.
+          You keep ownership of what you submit (posts, comments, messages, farm details, and
+          images). You grant AgriSense a worldwide, non-exclusive, royalty-free license to host,
+          store, display, and process that content to operate, secure, and improve the Service. You
+          confirm you have the rights to anything you upload.
+        </p>
+        <p>
+          Content you post to the community may be visible to other users. We may remove content or
+          restrict accounts that breach these Terms, and users can report or block others. We do not
+          endorse user content or advice from other users.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="ip" heading="8. Intellectual Property">
+      <LegalSectionBlock id="marketplace" heading="7. Marketplace & Suppliers">
         <p>
-          The Service, including its software, design, logos, and content (excluding user content),
-          is owned by AgriSense and protected by intellectual property laws. We grant you a limited,
-          non-transferable, revocable license to use the Service in accordance with these Terms.
+          The marketplace connects farmers with independent suppliers. AgriSense is not the seller
+          of supplier products and is not a party to the sale between you and a supplier. Suppliers
+          are responsible for the accuracy, quality, safety, pricing, and delivery of what they
+          list. Please inspect goods on delivery and raise issues with the supplier and with us as
+          soon as possible so we can help mediate, but we cannot guarantee any outcome.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="disclaimers" heading="9. Disclaimers">
+      <LegalSectionBlock id="payments" heading="8. Plans, Season Passes & Payments">
         <p>
-          The Service is provided on an "as is" and "as available" basis without warranties of any
-          kind, whether express or implied, including fitness for a particular purpose and
-          non-infringement. We do not warrant that the Service will be uninterrupted, error-free, or
-          that recommendations will produce any particular outcome, including crop yields.
+          Some features require a paid plan or a season pass. Prices are shown in Rwandan francs
+          (RWF) before you pay. Payments are made by mobile money or card through our payment
+          partners, and some may be confirmed manually by our team, so access may begin only after
+          confirmation.
+        </p>
+        <ul className="list-disc space-y-1.5 pl-6">
+          <li>You are responsible for any fees charged by your mobile-money or card provider.</li>
+          <li>
+            Except where the law requires otherwise, payments are non-refundable once the paid
+            period or season has started. If you were charged in error, contact us within 14 days
+            and we will review it.
+          </li>
+          <li>We may change prices for future periods with reasonable notice; this will not affect a period you already paid for.</li>
+        </ul>
+      </LegalSectionBlock>
+
+      <LegalSectionBlock id="third-party" heading="9. Third-Party Services">
+        <p>
+          The Service relies on third parties such as weather, mapping, payment, hosting, and
+          sign-in providers. We are not responsible for their accuracy, availability, or practices,
+          and your use of them may be subject to their own terms.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="liability" heading="10. Limitation of Liability">
+      <LegalSectionBlock id="ip" heading="10. Intellectual Property">
         <p>
-          To the maximum extent permitted by law, AgriSense and its team shall not be liable for any
-          indirect, incidental, special, consequential, or punitive damages, or any loss of profits,
-          crops, revenue, or data, arising from your use of the Service.
+          The Service, including its software, models, design, logos, and content (other than user
+          content), belongs to AgriSense and is protected by intellectual property laws. We give you
+          a limited, non-exclusive, non-transferable, revocable license to use the Service under
+          these Terms. The AgriSense name and logo may not be used without our written permission.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="termination" heading="11. Termination">
+      <LegalSectionBlock id="disclaimers" heading="11. Disclaimers">
         <p>
-          You may stop using the Service at any time. We may suspend or terminate your access if you
-          violate these Terms or if we discontinue the Service. Upon termination, provisions that by
-          their nature should survive (such as intellectual property, disclaimers, and liability
-          limits) will remain in effect.
+          The Service is provided "as is" and "as available". To the extent the law allows, we
+          disclaim all warranties, express or implied, including merchantability, fitness for a
+          particular purpose, and non-infringement. We do not promise that the Service will be
+          uninterrupted or error-free, or that any recommendation will produce a particular result,
+          including crop yield, income, or savings.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="changes" heading="12. Changes to These Terms">
+      <LegalSectionBlock id="liability" heading="12. Limitation of Liability">
         <p>
-          We may update these Terms from time to time. If we make material changes, we will notify
-          you through the Service or by email. Your continued use after changes take effect
-          constitutes acceptance of the revised Terms.
+          To the maximum extent permitted by law, AgriSense and its team will not be liable for
+          indirect, incidental, special, consequential, or punitive damages, or for loss of profits,
+          crops, revenue, or data arising from your use of the Service. Our total liability for any
+          claim is limited to the amount you paid us in the 12 months before the claim arose, or
+          50,000 RWF if you paid nothing. Nothing in these Terms excludes liability that cannot be
+          excluded under Rwandan law.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="law" heading="13. Governing Law">
+      <LegalSectionBlock id="termination" heading="13. Suspension & Termination">
         <p>
-          These Terms are governed by the laws of the Republic of Rwanda, without regard to its
-          conflict-of-law principles. Any disputes shall be subject to the exclusive jurisdiction of
-          the competent courts of Rwanda.
+          You may stop using the Service and delete your account at any time. We may suspend or end
+          your access if you breach these Terms, put others or the Service at risk, or if we
+          discontinue the Service, and where practical we will tell you why. Sections that by their
+          nature should continue (including intellectual property, disclaimers, liability, and
+          governing law) survive termination.
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="contact" heading="14. Contact Us">
+      <LegalSectionBlock id="changes" heading="14. Changes to These Terms">
         <p>
-          If you have questions about these Terms, contact us at{" "}
-          <a
-            href="mailto:agrisense8@gmail.com"
-            className="font-medium text-[#2C6E49] hover:underline"
-          >
+          We may update these Terms. For material changes we will give notice in the app or by email
+          before they take effect. If you keep using the Service after the effective date, you accept
+          the updated Terms; if you do not agree, stop using the Service.
+        </p>
+      </LegalSectionBlock>
+
+      <LegalSectionBlock id="law" heading="15. Governing Law & Disputes">
+        <p>
+          These Terms are governed by the laws of the Republic of Rwanda. We encourage you to contact
+          us first so we can try to resolve any dispute informally. If that fails, the competent
+          courts of Rwanda have jurisdiction.
+        </p>
+      </LegalSectionBlock>
+
+      <LegalSectionBlock id="contact" heading="16. Contact Us">
+        <p>
+          Questions about these Terms? Contact us at{" "}
+          <a href="mailto:agrisense8@gmail.com" className={linkClass}>
             agrisense8@gmail.com
           </a>{" "}
-          or by post at Nyabihu, Rwanda.
+          or by post at AgriSense, Nyabihu, Rwanda.
         </p>
       </LegalSectionBlock>
     </LegalLayout>

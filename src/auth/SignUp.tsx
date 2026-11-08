@@ -12,6 +12,7 @@ import {
   validateRequiredPhone,
 } from "@/lib/validation";
 import AuthLayout from "./AuthLayout";
+import GoogleButton from "./GoogleButton";
 import { Alert, PasswordField, SubmitButton, TextField } from "./form-fields";
 
 const PENDING_IDENTITY_KEY = "agrisense.pending_identity";
@@ -124,7 +125,8 @@ const SignUp: React.FC = () => {
         </p>
       }
     >
-      <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+      <GoogleButton label="Sign up with Google" />
+      <form className="mt-4 space-y-4" onSubmit={handleSubmit} noValidate>
         {formError && <Alert type="error">{formError}</Alert>}
 
         <div className="grid gap-4 sm:grid-cols-2">

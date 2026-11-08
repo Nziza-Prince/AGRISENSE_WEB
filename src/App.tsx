@@ -26,6 +26,7 @@ import SignIn from './auth/SignIn'
 import VerifyOtp from './auth/VerifyOtp'
 import ForgotPassword from './auth/ForgotPassword'
 import FarmerOnboarding from './auth/FarmerOnboarding'
+import GoogleCallback from './auth/GoogleCallback'
 import ProtectedRoute from './components/ProtectedRoute'
 import TermsOfService from './legal/TermsOfService'
 import PrivacyPolicy from './legal/PrivacyPolicy'
@@ -89,6 +90,7 @@ function App() {
       {/* Auth */}
       <Route path={routes.auth.login} element={<SignIn />} />
       <Route path={routes.auth.register} element={<SignUp />} />
+      <Route path={routes.auth.callback} element={<GoogleCallback />} />
       <Route path={routes.auth.verifyOtp} element={<VerifyOtp />} />
       <Route path={routes.auth.forgotPassword} element={<ForgotPassword />} />
       <Route path={routes.auth.farmerOnboarding} element={<ProtectedRoute allowRoles={['FARMER']}><FarmerOnboarding /></ProtectedRoute>} />

@@ -5,6 +5,7 @@ import { ApiError, authService } from "@/api";
 import { useAuth } from "@/context/useAuth";
 import { validateLoginIdentifier } from "@/lib/validation";
 import AuthLayout from "./AuthLayout";
+import GoogleButton from "./GoogleButton";
 import { Alert, PasswordField, SubmitButton, TextField } from "./form-fields";
 import { getDefaultRouteForRole, routes } from "@/lib/routes";
 
@@ -104,7 +105,8 @@ const SignIn: React.FC = () => {
         </p>
       }
     >
-      <form className="space-y-3.5" onSubmit={handleSubmit} noValidate>
+      <GoogleButton />
+      <form className="mt-3.5 space-y-3.5" onSubmit={handleSubmit} noValidate>
         {formError && <Alert type="error">{formError}</Alert>}
 
         <TextField
