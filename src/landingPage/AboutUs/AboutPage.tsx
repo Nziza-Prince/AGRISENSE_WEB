@@ -18,8 +18,8 @@ import {
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer";
 import { useGetStarted } from "@/hooks/useGetStarted";
-import AboutUsImage from "/assets/about-us-team.png";
-import FarmerImage from "/assets/who-we-serve-farmer.png";
+import AboutUsImage from "/assets/about-us-team.webp";
+import FarmerImage from "/assets/who-we-serve-farmer.webp";
 
 const values = [
   {

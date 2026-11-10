@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { ArrowRight, PlayCircle, Sparkles, Leaf, CloudSun, LineChart, ShieldCheck } from "lucide-react"
-import HeroImage from "/assets/HeroImage.png"
+import HeroImage from "/assets/HeroImage.webp"
 import FilterBar from "./HeroFooter"
 import { useGetStarted } from "@/hooks/useGetStarted"
 

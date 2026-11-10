@@ -97,7 +97,7 @@ const Weather = () => {
             className="relative rounded-xl overflow-hidden min-h-72 bg-cover bg-center"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/assets/Dashboardicons/weather-page-image.png')",
+                "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/assets/Dashboardicons/weather-page-image.webp')",
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />

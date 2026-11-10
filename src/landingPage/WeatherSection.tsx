@@ -51,7 +51,9 @@ const WeatherSection = () => {
             ) : (
               <img
                 className="w-full rounded-lg object-cover"
-                src="/assets/WeatherMan.png"
+                src="/assets/WeatherMan.webp"
+                loading="lazy"
+                decoding="async"
                 alt="Weather forecast"
               />
             )}

@@ -47,7 +47,7 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "Irrigation tips for Rwandan farms: water when soil and weather say so, reduce waste, and protect yield with AgriSense scheduling.",
     date: "2026-08-04",
-    image: "/assets/smartFarmingImage.png",
+    image: "/assets/smartFarmingImage.webp",
     keywords: "smart irrigation Rwanda, water saving farming, soil moisture, AgriSense",
     paragraphs: [
       "Water is scarce in the dry season and precious after a dry spell in the rains. Over-watering wastes fuel and leaches fertilizer. Under-watering at flowering costs yield you cannot recover later.",

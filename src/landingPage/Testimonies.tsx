@@ -15,7 +15,7 @@ const testimonials: Testimonial[] = [
     id: 1,
     name: "Jean de Dieu",
     isVerified: true,
-    image: "/assets/testimonials/profile1.png",
+    image: "/assets/testimonials/profile1.webp",
     text: "The AI-based soil analysis helped me choose the right crops for my land. I've seen a 30% increase in my potato yields this season. Highly recommend AgriSense!",
     rating: 5
   },
@@ -23,7 +23,7 @@ const testimonials: Testimonial[] = [
     id: 2,
     name: "Alice Mutoni",
     isVerified: true,
-    image: "/assets/testimonials/profile2.png",
+    image: "/assets/testimonials/profile2.webp",
     text: "The real-time weather monitoring has been a lifesaver. I received an alert about an unexpected storm just in time to protect my seedlings. Truly remarkable technology.",
     rating: 5
   },
@@ -31,7 +31,7 @@ const testimonials: Testimonial[] = [
     id: 3,
     name: "David Mugisha",
     isVerified: true,
-    image: "/assets/testimonials/profile3.png",
+    image: "/assets/testimonials/profile3.webp",
     text: "Accessing daily market prices through AgriSense has completely changed how I sell my produce. I now get much better deals and don't lose money to middlemen.",
     rating: 4
   },
@@ -39,7 +39,7 @@ const testimonials: Testimonial[] = [
     id: 4,
     name: "Solange Uwera",
     isVerified: true,
-    image: "/assets/testimonials/profile4.png",
+    image: "/assets/testimonials/profile4.webp",
     text: "AgriSense's crop management tools simplified my daily farming tasks. The customized schedule for my maize farm has improved my efficiency significantly.",
     rating: 5
   },
@@ -47,7 +47,7 @@ const testimonials: Testimonial[] = [
     id: 5,
     name: "Emmanuel Nkurunziza",
     isVerified: true,
-    image: "/assets/testimonials/profile1.png",
+    image: "/assets/testimonials/profile1.webp",
     text: "I was skeptical about AI in farming, but AgriSense proved me wrong. The insights provided are incredibly accurate and easy to understand even for local farmers.",
     rating: 5
   },
@@ -55,7 +55,7 @@ const testimonials: Testimonial[] = [
     id: 6,
     name: "Grace Ishimwe",
     isVerified: true,
-    image: "/assets/testimonials/profile2.png",
+    image: "/assets/testimonials/profile2.webp",
     text: "Being part of the AgriSense community has given me access to expert advice that I couldn't afford before. It's more than just an app; it's a support system.",
     rating: 5
   },
@@ -63,7 +63,7 @@ const testimonials: Testimonial[] = [
     id: 7,
     name: "Patrick Habimana",
     isVerified: true,
-    image: "/assets/testimonials/profile3.png",
+    image: "/assets/testimonials/profile3.webp",
     text: "The pest detection feature saved my tomato crop this year. I identified the issue early and used organic solutions suggested by the platform. Excellent tool!",
     rating: 5
   }
@@ -120,6 +120,8 @@ const TestimonialCarousel: React.FC = () => {
                 <img
                   src={testimonial.image || "/placeholder.svg"}
                   alt={testimonial.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-10 h-10 rounded-full mr-2"
                 />
                 <div>
