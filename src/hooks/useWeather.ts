@@ -59,7 +59,7 @@ export function useWeather({
     (async () => {
       try {
         const queries = [
-          ...(placeCandidates ?? []),
+          ...(candidatesKey ? candidatesKey.split("|") : []),
           ...(place && place.trim() ? [place.trim()] : []),
         ].filter((q, i, arr) => q && arr.indexOf(q) === i);
 

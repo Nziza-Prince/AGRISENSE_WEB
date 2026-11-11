@@ -28,7 +28,30 @@ function buildQuery(params: Record<string, string | number | undefined>): string
   return qs ? `?${qs}` : "";
 }
 
+export interface OnboardFarmerInput {
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+  email?: string;
+  password?: string;
+  farmName: string;
+  sizeM2?: number;
+  soilType: string;
+  province: string;
+  district: string;
+  sector: string;
+  cell: string;
+  village: string;
+  latitude?: number;
+  longitude?: number;
+  irrigationMethod?: string;
+  farmCode?: string;
+}
+
 export const adminService = {
+  onboardFarmer: (dto: OnboardFarmerInput) =>
+    api.post<{ message: string; farmer: { id: string; email: string; firstName: string; lastName: string }; farm: { id: string; name: string } }>("/admin/farmers", dto),
+
   createUser: (dto: CreateAdminUserDto) =>
     api.post<MessageResponse>("/admin/users", dto),
 

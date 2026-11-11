@@ -84,6 +84,7 @@ const NgoRegions = () => {
 
   useEffect(() => {
     loadFarms(1, province);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- reload only when province/role changes; loadFarms is recreated each render
   }, [province, portal.role]);
 
   const cropCounts = useMemo(() => {
@@ -124,7 +125,7 @@ const NgoRegions = () => {
                   <tr className="border-b text-left text-xs uppercase text-gray-400">
                     <th className="pb-2">Region</th>
                     <th className="pb-2">Farms</th>
-                    <th className="pb-2">Farm area (ha)</th>
+                    <th className="pb-2">Farm area (m²)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -210,7 +211,7 @@ const NgoRegions = () => {
                         </td>
                         <td className="py-3 text-gray-600">{farm.district || "—"}</td>
                         <td className="py-3">{farm.recommendedCrop || farm.cropType || farm.crop || "—"}</td>
-                        <td className="py-3">{farm.sizeHa ?? farm.size ?? "—"}</td>
+                        <td className="py-3">{farm.size != null ? Number(farm.size).toLocaleString() : "—"}</td>
                         <td className="py-3">
                           <Badge color="green">{farm.status || "Active"}</Badge>
                         </td>

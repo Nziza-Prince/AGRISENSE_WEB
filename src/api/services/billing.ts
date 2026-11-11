@@ -34,6 +34,34 @@ function unwrapSubscription(payload: unknown): UserSubscription {
   return payload as UserSubscription;
 }
 
+export type SeasonPassStatus = "awaiting_payment" | "submitted" | "paid" | "rejected";
+
+export interface AdminSeasonPass {
+  id: string;
+  reference: string;
+  status: SeasonPassStatus;
+  amount: number;
+  currency: string;
+  seasonLabel: string;
+  momoTransactionId: string | null;
+  payerPhone: string | null;
+  submittedAt: string | null;
+  paidAt: string | null;
+  adminNote: string | null;
+  createdAt: string;
+  farmId?: string;
+  farmName?: string;
+  farmer?: { id: string; name: string; email: string; phone: string | null };
+}
+
+export interface SeasonPassList {
+  items: AdminSeasonPass[];
+  total: number;
+  page: number;
+  limit: number;
+  summary: Partial<Record<SeasonPassStatus, { count: number; amount: number }>>;
+}
+
 export const billingService = {
   getPlans: async () => {
     const res = await api.get<BillingPlan[] | { plans?: BillingPlan[]; data?: BillingPlan[]; items?: BillingPlan[] }>(
@@ -96,6 +124,24 @@ export const billingService = {
     const qs = search.toString();
     return api.get<unknown>(`/admin/billing/transactions${qs ? `?${qs}` : ""}`);
   },
+
+  // Season pass payments (mobile money, confirmed by an admin)
+  adminListSeasonPasses: (params: Record<string, string | number | undefined> = {}) => {
+    const search = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        search.append(key, String(value));
+      }
+    });
+    const qs = search.toString();
+    return api.get<SeasonPassList>(`/admin/billing/season-passes${qs ? `?${qs}` : ""}`);
+  },
+
+  adminMarkSeasonPassPaid: (passId: string, note?: string) =>
+    api.post<AdminSeasonPass>(`/admin/billing/season-passes/${passId}/mark-paid`, note ? { note } : {}),
+
+  adminRejectSeasonPass: (passId: string, reason: string) =>
+    api.post<AdminSeasonPass>(`/admin/billing/season-passes/${passId}/reject`, { reason }),
 
   adminAssign: (userId: string, dto: AdminAssignSubscriptionDto) =>
     api.post<MessageResponse>(`/admin/billing/subscriptions/${userId}/assign`, dto),

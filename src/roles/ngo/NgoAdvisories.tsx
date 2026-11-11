@@ -60,6 +60,7 @@ const NgoAdvisories = () => {
 
   useEffect(() => {
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- reload only when role/filter changes; load is recreated each render
   }, [portal.role, regionsFilter]);
 
   const toggleRegion = (region: string) => {

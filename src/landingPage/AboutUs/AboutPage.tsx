@@ -18,6 +18,8 @@ import {
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer";
 import { useGetStarted } from "@/hooks/useGetStarted";
+import { usePublicStats } from "@/hooks/usePublicStats";
+import { team, TEAM_SIZE } from "./team";
 import AboutUsImage from "/assets/about-us-team.webp";
 import FarmerImage from "/assets/who-we-serve-farmer.webp";
 
@@ -51,62 +53,18 @@ const audiences = [
   { icon: Users, title: "NGOs", text: "Measure impact and coordinate support across communities." },
 ];
 
-const stats = [
-  { value: "10", label: "Farmers onboarded" },
-  { value: "120", label: "Hectares covered" },
-  { value: "1", label: "Connected cooperative" },
-  { value: "5", label: "Team members" },
-];
-
-const DEFAULT_AVATAR = "/assets/team/default-avatar.svg";
-
-const team = [
-  {
-    name: "IRASUBIZA SALY NELSON",
-    role: "CEO",
-    focus: "Founder & Chief Executive Officer",
-    phone: "+250 798 863 223",
-    email: "irasubizasalynelson@gmail.com",
-    photo: DEFAULT_AVATAR,
-  },
-  {
-    name: "NKOTANYI PRINCE NZIZA",
-    role: "CTO",
-    focus: "DevOps & Backend",
-    phone: "+250 796 334 656",
-    email: "nzizaprince7@gmail.com",
-    photo: DEFAULT_AVATAR,
-  },
-  {
-    name: "RAPHAEL NIBISHAKA",
-    role: "Head of Engineering",
-    focus: "Co-Founder & Full Stack Engineer",
-    phone: "+250 792 672 810",
-    email: "raphaelnibishaka@gmail.com",
-    photo: DEFAULT_AVATAR,
-  },
-  {
-    name: "IMPANO UMUHOZA HOPE",
-    role: "CMO",
-    focus: "Marketing & Growth",
-    phone: "+250 781 375 716",
-    email: "umuhozahope5@gmail.com",
-    photo: DEFAULT_AVATAR,
-  },
-  {
-    name: "IBIJURU CHANCE REGINE",
-    role: "CFO",
-    focus: "Finance & Operations",
-    phone: "",
-    email: "",
-    photo: DEFAULT_AVATAR,
-  },
-];
 
 const leadership = team.slice(0, 3);
 const support = team.slice(3);
 
 const AboutPage = () => {
+  const live = usePublicStats();
+  const stats = [
+    { value: live ? String(live.farmers) : "–", label: "Farmers onboarded" },
+    { value: live ? String(live.hectares) : "–", label: "Hectares covered" },
+    { value: live ? String(live.partners) : "–", label: "Partner organisations" },
+    { value: String(TEAM_SIZE), label: "Team members" },
+  ];
   const { to: ctaTo, label: ctaLabel } = useGetStarted();
 
   useEffect(() => {
@@ -175,7 +133,7 @@ const AboutPage = () => {
               />
             </div>
             <div className="absolute -bottom-5 -right-3 hidden rounded-xl bg-[#2C6E49] px-4 py-3 text-white shadow-lg sm:block">
-              <p className="text-xl font-bold">120</p>
+              <p className="text-xl font-bold">{live ? live.hectares : "–"}</p>
               <p className="text-xs text-white/80">Hectares covered</p>
             </div>
           </div>

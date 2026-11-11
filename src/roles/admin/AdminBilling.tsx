@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { CreditCard, Loader2, RefreshCw, UserCog } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import CountUp from "react-countup";
+import { CreditCard, Loader2, RefreshCw, UserCog, X } from "lucide-react";
+import TagSearch, { type TagGroup } from "./orgs/TagSearch";
 import RoleLayout from "../RoleLayout";
 import { Badge, Panel, PaginationControls, getPaginationMeta } from "../ui";
 import { ADMIN_ACCENT, adminLinks } from "./config";
 import {
   ApiError,
+  adminService,
   billingService,
+  type AdminUserSummary,
   type AdminAssignSubscriptionDto,
   type BillingCycle,
   type BillingPlanId,
@@ -128,6 +133,10 @@ const AdminBilling = () => {
   const [search, setSearch] = useState("");
 
   const [assignUserId, setAssignUserId] = useState("");
+  const [grantOpen, setGrantOpen] = useState(false);
+  const [pickQuery, setPickQuery] = useState("");
+  const [pickHits, setPickHits] = useState<AdminUserSummary[]>([]);
+  const [picked, setPicked] = useState<AdminUserSummary | null>(null);
   const [assignPlan, setAssignPlan] = useState<BillingPlanId>("pro");
   const [assignCycle, setAssignCycle] = useState<BillingCycle>("monthly");
   const [assignDays, setAssignDays] = useState("");
@@ -176,6 +185,27 @@ const AdminBilling = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => load(1, tab), search ? 300 : 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [planFilter, statusFilter, search]);
+
+  useEffect(() => {
+    const term = pickQuery.trim();
+    if (term.length < 2) {
+      setPickHits([]);
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      adminService
+        .getUsers({ page: 1, limit: 6, search: term })
+        .then((res) => setPickHits(((res as { users?: AdminUserSummary[]; items?: AdminUserSummary[] }).users ?? (res as { items?: AdminUserSummary[] }).items ?? [])))
+        .catch(() => setPickHits([]));
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [pickQuery]);
+
   const summary = useMemo(() => {
     const byPlan: Record<string, number> = {};
     const byStatus: Record<string, number> = {};
@@ -187,6 +217,16 @@ const AdminBilling = () => {
     });
     return { byPlan, byStatus };
   }, [rows]);
+
+  const filterGroups: TagGroup[] = [
+    { key: "plan", label: "plan", options: ["starter", "pro", "enterprise"].map((v) => ({ value: v, label: v.charAt(0).toUpperCase() + v.slice(1), count: summary.byPlan[v] ?? 0 })) },
+    {
+      key: "status",
+      label: "status",
+      options: ["active", "pending_payment", "canceled", "expired", "successful", "failed"].map((v) => ({ value: v, label: v.replace("_", " ").replace(/^./, (c) => c.toUpperCase()), count: summary.byStatus[v] ?? 0 })),
+    },
+  ];
+
 
   const switchTab = (next: Tab) => {
     setTab(next);
@@ -254,151 +294,143 @@ const AdminBilling = () => {
         </div>
       )}
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {(
-          [
-            { id: "subscriptions" as const, label: "Subscriptions" },
-            { id: "transactions" as const, label: "Transactions" },
-          ] as const
-        ).map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => switchTab(item.id)}
-            className="rounded-lg border px-3 py-1.5 text-sm font-semibold"
-            style={
-              tab === item.id
-                ? { backgroundColor: ADMIN_ACCENT, color: "#fff", borderColor: ADMIN_ACCENT }
-                : { color: "#4b5563" }
-            }
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Panel>
-          <p className="text-xs uppercase tracking-wide text-gray-400">Rows (page)</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{rows.length}</p>
-        </Panel>
-        <Panel>
-          <p className="text-xs uppercase tracking-wide text-gray-400">Total</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{total || rows.length}</p>
-        </Panel>
-        <Panel>
-          <p className="text-xs uppercase tracking-wide text-gray-400">Active / success</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">
-            {(summary.byStatus.active || 0) +
-              (summary.byStatus.successful || 0) +
-              (summary.byStatus.success || 0)}
-          </p>
-        </Panel>
-        <Panel>
-          <p className="text-xs uppercase tracking-wide text-gray-400">Pending</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">
-            {(summary.byStatus.pending_payment || 0) + (summary.byStatus.pending || 0)}
-          </p>
-        </Panel>
-      </div>
-
-      <div className="mb-6 grid gap-4 lg:grid-cols-3">
-        <Panel title="Filters" className="lg:col-span-2">
-          <div className="flex flex-wrap gap-2">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") load(1, tab);
-              }}
-              placeholder="Search email / user id"
-              className="h-10 min-w-[200px] flex-1 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#4338CA]"
-            />
-            <select
-              value={planFilter}
-              onChange={(e) => setPlanFilter(e.target.value)}
-              className="h-10 rounded-lg border border-gray-200 px-3 text-sm"
-            >
-              <option value="">All plans</option>
-              <option value="starter">Starter</option>
-              <option value="pro">Pro</option>
-              <option value="enterprise">Enterprise</option>
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-10 rounded-lg border border-gray-200 px-3 text-sm"
-            >
-              <option value="">All statuses</option>
-              <option value="active">Active</option>
-              <option value="pending_payment">Pending payment</option>
-              <option value="canceled">Canceled</option>
-              <option value="expired">Expired</option>
-              <option value="successful">Successful</option>
-              <option value="failed">Failed</option>
-            </select>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
+          {([{ id: "subscriptions" as const, label: "Subscriptions" }, { id: "transactions" as const, label: "Transactions" }]).map((item) => (
             <button
+              key={item.id}
               type="button"
-              onClick={() => load(1, tab)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-white"
-              style={{ backgroundColor: ADMIN_ACCENT }}
+              onClick={() => switchTab(item.id)}
+              className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${tab === item.id ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
             >
-              <RefreshCw className="h-4 w-4" /> Refresh
+              {item.label}
             </button>
-          </div>
-        </Panel>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => load(page, tab)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </button>
+          <button type="button" onClick={() => setGrantOpen((o) => !o)} className="inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-white" style={{ backgroundColor: ADMIN_ACCENT }}>
+            <UserCog className="h-4 w-4" /> Grant a plan
+          </button>
+        </div>
+      </div>
 
-        <Panel title="Manual assign">
-          <form onSubmit={runAssign} className="space-y-2">
-            <input
-              value={assignUserId}
-              onChange={(e) => setAssignUserId(e.target.value)}
-              placeholder="User ID *"
-              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#4338CA]"
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                value={assignPlan}
-                onChange={(e) => setAssignPlan(e.target.value as BillingPlanId)}
-                className="h-10 rounded-lg border border-gray-200 px-2 text-sm"
-              >
-                <option value="starter">Starter</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
-              <select
-                value={assignCycle}
-                onChange={(e) => setAssignCycle(e.target.value as BillingCycle)}
-                disabled={assignPlan !== "pro"}
-                className="h-10 rounded-lg border border-gray-200 px-2 text-sm disabled:opacity-50"
-              >
-                <option value="monthly">Monthly</option>
-                <option value="annual">Annual</option>
-              </select>
-            </div>
-            <input
-              value={assignDays}
-              onChange={(e) => setAssignDays(e.target.value.replace(/\D/g, ""))}
-              placeholder="Period days (optional)"
-              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#4338CA]"
-            />
-            <input
-              value={assignNote}
-              onChange={(e) => setAssignNote(e.target.value)}
-              placeholder="Note (optional)"
-              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#4338CA]"
-            />
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
-              style={{ backgroundColor: ADMIN_ACCENT }}
+      <AnimatePresence>
+        {grantOpen && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-6 overflow-hidden">
+            <Panel
+              title="Grant a plan"
+              action={
+                <button type="button" onClick={() => setGrantOpen(false)} aria-label="Close" className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
+                  <X className="h-4 w-4" />
+                </button>
+              }
             >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCog className="h-4 w-4" />}
-              Assign plan
-            </button>
-          </form>
-        </Panel>
+              <form onSubmit={runAssign} className="grid gap-3 lg:grid-cols-2">
+                <div className="relative">
+                  <input
+                    value={picked ? `${picked.firstName ?? ""} ${picked.lastName ?? ""} · ${picked.email ?? ""}` : pickQuery}
+                    onChange={(e) => {
+                      setPicked(null);
+                      setAssignUserId("");
+                      setPickQuery(e.target.value);
+                    }}
+                    placeholder="Find the person by name or email"
+                    className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#4338CA]"
+                  />
+                  {!picked && pickHits.length > 0 && (
+                    <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border bg-white shadow-lg">
+                      {pickHits.map((u) => (
+                        <li key={u.id}>
+                          <button
+                            type="button"
+                            className="flex w-full flex-col px-3 py-2 text-left text-sm hover:bg-gray-50"
+                            onClick={() => {
+                              setPicked(u);
+                              setAssignUserId(u.id);
+                              setPickHits([]);
+                            }}
+                          >
+                            <span className="font-medium text-gray-900">{`${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || u.email}</span>
+                            <span className="text-xs text-gray-500">{u.email}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <select value={assignPlan} onChange={(e) => setAssignPlan(e.target.value as BillingPlanId)} className="h-10 rounded-lg border border-gray-200 px-2 text-sm">
+                    <option value="starter">Starter</option>
+                    <option value="pro">Pro</option>
+                    <option value="enterprise">Enterprise</option>
+                  </select>
+                  <select value={assignCycle} onChange={(e) => setAssignCycle(e.target.value as BillingCycle)} disabled={assignPlan !== "pro"} className="h-10 rounded-lg border border-gray-200 px-2 text-sm disabled:opacity-50">
+                    <option value="monthly">Monthly</option>
+                    <option value="annual">Annual</option>
+                  </select>
+                  <input value={assignDays} onChange={(e) => setAssignDays(e.target.value.replace(/\D/g, ""))} placeholder="Days (optional)" className="h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#4338CA]" />
+                </div>
+                <input value={assignNote} onChange={(e) => setAssignNote(e.target.value)} placeholder="Note (optional)" className="h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#4338CA]" />
+                <button type="submit" disabled={saving || !assignUserId} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold text-white disabled:opacity-50" style={{ backgroundColor: ADMIN_ACCENT }}>
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCog className="h-4 w-4" />} Assign plan
+                </button>
+              </form>
+            </Panel>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mb-6 grid gap-3 lg:grid-cols-5">
+        {[
+          { label: "Total", value: total || rows.length, color: "#4338CA" },
+          { label: "Active or successful", value: (summary.byStatus.active || 0) + (summary.byStatus.successful || 0) + (summary.byStatus.success || 0), color: "#10B981" },
+          { label: "Pending", value: (summary.byStatus.pending_payment || 0) + (summary.byStatus.pending || 0), color: "#F59E0B" },
+        ].map((k, i) => (
+          <motion.div key={k.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }} className="rounded-2xl border bg-white p-4 shadow-sm">
+            <span className="text-xs font-medium text-gray-500">{k.label}</span>
+            <span className="mt-1 block text-3xl font-bold" style={{ color: k.color }}>
+              <CountUp end={k.value} duration={1} />
+            </span>
+          </motion.div>
+        ))}
+        <div className="rounded-2xl border bg-white p-4 shadow-sm lg:col-span-2">
+          <span className="text-xs font-medium text-gray-500">Plan mix on this page</span>
+          <div className="mt-3 flex h-6 overflow-hidden rounded-full bg-gray-100">
+            {Object.entries(summary.byPlan).map(([plan, n], i) => (
+              <motion.div
+                key={plan}
+                title={`${plan}: ${n}`}
+                className="h-full"
+                style={{ background: ["#94A3B8", "#4338CA", "#B45309", "#0F766E"][i % 4] }}
+                initial={{ width: 0 }}
+                animate={{ width: `${(n / Math.max(rows.length, 1)) * 100}%` }}
+                transition={{ duration: 0.8, delay: i * 0.1 }}
+              />
+            ))}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-x-3 text-xs text-gray-500">
+            {Object.entries(summary.byPlan).map(([plan, n], i) => (
+              <span key={plan} className="flex items-center gap-1.5 capitalize">
+                <span className="h-2 w-2 rounded-full" style={{ background: ["#94A3B8", "#4338CA", "#B45309", "#0F766E"][i % 4] }} />
+                {plan} {n}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <TagSearch
+          query={search}
+          onQuery={setSearch}
+          groups={filterGroups}
+          selected={{ plan: planFilter || null, status: statusFilter || null }}
+          onSelect={(group, value) => (group === "plan" ? setPlanFilter(value ?? "") : setStatusFilter(value ?? ""))}
+          placeholder="Search by email, or filter by plan and status…"
+        />
       </div>
 
       <Panel

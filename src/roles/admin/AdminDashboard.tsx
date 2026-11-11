@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Users, Store, Building2, Sprout, Loader2 } from "lucide-react";
+import RwandaFarmMap from "./RwandaFarmMap";
 import {
   ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
   PieChart,
   Pie,
   Cell,
@@ -16,6 +22,7 @@ import {
   type AdminFarmStatistics,
   type AdminOverviewStatistics,
   type AdminUserSummary,
+  type Farm,
 } from "@/api";
 import { getUserDisplayName } from "@/lib/user";
 
@@ -23,7 +30,6 @@ const roleColor: Record<string, "green" | "amber" | "red" | "blue" | "gray" | "p
   FARMER: "green",
   SUPPLIER: "blue",
   NGO: "purple",
-  GOVERNMENT: "amber",
   ADMIN: "gray",
   CFO: "blue",
 };
@@ -67,6 +73,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
   const [usersTotal, setUsersTotal] = useState(0);
   const [farmStats, setFarmStats] = useState<AdminFarmStatistics | null>(null);
+  const [farms, setFarms] = useState<Farm[]>([]);
   const [overview, setOverview] = useState<AdminOverviewStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,10 +89,11 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
       try {
-        const [usersRes, farmStatsRes, overviewRes] = await Promise.all([
+        const [usersRes, farmStatsRes, overviewRes, farmsRes] = await Promise.all([
           adminService.getUsers({ page: 1, limit: 100 }),
           adminService.getFarmStatistics(),
           adminService.getOverviewStatistics(),
+          adminService.getAllFarms(1, 500),
         ]);
         if (!active) return;
 
@@ -101,6 +109,7 @@ const AdminDashboard = () => {
                 : rows.length,
         );
         setFarmStats(farmStatsRes);
+        setFarms(farmsRes.farms ?? []);
         setOverview(overviewRes);
       } catch (err) {
         if (!active) return;
@@ -136,6 +145,15 @@ const AdminDashboard = () => {
 
     return { roleCounts, statusCounts, roleSplit };
   }, [users]);
+
+  const farmsByProvince = useMemo(() => {
+    const counts = farms.reduce<Record<string, number>>((acc, farm) => {
+      const key = farm.province || "Unknown";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(counts).map(([name, value]) => ({ name: name.replace(/ Province$/, ""), value }));
+  }, [farms]);
 
   const recentUsers = useMemo(
     () =>
@@ -179,9 +197,9 @@ const AdminDashboard = () => {
         />
         <StatCard
           icon={Building2}
-          label="NGOs / Gov"
-          value={(summary.roleCounts.NGO || 0) + (summary.roleCounts.GOVERNMENT || 0)}
-          delta={`${overview?.pendingNgos ?? 0} NGO pending · ${summary.roleCounts.ADMIN || 0} admins`}
+          label="NGOs"
+          value={summary.roleCounts.NGO || 0}
+          delta={`${overview?.pendingNgos ?? 0} pending · ${summary.roleCounts.ADMIN || 0} admins`}
           accent={ADMIN_ACCENT}
         />
         <StatCard
@@ -196,46 +214,46 @@ const AdminDashboard = () => {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel title="Farm Statistics" className="lg:col-span-2">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">Average Farm Size</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {getNumberValue(farmStats, ["averageFarmSize", "avgFarmSize"]).toFixed(1)}
-              </p>
+      <Panel
+        title="Where our farms are"
+        className="mt-6"
+        action={loading ? <Loader2 className="h-4 w-4 animate-spin text-gray-400" /> : undefined}
+      >
+        <RwandaFarmMap farms={farms} />
+      </Panel>
+
+      <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+        <Panel title="Farms by province">
+          {farmsByProvince.length ? (
+            <div className="h-[220px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={farmsByProvince} margin={{ left: -20 }}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="value" name="Farms" fill="#4338CA" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">Archived Farms</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {getNumberValue(farmStats, ["archivedFarms"])}
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">Active Accounts</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {overview?.activeUsers ?? summary.statusCounts.ACTIVE ?? 0}
-              </p>
-            </div>
-          </div>
-          {loading && (
-            <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Loading overview…
-            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No farms yet.</p>
           )}
+          <p className="mt-3 text-xs text-gray-500">
+            Average farm size {Math.round(getNumberValue(farmStats, ["averageFarmSize", "avgFarmSize"])).toLocaleString()} m²
+            · {getNumberValue(farmStats, ["archivedFarms"])} archived
+          </p>
         </Panel>
 
-        <Panel title="Users by Role">
-          <div className="h-[280px]">
+        <Panel title="Users by role">
+          <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={summary.roleSplit}
                   cx="50%"
                   cy="45%"
-                  innerRadius={55}
-                  outerRadius={85}
+                  innerRadius={45}
+                  outerRadius={72}
                   paddingAngle={2}
                   dataKey="value"
                 >
@@ -243,15 +261,33 @@ const AdminDashboard = () => {
                     <Cell key={e.name} fill={e.color} />
                   ))}
                 </Pie>
+                <Tooltip />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </Panel>
+
+        <Panel title="Account status">
+          <div className="space-y-3">
+            {Object.entries(summary.statusCounts).map(([status, count]) => (
+              <div
+                key={status}
+                className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
+              >
+                <span className="text-sm font-medium text-gray-700">{formatStatus(status)}</span>
+                <Badge color={statusColor[status] || "amber"}>{count}</Badge>
+              </div>
+            ))}
+            {!Object.keys(summary.statusCounts).length && (
+              <div className="text-sm text-gray-500">No user status data available yet.</div>
+            )}
+          </div>
+        </Panel>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel title="Recent Users" className="lg:col-span-2">
+      <div className="mt-6">
+        <Panel title="Recent users">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -288,22 +324,6 @@ const AdminDashboard = () => {
           </div>
         </Panel>
 
-        <Panel title="Account Status">
-          <div className="space-y-3">
-            {Object.entries(summary.statusCounts).map(([status, count]) => (
-              <div
-                key={status}
-                className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
-              >
-                <span className="text-sm font-medium text-gray-700">{formatStatus(status)}</span>
-                <Badge color={statusColor[status] || "amber"}>{count}</Badge>
-              </div>
-            ))}
-            {!Object.keys(summary.statusCounts).length && (
-              <div className="text-sm text-gray-500">No user status data available yet.</div>
-            )}
-          </div>
-        </Panel>
       </div>
     </RoleLayout>
   );

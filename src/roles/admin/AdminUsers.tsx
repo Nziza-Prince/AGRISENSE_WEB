@@ -1,48 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, MapPinned, Sprout, UserPlus, X } from "lucide-react";
 import RoleLayout from "../RoleLayout";
-import { Panel, Badge, PaginationControls, getPaginationMeta } from "../ui";
+import { Panel, PaginationControls, getPaginationMeta } from "../ui";
 import { ADMIN_ACCENT, adminLinks } from "./config";
-import { adminService, ApiError, type AdminUserRole, type AdminUserSummary } from "@/api";
+import { adminService, ApiError, type AdminUserRole, type AdminUserStatus, type AdminUserSummary } from "@/api";
 import { useAuth } from "@/context/useAuth";
 import { getUserDisplayName } from "@/lib/user";
 import StaffAccountsPanel from "./StaffAccountsPanel";
+import AddUserModal from "./forms/AddUserModal";
+import RegisterFarmerModal from "./forms/RegisterFarmerModal";
+import { EmptyState } from "@/components/EmptyState";
+import UserOrbit from "./users/UserOrbit";
+import UserRowActions from "./users/UserRowActions";
+import UserSmartFilter from "./users/UserSmartFilter";
+import { ROLE_META, STATUS_META, initialsOf, joinedOf, nameOf, roleOf, statusOf } from "./users/shared";
 
 const PAGE_SIZE = 20;
+const ASSIGNABLE_ROLES: AdminUserRole[] = ["FARMER", "SUPPLIER", "NGO", "CFO", "ADMIN"];
 
-const roleColor: Record<string, "green" | "amber" | "red" | "blue" | "gray" | "purple"> = {
-  FARMER: "green",
-  SUPPLIER: "blue",
-  NGO: "purple",
-  GOVERNMENT: "amber",
-  ADMIN: "gray",
-  CFO: "blue",
-  Farmer: "green",
-  Supplier: "blue",
-  Admin: "gray",
-};
-
-const statusColor: Record<string, "green" | "amber" | "red" | "gray"> = {
-  ACTIVE: "green",
-  PENDING: "amber",
-  SUSPENDED: "amber",
-  BANNED: "red",
-  DELETED: "gray",
-  active: "green",
-  pending: "amber",
-  suspended: "amber",
-  banned: "red",
-  deleted: "gray",
-};
-
-const ROLES = ["ALL", "FARMER", "SUPPLIER", "NGO", "GOVERNMENT", "CFO", "ADMIN"] as const;
-const STATUSES = ["ALL", "ACTIVE", "PENDING", "SUSPENDED", "BANNED", "DELETED"] as const;
-const ASSIGNABLE_ROLES: AdminUserRole[] = ["FARMER", "SUPPLIER", "NGO", "GOVERNMENT", "CFO", "ADMIN"];
-
-function accountStatusLabel(user: AdminUserSummary) {
-  if (user.deletedAt) return "DELETED";
-  return String(user.status || "UNKNOWN").toUpperCase();
-}
+type SortKey = "name" | "role" | "status" | "joined";
 
 function getUsers(data: unknown): AdminUserSummary[] {
   if (!data || typeof data !== "object") return [];
@@ -53,30 +31,39 @@ function getUsers(data: unknown): AdminUserSummary[] {
 
 function isProtectedTarget(actorId: string | undefined, target: AdminUserSummary) {
   if (actorId && target.id === actorId) return true;
-  return String(target.role || "").toUpperCase() === "ADMIN";
-}
-
-function initialsOf(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  return ((parts[0]?.[0] ?? "?") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+  return roleOf(target) === "ADMIN";
 }
 
 function formatRoleLabel(role: string) {
   return role.charAt(0) + role.slice(1).toLowerCase();
 }
 
+function countBy(users: AdminUserSummary[], pick: (u: AdminUserSummary) => string) {
+  return users.reduce<Record<string, number>>((acc, u) => {
+    const key = pick(u);
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+}
+
 const AdminUsers = () => {
   const { user } = useAuth();
-  const [role, setRole] = useState<(typeof ROLES)[number]>("ALL");
-  const [status, setStatus] = useState<(typeof STATUSES)[number]>("ALL");
-  const [query, setQuery] = useState("");
+  const [regionsOpen, setRegionsOpen] = useState(false);
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [farmerOpen, setFarmerOpen] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("search") ?? "");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
+  const [everyone, setEveryone] = useState<AdminUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "joined", dir: -1 });
 
   const [roleModalUser, setRoleModalUser] = useState<AdminUserSummary | null>(null);
   const [selectedRole, setSelectedRole] = useState<AdminUserRole>("FARMER");
@@ -86,38 +73,81 @@ const AdminUsers = () => {
     document.title = "Users | Admin | AGRISENSE";
   }, []);
 
-  const load = async (nextPage = page) => {
-    setLoading(true);
-    setError(null);
+  const loadEveryone = useCallback(async () => {
     try {
-      const res = await adminService.getUsers({
-        page: nextPage,
-        limit: PAGE_SIZE,
-        role: role === "ALL" ? undefined : (role as AdminUserRole),
-        status: status === "ALL" || status === "DELETED" ? undefined : status,
-        search: query.trim() || undefined,
-        includeDeleted: status === "DELETED",
-      });
-      const rows = getUsers(res);
-      const meta = getPaginationMeta(res, nextPage, PAGE_SIZE, rows.length);
-      setUsers(rows);
-      setPage(meta.page);
-      setTotalPages(meta.totalPages);
-      setTotal(meta.total);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to load users.");
-    } finally {
-      setLoading(false);
+      setEveryone(getUsers(await adminService.getUsers({ page: 1, limit: 100 })));
+    } catch {
+      // The orbit is a bonus; the table reports its own errors.
     }
-  };
+  }, []);
+
+  const load = useCallback(
+    async (nextPage = 1) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await adminService.getUsers({
+          page: nextPage,
+          limit: PAGE_SIZE,
+          role: (role as AdminUserRole) || undefined,
+          status: !status || status === "DELETED" ? undefined : (status as AdminUserStatus),
+          search: query.trim() || undefined,
+          includeDeleted: status === "DELETED",
+        });
+        const rows = getUsers(res);
+        const meta = getPaginationMeta(res, nextPage, PAGE_SIZE, rows.length);
+        setUsers(rows);
+        setPage(meta.page);
+        setTotalPages(meta.totalPages);
+        setTotal(meta.total);
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : "Failed to load users.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [role, status, query],
+  );
+
+  // Typing searches live: wait a moment after the last key so we do not hit the server on every letter.
+  useEffect(() => {
+    const timer = window.setTimeout(() => load(1), query ? 300 : 0);
+    return () => window.clearTimeout(timer);
+  }, [load, query]);
 
   useEffect(() => {
-    setPage(1);
-    load(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, status]);
+    loadEveryone();
+  }, [loadEveryone]);
 
-  const rows = useMemo(() => users, [users]);
+  const refresh = async () => {
+    await Promise.all([load(page), loadEveryone()]);
+  };
+
+  const roleCounts = useMemo(() => countBy(everyone, roleOf), [everyone]);
+  const statusCounts = useMemo(() => countBy(everyone, statusOf), [everyone]);
+
+  const rows = useMemo(() => {
+    const value = (u: AdminUserSummary) => {
+      switch (sort.key) {
+        case "name":
+          return nameOf(u).toLowerCase();
+        case "role":
+          return roleOf(u);
+        case "status":
+          return statusOf(u);
+        default:
+          return new Date(u.createdAt || 0).getTime();
+      }
+    };
+    return [...users].sort((a, b) => {
+      const x = value(a);
+      const y = value(b);
+      return (x < y ? -1 : x > y ? 1 : 0) * sort.dir;
+    });
+  }, [users, sort]);
+
+  const toggleSort = (key: SortKey) =>
+    setSort((cur) => (cur.key === key ? { key, dir: (cur.dir * -1) as 1 | -1 } : { key, dir: key === "joined" ? -1 : 1 }));
 
   const openRoleModal = (target: AdminUserSummary) => {
     setError(null);
@@ -126,7 +156,7 @@ const AdminUsers = () => {
       setError("You cannot modify your own account or another admin.");
       return;
     }
-    const current = String(target.role || "FARMER").toUpperCase() as AdminUserRole;
+    const current = roleOf(target) as AdminUserRole;
     setSelectedRole(ASSIGNABLE_ROLES.includes(current) ? current : "FARMER");
     setRoleModalUser(target);
   };
@@ -138,7 +168,7 @@ const AdminUsers = () => {
 
   const confirmRoleChange = async () => {
     if (!roleModalUser) return;
-    if (String(roleModalUser.role || "").toUpperCase() === selectedRole) {
+    if (roleOf(roleModalUser) === selectedRole) {
       setInfo("That user already has this role.");
       setRoleModalUser(null);
       return;
@@ -148,11 +178,9 @@ const AdminUsers = () => {
     setInfo(null);
     try {
       await adminService.updateUserRole(roleModalUser.id, selectedRole);
-      setInfo(
-        `Role updated: ${getUserDisplayName(roleModalUser)} is now ${formatRoleLabel(selectedRole)}.`,
-      );
+      setInfo(`Role updated: ${getUserDisplayName(roleModalUser)} is now ${formatRoleLabel(selectedRole)}.`);
       setRoleModalUser(null);
-      await load(page);
+      await refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to update role.");
     } finally {
@@ -160,12 +188,9 @@ const AdminUsers = () => {
     }
   };
 
-  const runAction = async (
-    target: AdminUserSummary,
-    task: () => Promise<unknown>,
-    okMsg?: string,
-  ) => {
+  const runAction = async (target: AdminUserSummary, task: () => Promise<unknown>, okMsg?: string) => {
     setInfo(null);
+    setError(null);
     if (isProtectedTarget(user?.id, target)) {
       setError("You cannot modify your own account or another admin.");
       return;
@@ -173,10 +198,28 @@ const AdminUsers = () => {
     try {
       await task();
       if (okMsg) setInfo(okMsg);
-      await load(page);
+      await refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Action failed.");
     }
+  };
+
+  const SortHead = ({ k, children }: { k: SortKey; children: string }) => {
+    const Icon = sort.key !== k ? ArrowUpDown : sort.dir === 1 ? ArrowUp : ArrowDown;
+    return (
+      <th className="px-3 py-3 font-semibold">
+        <button
+          type="button"
+          onClick={() => toggleSort(k)}
+          className={`inline-flex items-center gap-1.5 uppercase tracking-wide transition hover:text-gray-900 ${
+            sort.key === k ? "text-gray-900" : ""
+          }`}
+        >
+          {children}
+          <Icon className="h-3 w-3" />
+        </button>
+      </th>
+    );
   };
 
   return (
@@ -184,265 +227,191 @@ const AdminUsers = () => {
       links={adminLinks}
       roleLabel="Admin Console"
       accent={ADMIN_ACCENT}
-      title="User Management"
-      subtitle="Suspend pauses login but keeps community posts. Ban hides community presence. Delete removes them from the platform while keeping their email reserved."
+      title="Users"
+      subtitle="Everyone on AgriSense, by role and status. Suspend pauses login, ban hides community posts, delete keeps the email reserved."
+      actions={
+        <>
+          <button
+            onClick={() => setRegionsOpen((o) => !o)}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <MapPinned className="h-4 w-4" />
+            NGO provinces
+          </button>
+          <button
+            onClick={() => setAddUserOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[#4338CA] bg-white px-3 py-2 text-sm font-semibold text-[#4338CA] hover:bg-indigo-50"
+          >
+            <UserPlus className="h-4 w-4" />
+            Add user
+          </button>
+          <button
+            onClick={() => setFarmerOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#4338CA] px-3 py-2 text-sm font-semibold text-white hover:bg-[#3730a3]"
+          >
+            <Sprout className="h-4 w-4" />
+            Register farmer
+          </button>
+        </>
+      }
     >
-      {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      {info && (
-        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-          {info}
-        </div>
-      )}
-      <StaffAccountsPanel onChanged={() => load(page)} />
-      <Panel>
-        <div className="mb-5 rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    setPage(1);
-                    load(1);
-                  }
-                }}
-                placeholder="Search by name, email or phone"
-                className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3 text-sm text-gray-800 shadow-sm outline-none transition focus:border-[#4338CA] focus:ring-2 focus:ring-[#4338CA]/20"
-              />
-            </div>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as (typeof STATUSES)[number])}
-              className="h-11 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm outline-none focus:border-[#4338CA] focus:ring-2 focus:ring-[#4338CA]/20"
-              aria-label="Filter by status"
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s === "ALL" ? "All statuses" : formatRoleLabel(s)}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={() => {
-                setPage(1);
-                load(1);
-              }}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#4338CA] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3]"
-            >
-              <Search className="h-4 w-4" /> Search
-            </button>
-          </div>
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {error}
+          </motion.div>
+        )}
+        {info && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+          >
+            {info}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {regionsOpen && <StaffAccountsPanel onChanged={refresh} onClose={() => setRegionsOpen(false)} />}
+      <AddUserModal open={addUserOpen} onClose={() => setAddUserOpen(false)} onCreated={refresh} />
+      <RegisterFarmerModal open={farmerOpen} onClose={() => setFarmerOpen(false)} onCreated={() => void refresh()} />
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Role</span>
-            {ROLES.map((r) => (
-              <button
-                key={r}
-                onClick={() => setRole(r)}
-                className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-                  role === r
-                    ? "border-[#4338CA] bg-[#4338CA] text-white shadow-sm"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {r === "ALL" ? "All roles" : formatRoleLabel(r)}
-              </button>
-            ))}
-            {(role !== "ALL" || status !== "ALL" || query) && (
-              <button
-                onClick={() => {
-                  setQuery("");
-                  setRole("ALL");
-                  setStatus("ALL");
-                }}
-                className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-800"
-              >
-                <X className="h-3.5 w-3.5" /> Clear filters
-              </button>
-            )}
-          </div>
+      <Panel className="mb-6">
+        <UserOrbit
+          users={everyone}
+          statusCounts={statusCounts}
+          activeStatus={status}
+          onStatus={setStatus}
+          onPick={(u) => {
+            setRole(null);
+            setStatus(null);
+            setQuery(u.email || nameOf(u));
+          }}
+        />
+      </Panel>
+
+      <Panel>
+        <div className="mb-4">
+          <UserSmartFilter
+            query={query}
+            role={role}
+            status={status}
+            roleCounts={roleCounts}
+            statusCounts={statusCounts}
+            onQuery={setQuery}
+            onRole={setRole}
+            onStatus={setStatus}
+          />
         </div>
 
         <p className="mb-3 text-sm text-gray-500">
-          Showing <span className="font-semibold text-gray-800">{rows.length}</span> of{" "}
+          <span className="font-semibold text-gray-800">{rows.length}</span> of{" "}
           <span className="font-semibold text-gray-800">{total}</span> accounts
+          {loading && <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-gray-400" />}
         </p>
 
         <div className="overflow-x-auto">
-          <table className="w-full overflow-hidden rounded-xl text-sm">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-left text-[11px] uppercase tracking-wide text-gray-500">
-                <th className="px-3 py-3 font-semibold">User</th>
-                <th className="px-3 py-3 font-semibold">Email</th>
-                <th className="px-3 py-3 font-semibold">Role</th>
-                <th className="px-3 py-3 font-semibold">Status</th>
-                <th className="px-3 py-3 font-semibold">Joined</th>
-                <th className="px-3 py-3 font-semibold">Actions</th>
+              <tr className="border-b border-gray-100 text-left text-[11px] text-gray-500">
+                <SortHead k="name">User</SortHead>
+                <SortHead k="role">Role</SortHead>
+                <SortHead k="status">Status</SortHead>
+                <SortHead k="joined">Joined</SortHead>
+                <th className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="py-10 text-center text-gray-500">
-                    Loading users...
-                  </td>
-                </tr>
-              ) : rows.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-10 text-center text-gray-500">
-                    No users found.
-                  </td>
-                </tr>
-              ) : (
-                rows.map((u) => {
-                  const protectedRow = isProtectedTarget(user?.id, u);
-                  const statusKey = accountStatusLabel(u);
-                  const isDeleted = Boolean(u.deletedAt);
-                  return (
-                    <tr key={u.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-indigo-50/40">
-                      <td className="px-3 py-3 text-gray-700">
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-[#4338CA]">
-                            {initialsOf(getUserDisplayName(u))}
-                          </span>
-                          <p className="font-semibold text-gray-900">{getUserDisplayName(u)}</p>
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 text-gray-600">{u.email || "—"}</td>
-                      <td className="px-3 py-3">
-                        <Badge color={roleColor[u.role || ""] || "gray"}>
-                          {u.role || "Unknown"}
-                        </Badge>
-                      </td>
-                      <td className="px-3 py-3">
-                        <Badge color={statusColor[statusKey] || "amber"}>
-                          {statusKey}
-                        </Badge>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3 text-gray-500">
-                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
-                      </td>
-                      <td className="px-3 py-3">
-                        {protectedRow ? (
-                          <span className="text-xs text-gray-400">Protected</span>
-                        ) : (
-                          <div className="flex max-w-md flex-wrap gap-2">
-                            {isDeleted ? (
-                              <button
-                                onClick={() =>
-                                  runAction(
-                                    u,
-                                    () => adminService.restoreUser(u.id),
-                                    "User restored.",
-                                  )
-                                }
-                                className="rounded-md border px-2 py-1 text-xs font-semibold"
-                              >
-                                Restore
-                              </button>
-                            ) : (
-                              <>
-                                {statusKey === "SUSPENDED" || statusKey === "BANNED" ? (
-                                  <button
-                                    onClick={() =>
-                                      runAction(
-                                        u,
-                                        () => adminService.reactivateUser(u.id),
-                                        statusKey === "BANNED"
-                                          ? "User unbanned."
-                                          : "User reactivated.",
-                                      )
-                                    }
-                                    className="rounded-md border px-2 py-1 text-xs font-semibold"
-                                  >
-                                    {statusKey === "BANNED" ? "Unban" : "Reactivate"}
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() =>
-                                      runAction(
-                                        u,
-                                        () => adminService.suspendUser(u.id),
-                                        "User suspended. They cannot log in, but posts stay visible.",
-                                      )
-                                    }
-                                    className="rounded-md border px-2 py-1 text-xs font-semibold"
-                                  >
-                                    Suspend
-                                  </button>
-                                )}
-                                {statusKey !== "BANNED" ? (
-                                  <button
-                                    onClick={() =>
-                                      runAction(
-                                        u,
-                                        () => adminService.banUser(u.id),
-                                        "User banned. Community posts are now hidden.",
-                                      )
-                                    }
-                                    className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800"
-                                  >
-                                    Ban
-                                  </button>
-                                ) : null}
-                                <button
-                                  onClick={() =>
-                                    runAction(
-                                      u,
-                                      () => adminService.verifyUserEmail(u.id),
-                                      "Email verified.",
-                                    )
-                                  }
-                                  className="rounded-md border px-2 py-1 text-xs font-semibold"
-                                >
-                                  Verify email
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    runAction(
-                                      u,
-                                      () => adminService.resetUserPassword(u.id),
-                                      "Password reset triggered.",
-                                    )
-                                  }
-                                  className="rounded-md border px-2 py-1 text-xs font-semibold"
-                                >
-                                  Reset password
-                                </button>
-                                <button
-                                  onClick={() => openRoleModal(u)}
-                                  className="rounded-md border border-indigo-200 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700"
-                                >
-                                  Change role
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    runAction(
-                                      u,
-                                      () => adminService.softDeleteUser(u.id),
-                                      "User deleted. Email stays reserved so they cannot re-register.",
-                                    )
-                                  }
-                                  className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold text-red-600"
-                                >
-                                  Delete
-                                </button>
-                              </>
-                            )}
+            <motion.tbody layout>
+              <AnimatePresence mode="popLayout" initial={false}>
+                {!loading && rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>
+                      <EmptyState art="search" title="No one matches" text="Try clearing a filter." compact />
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((u, i) => {
+                    const statusKey = statusOf(u);
+                    const roleKey = roleOf(u);
+                    const meta = STATUS_META[statusKey];
+                    const roleMeta = ROLE_META[roleKey];
+                    const name = nameOf(u);
+                    return (
+                      <motion.tr
+                        key={u.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -16 }}
+                        transition={{ duration: 0.25, delay: Math.min(i, 10) * 0.03 }}
+                        className="group border-b border-gray-50 last:border-0 hover:bg-indigo-50/40"
+                      >
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-3">
+                            <span
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold ring-2 ring-white"
+                              style={{ background: roleMeta?.tint ?? "#E5E7EB", color: roleMeta?.text ?? "#374151" }}
+                            >
+                              {initialsOf(name)}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="truncate font-semibold text-gray-900">{name}</p>
+                              <p className="truncate text-xs text-gray-500">{u.email || "—"}</p>
+                            </div>
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
+                        </td>
+                        <td className="px-3 py-3">
+                          <span
+                            className="rounded-full px-2.5 py-1 text-xs font-semibold"
+                            style={{ background: roleMeta?.tint ?? "#E5E7EB", color: roleMeta?.text ?? "#374151" }}
+                          >
+                            {roleMeta?.label ?? (roleKey || "Unknown")}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3">
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${
+                              meta?.pill ?? "bg-gray-100 text-gray-500 ring-gray-200"
+                            }`}
+                          >
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${statusKey === "PENDING" ? "animate-pulse" : ""}`}
+                              style={{ background: meta?.dot ?? "#9CA3AF" }}
+                            />
+                            {meta?.label ?? statusKey}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 text-gray-500">{joinedOf(u)}</td>
+                        <td className="px-3 py-3">
+                          <UserRowActions
+                            status={statusKey}
+                            locked={isProtectedTarget(user?.id, u)}
+                            on={{
+                              suspend: () =>
+                                runAction(u, () => adminService.suspendUser(u.id), "User suspended. They cannot log in, but posts stay visible."),
+                              reactivate: () => runAction(u, () => adminService.reactivateUser(u.id), "User reactivated."),
+                              ban: () => runAction(u, () => adminService.banUser(u.id), "User banned. Community posts are now hidden."),
+                              unban: () => runAction(u, () => adminService.reactivateUser(u.id), "User unbanned."),
+                              verify: () => runAction(u, () => adminService.verifyUserEmail(u.id), "Email verified."),
+                              reset: () => runAction(u, () => adminService.resetUserPassword(u.id), "Password reset triggered."),
+                              changeRole: () => openRoleModal(u),
+                              remove: () =>
+                                runAction(u, () => adminService.softDeleteUser(u.id), "User deleted. Email stays reserved so they cannot re-register."),
+                              restore: () => runAction(u, () => adminService.restoreUser(u.id), "User restored."),
+                            }}
+                          />
+                        </td>
+                      </motion.tr>
+                    );
+                  })
+                )}
+              </AnimatePresence>
+            </motion.tbody>
           </table>
         </div>
 

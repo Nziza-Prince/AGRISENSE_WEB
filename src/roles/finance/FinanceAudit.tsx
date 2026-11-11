@@ -1,13 +1,41 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import RoleLayout from "../RoleLayout";
+import FinanceShell from "./FinanceShell";
 import { Badge, PaginationControls, Panel } from "../ui";
-import { FINANCE_ACCENT, financeLinks } from "./config";
-import { formatDateTime, formatRwf } from "./format";
+import { FINANCE_ACCENT } from "./config";
+import { formatDateTime, formatRwf, paymentMethodLabel } from "./format";
 import { ApiError, financeService, type FinanceAuditLog } from "@/api";
 import { getUserDisplayName } from "@/lib/user";
 
 const PAGE_SIZE = 20;
+
+const FIELD_LABELS: Record<string, string> = {
+  type: "Type",
+  amount: "Amount",
+  occurredAt: "Date",
+  description: "Description",
+  notes: "Notes",
+  reference: "Reference",
+  counterparty: "Person or company",
+  paymentMethod: "Way of payment",
+  categoryId: "Category",
+};
+
+/** "Amount: RWF 150,000 → RWF 175,000" for every field an edit changed. */
+function changeLines(metadata?: Record<string, unknown> | null): string[] {
+  const changes = metadata?.changes as Record<string, { from: unknown; to: unknown }> | undefined;
+  if (!changes) return [];
+  const show = (key: string, value: unknown) => {
+    if (value == null || value === "") return "empty";
+    if (key === "amount") return formatRwf(Number(value));
+    if (key === "paymentMethod") return paymentMethodLabel(String(value));
+    if (key === "categoryId") return "another category";
+    return String(value);
+  };
+  return Object.entries(changes).map(
+    ([key, change]) => `${FIELD_LABELS[key] || key}: ${show(key, change.from)} → ${show(key, change.to)}`,
+  );
+}
 
 const actionColor = (action?: string): "green" | "amber" | "red" | "blue" | "gray" => {
   switch ((action || "").toUpperCase()) {
@@ -65,12 +93,9 @@ const FinanceAudit = () => {
   }, [action]);
 
   return (
-    <RoleLayout
-      links={financeLinks}
-      roleLabel="CFO Portal"
-      accent={FINANCE_ACCENT}
+    <FinanceShell
       title="Audit trail"
-      subtitle="Every create, update, approval, rejection, and cancellation is retained."
+      subtitle="Every record, correction (with old and new values), approval and cancellation is kept."
     >
       {error && (
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
@@ -130,10 +155,14 @@ const FinanceAudit = () => {
                     </td>
                     <td className="py-3 text-gray-600">{getUserDisplayName(log.user)}</td>
                     <td className="py-3 text-xs text-gray-500">
+                      {log.metadata?.description ? <p className="text-gray-700">{String(log.metadata.description)}</p> : null}
                       {log.metadata?.amount != null ? formatRwf(Number(log.metadata.amount)) : ""}
                       {log.metadata?.name ? ` ${String(log.metadata.name)}` : ""}
                       {log.metadata?.reason ? ` · ${String(log.metadata.reason)}` : ""}
-                      {log.metadata?.status ? ` · ${String(log.metadata.status)}` : ""}
+                      {log.metadata?.source ? ` · ${String(log.metadata.source)}` : ""}
+                      {changeLines(log.metadata).map((line) => (
+                        <p key={line} className="text-gray-600">{line}</p>
+                      ))}
                     </td>
                   </tr>
                 ))
@@ -150,7 +179,7 @@ const FinanceAudit = () => {
           onPageChange={(next) => load(next)}
         />
       </Panel>
-    </RoleLayout>
+    </FinanceShell>
   );
 };
 

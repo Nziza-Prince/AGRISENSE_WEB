@@ -53,8 +53,11 @@ export const routes = {
     suppliers: "/admin/suppliers",
     waitlist: "/admin/waitlist",
     billing: "/admin/billing",
+    payments: "/admin/payments",
+    farms: "/admin/farms",
     moderation: "/admin/moderation",
     analytics: "/admin/analytics",
+    audit: "/admin/audit",
     notifications: "/admin/notifications",
     settings: "/admin/settings",
   },
@@ -74,7 +77,8 @@ export const routes = {
   finance: {
     root: "/finance",
     transactions: "/finance/transactions",
-    accounts: "/finance/accounts",
+    farmerPayments: "/finance/farmer-payments",
+    categories: "/finance/categories",
     reports: "/finance/reports",
     audit: "/finance/audit",
     notifications: "/finance/notifications",
@@ -90,7 +94,6 @@ export function getDefaultRouteForRole(role?: string | null): string {
     case "SUPPLIER":
       return routes.supplier.root;
     case "NGO":
-    case "GOVERNMENT":
       return routes.ngo.root;
     case "FARMER":
     default:

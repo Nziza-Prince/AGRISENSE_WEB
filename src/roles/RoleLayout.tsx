@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/useAuth";
-import { Search, LogOut, Menu, X, type LucideIcon } from "lucide-react";
-import { UserAvatar } from "@/components/UserAvatar";
+import { LogOut, Menu, X, type LucideIcon } from "lucide-react";
+import GlobalSearch from "./GlobalSearch";
+import { ProfileMenu } from "@/components/ProfileMenu";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { getUserDisplayName } from "@/lib/user";
 import { getDefaultRouteForRole, routes } from "@/lib/routes";
 
 export interface RoleNavLink {
@@ -33,7 +33,6 @@ function notificationsPathForRole(role?: string | null): string {
     case "SUPPLIER":
       return routes.supplier.notifications;
     case "NGO":
-    case "GOVERNMENT":
       return routes.ngo.notifications;
     default:
       return routes.app.notifications;
@@ -53,8 +52,6 @@ const RoleLayout = ({
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const displayName = getUserDisplayName(user);
-  const displayEmail = user?.email || "";
   const inboxHref = notificationsPathForRole(user?.role);
 
   const handleLogout = async () => {
@@ -133,30 +130,11 @@ const RoleLayout = ({
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
 
-          <div className="relative hidden max-w-md flex-1 sm:block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search…"
-              className="w-full rounded-lg border bg-gray-50 py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2"
-              style={{ ["--tw-ring-color" as string]: accent }}
-            />
-          </div>
+          <GlobalSearch links={links} accent={accent} isAdmin={(user?.role || "").toUpperCase() === "ADMIN"} />
 
           <div className="ml-auto flex items-center gap-3 sm:gap-4">
             <NotificationBell inboxHref={inboxHref} accent={accent} />
-            <div className="flex items-center gap-3 border-l pl-4">
-              <UserAvatar
-                src={user?.profileImage}
-                alt={displayName}
-                sizeClassName="h-9 w-9"
-                iconClassName="h-5 w-5"
-              />
-              <div className="hidden sm:block">
-                <p className="text-sm font-semibold leading-tight">{displayName}</p>
-                <p className="text-xs text-gray-500">{displayEmail}</p>
-              </div>
-            </div>
+            <ProfileMenu accent={accent} inboxHref={inboxHref} />
           </div>
         </header>
 

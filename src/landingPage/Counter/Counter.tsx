@@ -1,5 +1,7 @@
 import CountUp from 'react-countup';
 import { useInView } from 'react-intersection-observer';
+import { TEAM_SIZE } from '../AboutUs/team';
+import { usePublicStats } from '@/hooks/usePublicStats';
 
 interface ContentType {
   image: string;
@@ -8,25 +10,26 @@ interface ContentType {
 }
 
 const Counter = () => {
+  const live = usePublicStats();
   const contents: ContentType[] = [
     {
       image: '/assets/counter/HappyCustomer.svg',
-      count: 10,
+      count: live?.farmers ?? 0,
       description: 'Farmers onboarded',
     },
     {
       image: '/assets/counter/completedProjects.svg',
-      count: 3,
+      count: live?.farms ?? 0,
       description: 'Farms monitored',
     },
     {
       image: '/assets/counter/yearsOfExperience.svg',
-      count: 1,
-      description: 'Connected cooperative',
+      count: live?.partners ?? 0,
+      description: 'Partner organisations',
     },
     {
       image: '/assets/counter/professionalTeam.svg',
-      count: 5,
+      count: TEAM_SIZE,
       description: 'Team members',
     },
   ];
@@ -34,6 +37,9 @@ const Counter = () => {
     triggerOnce: true,
     threshold: 0.3,
   });
+
+  // Never show placeholder zeros: wait for real numbers from the API.
+  if (!live) return null;
 
   return (
     <div

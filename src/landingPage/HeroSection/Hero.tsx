@@ -3,6 +3,7 @@ import { ArrowRight, PlayCircle, Sparkles, Leaf, CloudSun, LineChart, ShieldChec
 import HeroImage from "/assets/HeroImage.webp"
 import FilterBar from "./HeroFooter"
 import { useGetStarted } from "@/hooks/useGetStarted"
+import { usePublicStats } from "@/hooks/usePublicStats"
 
 const HIGHLIGHTS = [
     { icon: Leaf, label: "AI Soil Analysis" },
@@ -10,14 +11,15 @@ const HIGHLIGHTS = [
     { icon: LineChart, label: "Yield Insights" },
 ]
 
-const STATS = [
-    { value: "10", label: "Farmers onboarded" },
-    { value: "3", label: "Farms monitored" },
-    { value: "5", label: "Districts reached" },
-]
-
 export default function HeroSection() {
     const { to: ctaTo, label: ctaLabel } = useGetStarted()
+    const live = usePublicStats()
+    const fmt = (n?: number) => (n === undefined ? "–" : String(n))
+    const STATS = [
+        { value: fmt(live?.farmers), label: "Farmers onboarded" },
+        { value: fmt(live?.farms), label: "Farms monitored" },
+        { value: fmt(live?.districts), label: "Districts reached" },
+    ]
     return (
         <div className="relative mb-48 sm:mb-56 md:mb-64 lg:mb-56 w-full">
             <div className="relative min-h-[600px] sm:min-h-[640px] w-full flex flex-col overflow-hidden">

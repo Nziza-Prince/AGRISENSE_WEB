@@ -52,6 +52,7 @@ const NgoFarmers = () => {
 
   useEffect(() => {
     load(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- reload only when role changes; load is recreated each render
   }, [portal.role]);
 
   return (

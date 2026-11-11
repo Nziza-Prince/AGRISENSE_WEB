@@ -1,19 +1,19 @@
 import { api } from "../client";
 import type {
-  CreateFinanceAccountDto,
   CreateFinanceCategoryDto,
   CreateFinanceTransactionDto,
-  FinanceAccount,
+  FarmerPayment,
+  FarmerPaymentSummary,
   FinanceAuditLog,
   FinanceCategory,
   FinanceCategoryKind,
   FinanceDashboard,
+  FinancePaymentMethod,
   FinanceRangePreset,
   FinanceReport,
   FinanceTransaction,
   FinanceTransactionStatus,
   FinanceTransactionType,
-  UpdateFinanceAccountDto,
   UpdateFinanceCategoryDto,
   UpdateFinanceTransactionDto,
 } from "../types";
@@ -33,14 +33,6 @@ export const financeService = {
   getDashboard: (params: { preset?: FinanceRangePreset; from?: string; to?: string } = {}) =>
     api.get<FinanceDashboard>(`/finance/dashboard${buildQuery(params)}`),
 
-  listAccounts: () => api.get<{ currency: string; accounts: FinanceAccount[] }>("/finance/accounts"),
-
-  createAccount: (dto: CreateFinanceAccountDto) =>
-    api.post<FinanceAccount>("/finance/accounts", dto),
-
-  updateAccount: (id: string, dto: UpdateFinanceAccountDto) =>
-    api.patch<FinanceAccount>(`/finance/accounts/${id}`, dto),
-
   listCategories: (kind?: FinanceCategoryKind) =>
     api.get<{ categories: FinanceCategory[] }>(
       `/finance/categories${buildQuery({ kind })}`,
@@ -58,7 +50,7 @@ export const financeService = {
       limit?: number;
       type?: FinanceTransactionType;
       status?: FinanceTransactionStatus;
-      accountId?: string;
+      paymentMethod?: FinancePaymentMethod;
       categoryId?: string;
       search?: string;
       preset?: FinanceRangePreset;
@@ -72,6 +64,7 @@ export const financeService = {
       limit: number;
       total: number;
       totalPages: number;
+      totals: { income: number; expenses: number; net: number };
     }>(`/finance/transactions${buildQuery(params)}`),
 
   getTransaction: (id: string) => api.get<FinanceTransaction>(`/finance/transactions/${id}`),
@@ -96,9 +89,21 @@ export const financeService = {
     preset?: FinanceRangePreset;
     from?: string;
     to?: string;
-    accountId?: string;
+    paymentMethod?: FinancePaymentMethod;
     categoryId?: string;
   } = {}) => api.get<FinanceReport>(`/finance/reports${buildQuery(params)}`),
+
+  listFarmerPayments: (
+    params: { status?: string; search?: string; page?: number; limit?: number } = {},
+  ) =>
+    api.get<{
+      items: FarmerPayment[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      summary: FarmerPaymentSummary;
+    }>(`/finance/farmer-payments${buildQuery(params)}`),
 
   listAudit: (
     params: { page?: number; limit?: number; action?: string; entityType?: string } = {},

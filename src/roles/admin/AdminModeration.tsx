@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { ShieldAlert, EyeOff, Eye, Trash2, Loader2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ShieldAlert, EyeOff, Eye, Trash2, Loader2, Info } from "lucide-react";
+import { IconAction } from "./users/IconAction";
+import { EmptyState } from "@/components/EmptyState";
 import RoleLayout from "../RoleLayout";
 import { Panel, PaginationControls, getPaginationMeta } from "../ui";
 import { ADMIN_ACCENT, adminLinks } from "./config";
@@ -58,6 +61,7 @@ const AdminModeration = () => {
 
   useEffect(() => {
     load(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount; load is recreated each render
   }, []);
 
   const moderate = async (item: AdminReportItem, action: "hide" | "unhide" | "delete") => {
@@ -87,70 +91,77 @@ const AdminModeration = () => {
           {error}
         </div>
       )}
-      <Panel title={`Reported items (${total || reports.length})`}>
-        {loading ? (
-          <div className="flex justify-center py-10">
-            <Loader2 className="h-6 w-6 animate-spin text-[#4338CA]" />
-          </div>
-        ) : reports.length === 0 ? (
-          <p className="text-sm text-gray-500">No reported posts right now.</p>
-        ) : (
-          <>
-            <ul className="space-y-3">
-              {reports.map((m) => (
-                <li
-                  key={m.id}
-                  className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="flex items-start gap-3">
-                    <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {m.reason || "Reported post"}
-                      </p>
-                      <p className="mt-0.5 text-sm text-gray-600">
-                        &quot;{m.excerpt || m.description || "No description"}&quot;
-                      </p>
-                      <p className="mt-1 text-xs text-gray-400">
-                        {getUserDisplayName(m.author) || "Unknown user"} · reported{" "}
-                        {m.createdAt ? new Date(m.createdAt).toLocaleString() : "recently"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    <button
-                      onClick={() => moderate(m, "hide")}
-                      className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+      <div className="grid items-start gap-6 xl:grid-cols-3">
+        <Panel title={`Reported items (${total || reports.length})`} className="xl:col-span-2">
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-[#4338CA]" />
+            </div>
+          ) : reports.length === 0 ? (
+            <EmptyState art="calm" title="The community is calm" text="No post is waiting for a decision. Reported posts appear here the moment a member flags one." />
+          ) : (
+            <>
+              <ul className="space-y-3">
+                <AnimatePresence initial={false}>
+                  {reports.map((m) => (
+                    <motion.li
+                      key={m.id}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="flex flex-col gap-3 rounded-xl border border-l-4 border-l-red-400 p-4 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <EyeOff className="h-3.5 w-3.5" /> Hide
-                    </button>
-                    <button
-                      onClick={() => moderate(m, "unhide")}
-                      className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
-                    >
-                      <Eye className="h-3.5 w-3.5" /> Unhide
-                    </button>
-                    <button
-                      onClick={() => moderate(m, "delete")}
-                      className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> Delete
-                    </button>
-                  </div>
+                      <div className="flex items-start gap-3">
+                        <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800">{m.reason || "Reported post"}</p>
+                          <p className="mt-0.5 text-sm text-gray-600">&quot;{m.excerpt || m.description || "No description"}&quot;</p>
+                          <p className="mt-1 text-xs text-gray-400">
+                            {getUserDisplayName(m.author) || "Unknown user"} · reported {m.createdAt ? new Date(m.createdAt).toLocaleString() : "recently"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-0.5">
+                        <IconAction icon={EyeOff} label="Hide post" tone="warn" onClick={() => moderate(m, "hide")} />
+                        <IconAction icon={Eye} label="Show post again" tone="good" onClick={() => moderate(m, "unhide")} />
+                        <IconAction icon={Trash2} label="Delete post" tone="danger" onClick={() => moderate(m, "delete")} confirm />
+                      </div>
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
+              </ul>
+              <PaginationControls page={page} totalPages={totalPages} total={total} limit={PAGE_SIZE} disabled={loading} onPageChange={(next) => load(next)} />
+            </>
+          )}
+        </Panel>
+
+        <Panel title="How to decide">
+          <ul className="space-y-3 text-sm text-gray-600">
+            {[
+              [EyeOff, "Hide", "Removes the post from the community but keeps it, so you can show it again if the report was wrong."],
+              [Eye, "Show again", "Brings a hidden post back after review."],
+              [Trash2, "Delete", "Permanent. Use it for spam, abuse or anything illegal. Needs a second click."],
+            ].map(([Icon, title, text]) => {
+              const I = Icon as typeof Info;
+              return (
+                <li key={title as string} className="flex gap-3">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                    <I className="h-4 w-4" />
+                  </span>
+                  <span>
+                    <span className="block font-semibold text-gray-800">{title as string}</span>
+                    {text as string}
+                  </span>
                 </li>
-              ))}
-            </ul>
-            <PaginationControls
-              page={page}
-              totalPages={totalPages}
-              total={total}
-              limit={PAGE_SIZE}
-              disabled={loading}
-              onPageChange={(next) => load(next)}
-            />
-          </>
-        )}
-      </Panel>
+              );
+            })}
+          </ul>
+          <p className="mt-4 rounded-xl bg-indigo-50 px-3 py-2.5 text-xs text-indigo-900">
+            To pause a person, not a post, use Suspend or Ban on the Users page.
+          </p>
+        </Panel>
+      </div>
     </RoleLayout>
   );
 };

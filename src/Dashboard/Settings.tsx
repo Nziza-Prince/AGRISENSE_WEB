@@ -497,10 +497,10 @@ function FarmsSection() {
           <Field label="Farm name">
             <TextInput value={form.name} onChange={(v) => updateField('name', v)} required />
           </Field>
-          <Field label="Size (acres)">
+          <Field label="Size (square metres, m²)">
             <input
               type="number"
-              step="0.1"
+              step="1"
               value={form.size}
               onChange={(e) => updateField('size', Number(e.target.value))}
               className="w-full h-11 border border-gray-300 rounded-md px-3 outline-none focus:border-[#2C6E49]"
@@ -580,7 +580,7 @@ function FarmsSection() {
                 <div>
                   <h3 className="font-semibold text-gray-800">{farm.name}</h3>
                   <p className="text-sm text-gray-500 capitalize">
-                    {farm.soilType} soil · {farm.size} acres
+                    {farm.soilType} soil · {Number(farm.size).toLocaleString()} m²
                   </p>
                   {farm.isActive && (
                     <span className="mt-2 inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
