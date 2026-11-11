@@ -10,6 +10,7 @@ import type {
   FinanceDashboard,
   FinancePaymentMethod,
   FinanceRangePreset,
+  FinanceSeries,
   FinanceReport,
   FinanceTransaction,
   FinanceTransactionStatus,
@@ -65,6 +66,7 @@ export const financeService = {
       total: number;
       totalPages: number;
       totals: { income: number; expenses: number; net: number };
+      series: FinanceSeries;
     }>(`/finance/transactions${buildQuery(params)}`),
 
   getTransaction: (id: string) => api.get<FinanceTransaction>(`/finance/transactions/${id}`),

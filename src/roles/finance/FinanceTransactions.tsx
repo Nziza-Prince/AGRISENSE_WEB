@@ -4,6 +4,7 @@ import FinanceShell from "./FinanceShell";
 import { useFinanceAccess } from "./useFinanceAccess";
 import { Badge, PaginationControls, Panel, StatCard } from "../ui";
 import { DateRangeBar } from "./DateRangeBar";
+import { FinanceFlowChart } from "./FinanceFlowChart";
 import { FINANCE_ACCENT } from "./config";
 import {
   PAYMENT_METHODS,
@@ -22,6 +23,7 @@ import {
   type FinanceCategory,
   type FinancePaymentMethod,
   type FinanceRangePreset,
+  type FinanceSeries,
   type FinanceTransaction,
   type FinanceTransactionStatus,
   type FinanceTransactionType,
@@ -57,6 +59,7 @@ const FinanceTransactions = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [sums, setSums] = useState({ income: 0, expenses: 0, net: 0 });
+  const [series, setSeries] = useState<FinanceSeries | undefined>();
   const [rows, setRows] = useState<FinanceTransaction[]>([]);
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
   const [type, setType] = useState<"ALL" | FinanceTransactionType>("ALL");
@@ -111,6 +114,7 @@ const FinanceTransactions = () => {
       setTotalPages(res.totalPages || 1);
       setTotal(res.total || 0);
       setSums(res.totals || { income: 0, expenses: 0, net: 0 });
+      setSeries(res.series);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to load transactions.");
     } finally {
@@ -269,6 +273,8 @@ const FinanceTransactions = () => {
           accent={FINANCE_ACCENT}
         />
       </div>
+
+      <FinanceFlowChart series={series} loading={loading} />
 
       <Panel>
         <div className="mb-4">

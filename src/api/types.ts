@@ -1056,6 +1056,20 @@ export interface FarmerPaymentSummary {
   rejected: { count: number; amount: number };
 }
 
+export interface FinanceSeriesPoint {
+  /** First day of the bucket, YYYY-MM-DD. */
+  period: string;
+  income: number;
+  expenses: number;
+  net: number;
+  count: number;
+}
+
+export interface FinanceSeries {
+  granularity: "day" | "week" | "month";
+  points: FinanceSeriesPoint[];
+}
+
 export interface FinanceDashboard {
   currency: string;
   range: { preset: string; from: string; to: string };
