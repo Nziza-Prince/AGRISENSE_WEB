@@ -10,12 +10,11 @@ const PricingPlan = () => {
         <span className="inline-block rounded-full bg-[#2C6E49]/10 px-4 py-1.5 text-sm font-semibold text-[#2C6E49]">
           Pricing
         </span>
-        <h1 className="mt-4 text-3xl md:text-4xl font-bold text-gray-900">
-          Simple plans that grow with you
-        </h1>
+        <h2 className="mt-4 text-3xl md:text-4xl font-bold text-gray-900">
+          Simple pricing, paid per farm
+        </h2>
         <p className="mt-3 text-gray-600">
-          Start free and upgrade when you're ready. Built to be affordable for every farmer,
-          cooperative, and institution.
+          Your first analysis on each farm is free. After that, one season pass covers that farm for the season.
         </p>
       </div>
 
