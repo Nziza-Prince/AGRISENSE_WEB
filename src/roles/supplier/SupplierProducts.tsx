@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2 } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, Badge } from "../ui";
@@ -62,9 +63,7 @@ const SupplierProducts = () => {
         ) : error ? (
           <p className="py-10 text-center text-sm text-red-600">{error}</p>
         ) : products.length === 0 ? (
-          <p className="py-10 text-center text-sm text-gray-500">
-            You have not listed any products yet.
-          </p>
+          <EmptyState art="box" title="Your products will appear here" text="Add your first product to start selling to farmers." compact />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

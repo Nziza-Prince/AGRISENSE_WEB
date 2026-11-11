@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2 } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, Badge, PaginationControls, getPaginationMeta } from "../ui";
@@ -117,7 +118,7 @@ const NgoRegions = () => {
               <Loader2 className="h-6 w-6 animate-spin" style={{ color: NGO_ACCENT }} />
             </div>
           ) : regional.length === 0 ? (
-            <p className="text-sm text-gray-500">No regional comparison data available yet.</p>
+            <EmptyState art="pin" title="Regional comparisons will appear here" text="They fill in as farms in your regions are added." compact />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -164,7 +165,7 @@ const NgoRegions = () => {
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel title={`Recommended crops · ${province}`} className="lg:col-span-1">
           {cropCounts.length === 0 ? (
-            <p className="text-sm text-gray-500">No crop activity in this page of results.</p>
+            <EmptyState art="seedling" title="Crop activity will appear here" compact />
           ) : (
             <ul className="space-y-2">
               {cropCounts.map(([crop, count]) => (
@@ -189,7 +190,7 @@ const NgoRegions = () => {
               <Loader2 className="h-6 w-6 animate-spin" style={{ color: NGO_ACCENT }} />
             </div>
           ) : farms.length === 0 ? (
-            <p className="text-sm text-gray-500">No farms returned for this province.</p>
+            <EmptyState art="seedling" title="Farms in this province will appear here" compact />
           ) : (
             <>
               <div className="overflow-x-auto">

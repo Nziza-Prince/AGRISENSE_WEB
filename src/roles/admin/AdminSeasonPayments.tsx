@@ -271,8 +271,8 @@ const AdminSeasonPayments = () => {
           ) : !data || data.items.length === 0 ? (
             <EmptyState
               art="coins"
-              title={filter === "submitted" ? "Nothing to confirm" : "No payments here"}
-              text={filter === "submitted" ? "When a farmer says they have paid, it shows up here for you to check." : "No payments match this view."}
+              title={filter === "submitted" ? "Payments to confirm will appear here" : "Payments will appear here"}
+              text={filter === "submitted" ? "When a farmer says they have paid, it shows up here for you to check." : "Change the filter to see other payments."}
             />
           ) : (
             <div>

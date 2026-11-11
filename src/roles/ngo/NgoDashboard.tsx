@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Users,
   MapPinned,
@@ -115,9 +116,7 @@ const NgoDashboard = () => {
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Panel title="Disease & early-warning signals">
               {diseases.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  No disease trends reported for your assigned regions yet.
-                </p>
+                <EmptyState art="pulse" title="Early-warning signals will appear here" text="They show up as soon as farms in your regions report a risk." compact />
               ) : (
                 <ul className="space-y-3">
                   {diseases.slice(0, 6).map((d, idx) => (
@@ -153,11 +152,16 @@ const NgoDashboard = () => {
 
             <Panel title="Programs snapshot">
               {programs.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  {portal.isGovernment
-                    ? "Program management is available on the NGO programs API. Use Advisories for national alerts."
-                    : "No programs yet. Create one to target crops and regions with support."}
-                </p>
+                <EmptyState
+                  art="seedling"
+                  title="Your programs will appear here"
+                  text={
+                    portal.isGovernment
+                      ? "Use Advisories to send national alerts."
+                      : "Create one to target crops and regions with support."
+                  }
+                  compact
+                />
               ) : (
                 <div className="space-y-3">
                   {programs.slice(0, 5).map((p) => (

@@ -1,4 +1,5 @@
 import DashboardLayout from "./DashboardLayout"
+import { EmptyState } from "@/components/EmptyState";
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, Trash2, Plus } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -571,7 +572,7 @@ function FarmsSection() {
           <Loader2 className="h-7 w-7 animate-spin text-[#2C6E49]" />
         </div>
       ) : farms.length === 0 ? (
-        <p className="text-center text-gray-500 py-10">No farms yet. Add your first farm.</p>
+        <EmptyState art="seedling" title="Your farms will appear here" text="Add your first farm to get soil and crop advice." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {farms.map((farm) => (

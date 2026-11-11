@@ -1,4 +1,5 @@
 import DashboardLayout from "./DashboardLayout"
+import { EmptyState } from "@/components/EmptyState";
 import { useCallback, useEffect, useState } from 'react';
 import { Heart, MessageCircle, Send, Loader2 } from 'lucide-react';
 import {
@@ -199,7 +200,7 @@ const Community = () => {
               <Loader2 className="h-8 w-8 animate-spin text-[#2C6E49]" />
             </div>
           ) : posts.length === 0 ? (
-            <p className="text-center text-gray-500 py-16">No posts yet. Be the first to post!</p>
+            <EmptyState art="chat" title="The conversation starts with you" text="Share a tip, a question or a harvest photo with other farmers." />
           ) : (
             <div className="space-y-5">
               {posts.map((post) => (

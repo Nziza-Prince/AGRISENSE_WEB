@@ -21,9 +21,13 @@ interface WeatherForecastChartProps {
 }
 
 export function WeatherForecastChart({ daily }: WeatherForecastChartProps) {
-  const labels = daily.map((d) =>
-    new Date(d.date).toLocaleDateString("en-US", { weekday: "short" }),
-  )
+  const labels = daily.length
+    ? daily.map((d) => new Date(d.date).toLocaleDateString("en-US", { weekday: "short" }))
+    : Array.from({ length: 7 }, (_, i) => {
+        const d = new Date()
+        d.setDate(d.getDate() + i)
+        return d.toLocaleDateString("en-US", { weekday: "short" })
+      })
 
   const data: ChartData<"line"> = {
     labels,
@@ -92,13 +96,6 @@ export function WeatherForecastChart({ daily }: WeatherForecastChartProps) {
     interaction: { mode: "nearest", axis: "x", intersect: false },
   }
 
-  if (daily.length === 0) {
-    return (
-      <div className="h-[300px] w-full flex items-center justify-center text-sm text-gray-400">
-        No forecast data available.
-      </div>
-    )
-  }
 
   return (
     <div className="h-[300px] w-full">

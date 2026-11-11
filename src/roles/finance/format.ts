@@ -151,3 +151,22 @@ export function formatMonth(period: string) {
   if (!year || !month) return period;
   return new Date(year, month - 1, 1).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 }
+
+/** Six flat months ending now, so a chart on first use draws its axes instead of saying it is empty. */
+export function ghostMonths(count = 6) {
+  const now = new Date();
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (count - 1 - i), 1);
+    return {
+      period: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      income: 0,
+      expenses: 0,
+      net: 0,
+    };
+  });
+}
+
+/** Every way of payment at zero, shown until the first record exists. */
+export function ghostMethods() {
+  return PAYMENT_METHODS.slice(0, 3).map((m) => ({ method: m.id, moneyIn: 0, moneyOut: 0, onHand: 0 }));
+}

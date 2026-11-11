@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Link } from "react-router-dom";
 import {
   ArrowDownRight,
@@ -28,6 +29,8 @@ import { FINANCE_ACCENT } from "./config";
 import {
   formatCompactDate,
   formatMonth,
+  ghostMethods,
+  ghostMonths,
   formatRwf,
   paymentMethodColor,
   paymentMethodLabel,
@@ -44,23 +47,22 @@ import {
 
 const PIE_COLORS = ["#164E63", "#0F766E", "#B45309", "#BE123C", "#1D4ED8", "#7C3AED", "#334155"];
 
-function Breakdown({ title, rows, empty }: { title: string; rows: FinanceCategoryTotal[]; empty: string }) {
+function Breakdown({ title, rows }: { title: string; rows: FinanceCategoryTotal[] }) {
   const total = rows.reduce((sum, row) => sum + row.amount, 0);
+  const ring = rows.length ? rows : [{ categoryId: "ghost", name: "", amount: 1, color: "#E5E7EB" }];
   return (
     <Panel title={title}>
-      {rows.length === 0 ? (
-        <p className="py-10 text-center text-sm text-gray-500">{empty}</p>
-      ) : (
+      {(
         <>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={rows} dataKey="amount" nameKey="name" innerRadius={44} outerRadius={72} paddingAngle={2}>
-                  {rows.map((entry, index) => (
+                <Pie data={ring} dataKey="amount" nameKey="name" innerRadius={44} outerRadius={72} paddingAngle={2}>
+                  {ring.map((entry, index) => (
                     <Cell key={entry.categoryId} fill={entry.color || PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => formatRwf(Number(value))} />
+                {rows.length > 0 && <Tooltip formatter={(value) => formatRwf(Number(value))} />}
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -126,7 +128,7 @@ const FinanceDashboard = () => {
 
   const chartData = useMemo(
     () =>
-      (data?.incomeVsExpenses || []).map((row) => ({
+      (data?.incomeVsExpenses?.length ? data.incomeVsExpenses : ghostMonths()).map((row) => ({
         ...row,
         label: formatMonth(row.period),
       })),
@@ -241,17 +243,13 @@ const FinanceDashboard = () => {
 
           <div className="mb-5 grid gap-4 xl:grid-cols-5">
             <Panel title="Money in vs money out, by month" className="xl:col-span-3">
-              {chartData.length === 0 ? (
-                <p className="py-10 text-center text-sm text-gray-500">
-                  Nothing recorded in this period.
-                </p>
-              ) : (
+              {(
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                       <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(Number(v) / 1000)}k`} />
+                      <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(Number(v) / 1000)}k`} domain={data?.incomeVsExpenses?.length ? [0, "auto"] : [0, 100000]} />
                       <Tooltip formatter={(value) => formatRwf(Number(value))} />
                       <Area type="monotone" dataKey="income" stroke="#0F766E" fill="#0F766E22" name="Money in" />
                       <Area type="monotone" dataKey="expenses" stroke="#BE123C" fill="#BE123C18" name="Money out" />
@@ -262,11 +260,9 @@ const FinanceDashboard = () => {
             </Panel>
 
             <Panel title="Where the money is" className="xl:col-span-2">
-              {methods.length === 0 ? (
-                <p className="py-10 text-center text-sm text-gray-500">No money recorded yet.</p>
-              ) : (
+              {(
                 <div className="space-y-3">
-                  {methods.map((m) => (
+                  {(methods.length ? methods : ghostMethods()).map((m) => (
                     <div key={m.method} className="rounded-xl border border-gray-100 px-3 py-2.5">
                       <div className="flex items-center justify-between">
                         <Badge color={paymentMethodColor(m.method)}>{paymentMethodLabel(m.method)}</Badge>
@@ -290,18 +286,16 @@ const FinanceDashboard = () => {
             <Breakdown
               title="Money in by category"
               rows={data?.incomeByCategory || []}
-              empty="No money in recorded in this period."
             />
             <Breakdown
               title="Money out by category"
               rows={data?.expensesByCategory || []}
-              empty="No money out recorded in this period."
             />
           </div>
 
           <Panel title="Latest records">
             {(data?.recentTransactions || []).length === 0 ? (
-              <p className="py-8 text-center text-sm text-gray-500">Nothing recorded yet. Start with Record money in.</p>
+              <EmptyState art="ledger" title="Your records will appear here" text="Start with Record money in or Record money out. Past entries can carry their real date." compact />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">

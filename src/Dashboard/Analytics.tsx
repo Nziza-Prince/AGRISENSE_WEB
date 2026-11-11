@@ -149,28 +149,26 @@ const Analytics = () => {
                     <CardTitle className="text-lg">Farms by Soil Type</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {soilData.length === 0 ? (
-                      <EmptyState text="No farms yet. Add farms in Settings." />
-                    ) : (
+                    {(
                       <div className="h-[280px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
-                              data={soilData}
+                              data={soilData.length ? soilData : GHOST_RING}
                               cx="50%"
                               cy="50%"
                               innerRadius={60}
                               outerRadius={95}
                               paddingAngle={2}
                               dataKey="value"
-                              label={(entry) => `${entry.name} (${entry.value})`}
+                              label={soilData.length ? (entry) => `${entry.name} (${entry.value})` : false}
                             >
-                              {soilData.map((_, i) => (
-                                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                              {(soilData.length ? soilData : GHOST_RING).map((_, i) => (
+                                <Cell key={i} fill={soilData.length ? COLORS[i % COLORS.length] : "#E5E7EB"} />
                               ))}
                             </Pie>
-                            <Tooltip />
-                            <Legend />
+                            {soilData.length > 0 && <Tooltip />}
+                            {soilData.length > 0 && <Legend />}
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
@@ -184,12 +182,10 @@ const Analytics = () => {
                     <CardTitle className="text-lg">Recommendations by Type</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {recByType.length === 0 ? (
-                      <EmptyState text="No recommendations yet. Run a soil analysis." />
-                    ) : (
+                    {(
                       <div className="h-[280px]">
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={recByType}>
+                          <BarChart data={recByType.length ? recByType : GHOST_BARS}>
                             <XAxis dataKey="name" axisLine={false} tickLine={false} />
                             <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
                             <Tooltip />
@@ -235,12 +231,8 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function EmptyState({ text }: { text: string }) {
-  return (
-    <div className="h-[280px] flex items-center justify-center text-sm text-gray-400 text-center px-6">
-      {text}
-    </div>
-  );
-}
+/** Flat placeholders drawn before there is data, so a chart is never a blank box with a message. */
+const GHOST_RING = [{ name: "", value: 1 }];
+const GHOST_BARS = ["", "", "", ""].map((name, i) => ({ name: name || String(i + 1), value: 0 }));
 
 export default Analytics;

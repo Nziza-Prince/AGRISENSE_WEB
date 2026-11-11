@@ -171,7 +171,7 @@ export function NotificationsInbox({ accent = "#2C6E49", linkFor }: Notification
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: accent }} />
         </div>
       ) : items.length === 0 ? (
-        <EmptyState art="bell" title="No notifications yet" text="Alerts about farms, orders, billing and account activity will appear here." />
+        <EmptyState art="bell" title="Your alerts will appear here" text="Alerts about farms, orders, billing and account activity will appear here." />
       ) : (
         <div className="space-y-6">
           {Object.entries(
@@ -234,7 +234,7 @@ export function NotificationsInbox({ accent = "#2C6E49", linkFor }: Notification
               </div>
             </section>
           ))}
-          {visible.length === 0 && <p className="py-10 text-center text-sm text-gray-500">Nothing unread. You are all caught up.</p>}
+          {visible.length === 0 && <EmptyState art="calm" title="You are all caught up" text="New alerts appear here as they come in." compact />}
         </div>
       )}
     </div>

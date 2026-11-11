@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { AnimatePresence, motion } from "framer-motion";
 import { MapPin, Minus, Plus, Maximize2, X } from "lucide-react";
 import type { Farm } from "@/api";
@@ -370,7 +371,7 @@ export default function RwandaFarmMap({ farms }: { farms: Farm[] }) {
                         );
                       })()
                     ) : (
-                      <p className="mt-2 text-xs text-gray-500">No farms registered in this district yet.</p>
+                      <EmptyState art="pin" title="Farms here will appear on the map" compact />
                     )}
                   </>
                 )}
@@ -448,7 +449,7 @@ export default function RwandaFarmMap({ farms }: { farms: Farm[] }) {
                   </ul>
                 </>
               ) : (
-                <p className="mt-3 text-sm text-gray-500">No farms registered in this district yet.</p>
+                <EmptyState art="pin" title="Farms here will appear on the map" compact />
               )}
             </motion.div>
           ) : (

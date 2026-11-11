@@ -24,22 +24,14 @@ export function YieldChart({
   }
 
   const data = {
-    labels,
+    labels: labels.length ? labels : ["", "", "", ""],
     datasets: [
       {
         label: seriesLabel,
-        data: values,
+        data: labels.length ? values : [0, 0, 0, 0],
         backgroundColor: "rgba(34, 197, 94, 0.8)",
       },
     ],
-  }
-
-  if (labels.length === 0) {
-    return (
-      <div className="h-64 flex items-center justify-center text-sm text-gray-400">
-        No data to display yet.
-      </div>
-    )
   }
 
   return (

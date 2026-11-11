@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Download, Loader2 } from "lucide-react";
 import FinanceShell from "./FinanceShell";
 import { Panel } from "../ui";
@@ -14,8 +15,8 @@ const KINDS = [
   { id: "transactions", label: "Every record" },
 ] as const;
 
-function CategoryRows({ rows, empty }: { rows: Array<{ categoryId: string; name: string; amount: number; count?: number }>; empty: string }) {
-  if (rows.length === 0) return <p className="py-6 text-center text-sm text-gray-500">{empty}</p>;
+function CategoryRows({ rows }: { rows: Array<{ categoryId: string; name: string; amount: number; count?: number }> }) {
+  if (rows.length === 0) return <EmptyState art="ledger" title="Fills in as you record" compact />;
   return (
     <div className="space-y-2 text-sm">
       {rows.map((row) => (
@@ -158,15 +159,15 @@ const FinanceReports = () => {
       {!loading && report && (
         <div className="mb-5 grid gap-4 lg:grid-cols-3">
           <Panel title="Money in by category">
-            <CategoryRows rows={report.incomeByCategory} empty="No money in." />
+            <CategoryRows rows={report.incomeByCategory} />
           </Panel>
           <Panel title="Money out by category">
-            <CategoryRows rows={report.expensesByCategory} empty="No money out." />
+            <CategoryRows rows={report.expensesByCategory} />
           </Panel>
           <Panel title="By way of payment">
             <div className="space-y-2 text-sm">
               {report.byMethod.filter((m) => m.moneyIn || m.moneyOut).length === 0 && (
-                <p className="py-6 text-center text-gray-500">Nothing in this period.</p>
+                <EmptyState art="coins" title="Fills in as you record" compact />
               )}
               {report.byMethod
                 .filter((m) => m.moneyIn || m.moneyOut)
@@ -230,8 +231,8 @@ const FinanceReports = () => {
               <tbody>
                 {(report?.rows || []).length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-10 text-center text-gray-500">
-                      No records in this report.
+                    <td colSpan={5}>
+                      <EmptyState art="ledger" title="Your report will fill in as you record" text="Pick another period, or record money in and out to see it here." compact />
                     </td>
                   </tr>
                 ) : (

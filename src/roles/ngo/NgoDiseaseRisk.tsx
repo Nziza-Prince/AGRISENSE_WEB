@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, Badge } from "../ui";
@@ -51,7 +52,7 @@ const NgoDiseaseRisk = () => {
             <Loader2 className="h-8 w-8 animate-spin" style={{ color: NGO_ACCENT }} />
           </div>
         ) : items.length === 0 ? (
-          <p className="text-sm text-gray-500">No disease trends available for your scope yet.</p>
+          <EmptyState art="pulse" title="Early-warning signals will appear here" text="They show up as soon as farms in your regions report a risk." compact />
         ) : (
           <div className="space-y-3">
             {items.map((d, idx) => (

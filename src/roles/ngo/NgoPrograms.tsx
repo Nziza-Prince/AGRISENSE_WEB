@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2, Plus, X } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, Badge } from "../ui";
@@ -235,7 +236,7 @@ const NgoPrograms = () => {
         </div>
       ) : programs.length === 0 ? (
         <Panel>
-          <p className="text-sm text-gray-500">No programs yet.</p>
+          <EmptyState art="seedling" title="Your programs will appear here" text="Create one to target crops and regions with support." compact />
         </Panel>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">

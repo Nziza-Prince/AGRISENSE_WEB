@@ -93,11 +93,21 @@ function Fact({ label, value, hint, color }: { label: string; value: string; hin
 }
 
 export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; loading: boolean }) {
-  const grain = series?.granularity || "day";
+  const grain = series?.points?.length ? series.granularity : "week";
+
+  const flat = !(series?.points || []).some((p) => p.income || p.expenses);
 
   const { data, facts } = useMemo(() => {
     let running = 0;
-    const rows: Row[] = (series?.points || []).map((p) => {
+    const base: FinanceSeries["points"] = series?.points?.length
+      ? series.points
+      : Array.from({ length: 8 }, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (7 - i) * 7);
+          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          return { period: iso, income: 0, expenses: 0, net: 0, count: 0 };
+        });
+    const rows: Row[] = base.map((p) => {
       running += p.net;
       return { ...p, label: axisLabel(p.period, grain), running };
     });
@@ -121,8 +131,6 @@ export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; 
     };
   }, [series, grain]);
 
-  const empty = !loading && data.every((r) => r.count === 0);
-
   return (
     <Panel
       title="How money moved"
@@ -138,8 +146,6 @@ export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; 
           <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
           Drawing the chart…
         </div>
-      ) : empty ? (
-        <p className="py-16 text-center text-sm text-gray-500">Nothing recorded in this view yet.</p>
       ) : (
         <>
           <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -173,7 +179,7 @@ export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; 
               <ComposedChart data={data} syncId="finance-flow" margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barGap={2}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                 <XAxis dataKey="label" hide />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={compact} width={44} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={compact} width={44} tickLine={false} axisLine={false} domain={flat ? [0, 100000] : [0, "auto"]} />
                 <Tooltip content={<Tip grain={grain} />} cursor={{ fill: "#0f172a08" }} />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="income" name="Money in" fill={IN} radius={[4, 4, 0, 0]} maxBarSize={28} />
@@ -195,7 +201,7 @@ export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; 
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" minTickGap={18} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: NET }} tickFormatter={compact} width={44} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: NET }} tickFormatter={compact} width={44} tickLine={false} axisLine={false} domain={flat ? [-50000, 50000] : ["auto", "auto"]} />
                 <ReferenceLine y={0} stroke="#6b7280" strokeDasharray="4 4" />
                 <Tooltip content={() => null} />
                 <Area type="stepAfter" dataKey="running" stroke={NET} strokeWidth={2} fill="url(#runFill)" />

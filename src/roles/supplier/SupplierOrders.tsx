@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2 } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, Badge } from "../ui";
@@ -80,9 +81,11 @@ const SupplierOrders = () => {
             <Loader2 className="h-4 w-4 animate-spin" /> Loading orders…
           </div>
         ) : orders.length === 0 ? (
-          <p className={`py-10 text-center text-sm ${error ? "text-red-600" : "text-gray-500"}`}>
-            {error ?? "No orders yet."}
-          </p>
+          error ? (
+            <p className="py-10 text-center text-sm text-red-600">{error}</p>
+          ) : (
+            <EmptyState art="box" title="Your orders will appear here" text="When a farmer buys from you, the order shows up here to confirm and ship." compact />
+          )
         ) : (
           <>
             {error ? <p className="mb-3 text-sm text-red-600">{error}</p> : null}

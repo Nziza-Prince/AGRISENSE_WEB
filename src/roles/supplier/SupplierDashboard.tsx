@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Package, ShoppingCart, Wallet, Users, AlertTriangle, Loader2 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -38,6 +39,14 @@ const statusColor: Record<SupplierOrderStatus, "green" | "amber" | "red" | "blue
 };
 
 const PIE_COLORS = ["#0F766E", "#14B8A6", "#F59E0B", "#6366F1", "#EF4444", "#84CC16", "#0EA5E9"];
+
+/** Six flat months so the chart draws its axes on first use instead of saying it is empty. */
+const ghostRevenue = () =>
+  Array.from({ length: 6 }, (_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - (5 - i), 1);
+    return { month: d.toLocaleDateString("en-GB", { month: "short" }), revenue: 0 };
+  });
 
 const SupplierDashboard = () => {
   const [products, setProducts] = useState<SupplierProduct[]>([]);
@@ -140,12 +149,10 @@ const SupplierDashboard = () => {
           {/* Charts */}
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
             <Panel title="Revenue by Month" className="lg:col-span-2">
-              {monthlyRevenue.length === 0 ? (
-                <p className="py-16 text-center text-sm text-gray-500">No sales recorded yet.</p>
-              ) : (
+              {(
                 <div className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={monthlyRevenue} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <AreaChart data={monthlyRevenue.length ? monthlyRevenue : ghostRevenue()} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id="supRev" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor={SUPPLIER_ACCENT} stopOpacity={0.3} />
@@ -164,19 +171,17 @@ const SupplierDashboard = () => {
             </Panel>
 
             <Panel title="Sales by Category">
-              {salesByCategory.length === 0 ? (
-                <p className="py-16 text-center text-sm text-gray-500">No sales recorded yet.</p>
-              ) : (
+              {(
                 <div className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={salesByCategory} cx="50%" cy="45%" innerRadius={55} outerRadius={85} paddingAngle={2} dataKey="value">
-                        {salesByCategory.map((e) => (
+                      <Pie data={salesByCategory.length ? salesByCategory : [{ name: "", value: 1, color: "#E5E7EB" }]} cx="50%" cy="45%" innerRadius={55} outerRadius={85} paddingAngle={2} dataKey="value">
+                        {(salesByCategory.length ? salesByCategory : [{ name: "", value: 1, color: "#E5E7EB" }]).map((e) => (
                           <Cell key={e.name} fill={e.color} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(v) => formatRwf(v as number)} />
-                      <Legend />
+                      {salesByCategory.length > 0 && <Tooltip formatter={(v) => formatRwf(v as number)} />}
+                      {salesByCategory.length > 0 && <Legend />}
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -188,7 +193,7 @@ const SupplierDashboard = () => {
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
             <Panel title="Recent Orders" className="lg:col-span-2">
               {recentOrders.length === 0 ? (
-                <p className="py-10 text-center text-sm text-gray-500">No orders yet.</p>
+                <EmptyState art="box" title="Your orders will appear here" text="Recent orders from farmers show up here." compact />
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">

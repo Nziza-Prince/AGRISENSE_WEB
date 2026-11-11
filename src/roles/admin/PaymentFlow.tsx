@@ -59,18 +59,23 @@ export function RevenueTimeline({ passes }: { passes: AdminSeasonPass[] }) {
     const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     byMonth.set(k, (byMonth.get(k) || 0) + p.amount);
   }
-  const rows = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b));
-  if (rows.length === 0) {
-    return <p className="py-6 text-center text-sm text-gray-500">No confirmed payments yet. Revenue appears here once you mark a payment as paid.</p>;
-  }
-  const max = Math.max(...rows.map(([, v]) => v));
+  const real = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b));
+  // Before the first confirmed payment, draw the last six months flat so the chart is not a blank box.
+  const rows: Array<[string, number]> = real.length
+    ? real
+    : Array.from({ length: 6 }, (_, i) => {
+        const d = new Date();
+        d.setMonth(d.getMonth() - (5 - i), 1);
+        return [`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, 0];
+      });
+  const max = Math.max(1, ...rows.map(([, v]) => v));
   return (
     <div className="flex h-40 items-end gap-3">
       {rows.map(([month, v], i) => (
         <div key={month} className="flex flex-1 flex-col items-center gap-1.5">
           <span className="text-[11px] font-semibold text-gray-700">{v.toLocaleString("en-US")}</span>
           <motion.div
-            className="w-full max-w-[56px] rounded-t-xl bg-gradient-to-t from-emerald-600 to-emerald-400"
+            className={`w-full max-w-[56px] rounded-t-xl ${v ? "bg-gradient-to-t from-emerald-600 to-emerald-400" : "bg-gray-200"}`}
             initial={{ height: 0 }}
             animate={{ height: `${Math.max((v / max) * 100, 8)}%` }}
             transition={{ delay: i * 0.1, duration: 0.7 }}

@@ -1,6 +1,18 @@
 import type { ReactNode } from "react";
 
-export type EmptyArt = "waitlist" | "calm" | "seedling" | "bell" | "coins" | "search";
+export type EmptyArt =
+  | "waitlist"
+  | "calm"
+  | "seedling"
+  | "bell"
+  | "coins"
+  | "search"
+  | "ledger"
+  | "box"
+  | "chat"
+  | "people"
+  | "pulse"
+  | "pin";
 
 /** A small animated picture and a short line, for places where there is nothing to show yet. */
 export function EmptyState({ art, title, text, children, compact = false }: { art: EmptyArt; title: string; text?: string; children?: ReactNode; compact?: boolean }) {

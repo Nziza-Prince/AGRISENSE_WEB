@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { ArrowDownRight, ArrowUpRight, Loader2, Plus, Scale, X } from "lucide-react";
 import FinanceShell from "./FinanceShell";
 import { useFinanceAccess } from "./useFinanceAccess";
@@ -379,8 +380,8 @@ const FinanceTransactions = () => {
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-gray-500">
-                    Nothing recorded in this view yet.
+                  <td colSpan={5}>
+                    <EmptyState art="ledger" title="Your records will appear here" text="Record money in or money out, including past entries, and each one is kept with its date and details." compact />
                   </td>
                 </tr>
               ) : (

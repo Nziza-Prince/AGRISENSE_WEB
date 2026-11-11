@@ -703,7 +703,7 @@ function RecordCard({ record, onChanged }: { record: SeasonRecord; onChanged: ()
           )}
         </ul>
         {record.visits.length === 0 && visitFormFor === null && (
-          <p className="text-sm text-gray-500">No visits recorded yet.</p>
+          <EmptyState art="pin" title="Field visits will appear here" text="Record a visit after you walk the farm." compact />
         )}
       </div>
       <Message error={error} />
@@ -765,7 +765,7 @@ function SeasonRecords({ farmId }: { farmId: string }) {
         </div>
       ) : records.length === 0 && !adding ? (
         <div className="rounded-2xl border border-dashed bg-white px-6 py-6">
-          <EmptyState art="seedling" title="No seasons recorded yet" text="Add a season when you have real crop details or sensor measurements. Charts and the timeline build themselves from what you enter.">
+          <EmptyState art="seedling" title="Season records will appear here" text="Add a season when you have real crop details or sensor measurements. Charts and the timeline build themselves from what you enter.">
             <button type="button" onClick={() => setAdding(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#4338CA] px-4 py-2 text-sm font-semibold text-white">
               <Plus className="h-4 w-4" /> Add the first season
             </button>

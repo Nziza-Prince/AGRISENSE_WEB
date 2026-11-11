@@ -1,4 +1,5 @@
 ﻿import DashboardLayout from "./DashboardLayout";
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { ApiError, predictionService, type PredictionRun, type Recommendation } from "@/api";
@@ -92,7 +93,7 @@ export default function PredictionHistory() {
               <Loader2 className="h-8 w-8 animate-spin text-[#2C6E49]" />
             </div>
           ) : runs.length === 0 ? (
-            <div className="py-16 text-center text-gray-500">No prediction history available yet.</div>
+            <EmptyState art="pulse" title="Your analyses will appear here" text="Run a soil or crop analysis and every result is kept here." />
           ) : (
             <div className="mt-5 space-y-3">
               {runs.map((run) => (
@@ -152,7 +153,7 @@ export default function PredictionHistory() {
                     </div>
                   ))}
                   {!selected.recommendations?.length && (
-                    <p className="text-sm text-gray-500">No recommendations attached to this run.</p>
+                    <EmptyState art="seedling" title="Advice for this run will appear here" compact />
                   )}
                 </div>
               </div>

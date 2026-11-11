@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2 } from "lucide-react";
 import FinanceShell from "./FinanceShell";
 import { Badge, PaginationControls, Panel } from "../ui";
@@ -138,8 +139,8 @@ const FinanceAudit = () => {
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-gray-500">
-                    No audit events yet.
+                  <td colSpan={5}>
+                    <EmptyState art="ledger" title="Every change will be kept here" text="Records, corrections and approvals are listed with who made them and when." compact />
                   </td>
                 </tr>
               ) : (

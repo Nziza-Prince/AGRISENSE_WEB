@@ -1,4 +1,5 @@
 import DashboardLayout from "./DashboardLayout";
+import { EmptyState } from "@/components/EmptyState";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2,
@@ -410,10 +411,7 @@ const Messages = () => {
                   <Loader2 className="h-6 w-6 animate-spin text-[#2C6E49]" />
                 </div>
               ) : filteredConversations.length === 0 ? (
-                <div className="px-4 py-12 text-center text-sm text-gray-500">
-                  <MessageSquare className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-                  No conversations yet. Start a chat or create a group.
-                </div>
+                <EmptyState art="chat" title="Your conversations will appear here" text="Start a chat or create a group." compact />
               ) : (
                 filteredConversations.map((conversation) => {
                   const active = conversation.id === selectedId;
@@ -714,11 +712,11 @@ const Messages = () => {
                   <Loader2 className="h-5 w-5 animate-spin text-[#2C6E49]" />
                 </div>
               ) : userResults.length === 0 ? (
-                <p className="px-3 py-6 text-center text-sm text-gray-500">
-                  {userQuery.trim()
-                    ? "No users found."
-                    : "Type to search people you can message."}
-                </p>
+                userQuery.trim() ? (
+                  <EmptyState art="search" title="Nobody matches that name" text="Check the spelling or try another name." compact />
+                ) : (
+                  <p className="px-3 py-6 text-center text-sm text-gray-500">Type to search people you can message.</p>
+                )
               ) : (
                 userResults.map((person) => {
                   const picked = pickedUsers.some((item) => item.id === person.id);

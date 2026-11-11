@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Users, Store, Building2, Sprout, Loader2 } from "lucide-react";
 import RwandaFarmMap from "./RwandaFarmMap";
 import {
@@ -68,6 +69,8 @@ function formatStatus(status?: string, deletedAt?: string | null) {
   if (!status) return "Unknown";
   return status.charAt(0) + status.slice(1).toLowerCase();
 }
+
+const GHOST_PROVINCES = ["Kigali", "Eastern", "Northern", "Southern", "Western"].map((name) => ({ name, value: 0 }));
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
@@ -224,10 +227,10 @@ const AdminDashboard = () => {
 
       <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
         <Panel title="Farms by province">
-          {farmsByProvince.length ? (
+          {(
             <div className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={farmsByProvince} margin={{ left: -20 }}>
+                <BarChart data={farmsByProvince.length ? farmsByProvince : GHOST_PROVINCES} margin={{ left: -20 }}>
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                   <Tooltip />
@@ -235,8 +238,6 @@ const AdminDashboard = () => {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          ) : (
-            <p className="text-sm text-gray-500">No farms yet.</p>
           )}
           <p className="mt-3 text-xs text-gray-500">
             Average farm size {Math.round(getNumberValue(farmStats, ["averageFarmSize", "avgFarmSize"])).toLocaleString()} m²
@@ -280,7 +281,7 @@ const AdminDashboard = () => {
               </div>
             ))}
             {!Object.keys(summary.statusCounts).length && (
-              <div className="text-sm text-gray-500">No user status data available yet.</div>
+              <EmptyState art="people" title="User activity will appear here" compact />
             )}
           </div>
         </Panel>

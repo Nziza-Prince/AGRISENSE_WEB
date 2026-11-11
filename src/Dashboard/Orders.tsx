@@ -1,4 +1,5 @@
 import DashboardLayout from "./DashboardLayout";
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { ApiError, marketplaceService, type MarketplaceOrder } from "@/api";
@@ -50,8 +51,8 @@ export default function Orders() {
             <Loader2 className="h-8 w-8 animate-spin text-[#2C6E49]" />
           </div>
         ) : orders.length === 0 ? (
-          <div className="rounded-2xl border border-dashed bg-white p-10 text-center text-gray-500">
-            You have not placed any orders yet.
+          <div className="rounded-2xl border bg-white">
+            <EmptyState art="box" title="Your orders will appear here" text="Buy seeds, fertiliser or tools from the marketplace and track them here." />
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">

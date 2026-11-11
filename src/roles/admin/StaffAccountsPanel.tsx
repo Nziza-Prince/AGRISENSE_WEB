@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2, X } from "lucide-react";
 import { Panel } from "../ui";
 import {
@@ -125,7 +126,7 @@ export default function StaffAccountsPanel({ onChanged, onClose }: { onChanged?:
             <Loader2 className="h-6 w-6 animate-spin text-[#4338CA]" />
           </div>
         ) : orgUsers.length === 0 ? (
-          <p className="text-sm text-gray-500">No NGOs yet.</p>
+          <EmptyState art="people" title="NGO accounts will appear here" text="Create one above and assign the provinces it covers." compact />
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {orgUsers.map((u) => {

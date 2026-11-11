@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { CheckCircle2, Clock, HandCoins, Loader2, XCircle } from "lucide-react";
 import FinanceShell from "./FinanceShell";
 import { Badge, PaginationControls, Panel, StatCard } from "../ui";
@@ -163,8 +164,8 @@ const FinanceFarmerPayments = () => {
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-gray-500">
-                    No farmer payments match this view.
+                  <td colSpan={5}>
+                    <EmptyState art="coins" title="Farmer payments will appear here" text="Season passes paid by farmers show up the moment they are submitted or confirmed." compact />
                   </td>
                 </tr>
               ) : (
