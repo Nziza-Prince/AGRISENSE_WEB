@@ -33,6 +33,10 @@ function ProfileDrawer({ tab, onTab, onClose, accent, onLogout }: { tab: Tab; on
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const dirty =
+    firstName.trim() !== (user?.firstName || "") ||
+    lastName.trim() !== (user?.lastName || "") ||
+    phone.trim() !== (user?.phoneNumber || "");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -137,7 +141,7 @@ function ProfileDrawer({ tab, onTab, onClose, accent, onLogout }: { tab: Tab; on
         <div className="flex-1 overflow-y-auto px-5 py-5">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <UserAvatar src={user?.profileImage} alt={getUserDisplayName(user)} sizeClassName="h-20 w-20" iconClassName="h-9 w-9" />
+              <UserAvatar src={user?.profileImage} alt={getUserDisplayName(user)} name={getUserDisplayName(user)} accent={accent} sizeClassName="h-20 w-20 text-2xl" iconClassName="h-9 w-9" />
               {busy === "photo" && (
                 <span className="absolute inset-0 flex items-center justify-center rounded-full bg-white/70">
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -196,7 +200,7 @@ function ProfileDrawer({ tab, onTab, onClose, accent, onLogout }: { tab: Tab; on
                 </div>
                 <label className="block text-xs font-medium text-gray-600">Email<input className={`${input} mt-1 bg-gray-50 text-gray-500`} value={user?.email || ""} disabled /></label>
                 <label className="block text-xs font-medium text-gray-600">Phone<input className={`${input} mt-1`} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+250788123456" /></label>
-                <button type="submit" disabled={busy === "save"} className="h-10 w-full rounded-lg text-sm font-semibold text-white disabled:opacity-60" style={{ background: accent }}>
+                <button type="submit" disabled={busy === "save" || !dirty} className="h-10 w-full rounded-lg text-sm font-semibold text-white disabled:opacity-50" style={{ background: accent }}>
                   {busy === "save" ? "Saving…" : "Save changes"}
                 </button>
               </form>
@@ -259,7 +263,7 @@ export function ProfileMenu({ accent, inboxHref }: { accent: string; inboxHref: 
         aria-expanded={open}
         className="flex items-center gap-3 rounded-xl border-l pl-4 pr-1 transition hover:opacity-80"
       >
-        <UserAvatar src={user?.profileImage} alt={name} sizeClassName="h-9 w-9" iconClassName="h-5 w-5" />
+        <UserAvatar src={user?.profileImage} alt={name} name={name} accent={accent} sizeClassName="h-9 w-9" iconClassName="h-5 w-5" />
         <span className="hidden text-left sm:block">
           <span className="block text-sm font-semibold leading-tight">{name}</span>
           <span className="block text-xs text-gray-500">{user?.email}</span>
@@ -278,7 +282,7 @@ export function ProfileMenu({ accent, inboxHref }: { accent: string; inboxHref: 
             className="absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-2xl border bg-white shadow-xl"
           >
             <div className="flex items-center gap-3 border-b bg-gray-50/70 px-4 py-4">
-              <UserAvatar src={user?.profileImage} alt={name} sizeClassName="h-12 w-12" iconClassName="h-6 w-6" />
+              <UserAvatar src={user?.profileImage} alt={name} name={name} accent={accent} sizeClassName="h-12 w-12 text-base" iconClassName="h-6 w-6" />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
                 <p className="truncate text-xs text-gray-500">{user?.email}</p>
