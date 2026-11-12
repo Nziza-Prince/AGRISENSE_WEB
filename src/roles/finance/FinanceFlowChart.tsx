@@ -80,24 +80,12 @@ function Tip({ active, payload, grain }: { active?: boolean; payload?: Array<{ p
   );
 }
 
-function Fact({ label, value, hint, color }: { label: string; value: string; hint?: string; color?: string }) {
-  return (
-    <div className="min-w-0 rounded-xl border border-gray-100 bg-gray-50/70 px-3 py-2">
-      <p className="text-[11px] uppercase tracking-wide text-gray-400">{label}</p>
-      <p className="truncate text-sm font-bold" style={{ color: color || "#111827" }}>
-        {value}
-      </p>
-      {hint && <p className="truncate text-[11px] text-gray-500">{hint}</p>}
-    </div>
-  );
-}
-
 export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; loading: boolean }) {
   const grain = series?.points?.length ? series.granularity : "week";
 
   const flat = !(series?.points || []).some((p) => p.income || p.expenses);
 
-  const { data, facts } = useMemo(() => {
+  const data = useMemo(() => {
     let running = 0;
     const base: FinanceSeries["points"] = series?.points?.length
       ? series.points
@@ -107,39 +95,15 @@ export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; 
           const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
           return { period: iso, income: 0, expenses: 0, net: 0, count: 0 };
         });
-    const rows: Row[] = base.map((p) => {
+    return base.map<Row>((p) => {
       running += p.net;
       return { ...p, label: axisLabel(p.period, grain), running };
     });
-    const active = rows.filter((r) => r.count > 0);
-    const bestIn = rows.reduce<Row | null>((a, r) => (r.income > (a?.income ?? 0) ? r : a), null);
-    const bestOut = rows.reduce<Row | null>((a, r) => (r.expenses > (a?.expenses ?? 0) ? r : a), null);
-    const totalIn = rows.reduce((s, r) => s + r.income, 0);
-    const totalOut = rows.reduce((s, r) => s + r.expenses, 0);
-    const deficits = rows.filter((r) => r.net < 0).length;
-    return {
-      data: rows,
-      facts: {
-        bestIn,
-        bestOut,
-        avgIn: rows.length ? Math.round(totalIn / rows.length) : 0,
-        avgOut: rows.length ? Math.round(totalOut / rows.length) : 0,
-        deficits,
-        active: active.length,
-        periods: rows.length,
-      },
-    };
   }, [series, grain]);
 
   return (
-    <Panel
-      title="How money moved"
-      className="mb-5"
-    >
-      <p className="-mt-2 mb-4 text-xs text-gray-500">
-        Money in and money out for every {GRAIN_LABEL[grain]} in this view, with the running total underneath. It follows
-        the period, category, way of payment and search you pick below.
-      </p>
+    <Panel title="How money moved" className="mb-5">
+      <p className="-mt-2 mb-4 text-xs text-gray-500">Money in and out for each {GRAIN_LABEL[grain]}, following the filters below.</p>
 
       {loading && data.length === 0 ? (
         <div className="py-20 text-center text-sm text-gray-500">
@@ -148,32 +112,6 @@ export function FinanceFlowChart({ series, loading }: { series?: FinanceSeries; 
         </div>
       ) : (
         <>
-          <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Fact
-              label={`Biggest money in`}
-              value={facts.bestIn && facts.bestIn.income > 0 ? formatRwf(facts.bestIn.income) : "None"}
-              hint={facts.bestIn && facts.bestIn.income > 0 ? fullLabel(facts.bestIn.period, grain) : undefined}
-              color={IN}
-            />
-            <Fact
-              label={`Biggest money out`}
-              value={facts.bestOut && facts.bestOut.expenses > 0 ? formatRwf(facts.bestOut.expenses) : "None"}
-              hint={facts.bestOut && facts.bestOut.expenses > 0 ? fullLabel(facts.bestOut.period, grain) : undefined}
-              color={OUT}
-            />
-            <Fact
-              label={`Average per ${GRAIN_LABEL[grain]}`}
-              value={`${formatRwf(facts.avgIn)} in`}
-              hint={`${formatRwf(facts.avgOut)} out`}
-            />
-            <Fact
-              label={`${GRAIN_LABEL[grain]}s spending more than received`}
-              value={`${facts.deficits} of ${facts.periods}`}
-              hint={`${facts.active} with activity`}
-              color={facts.deficits ? OUT : IN}
-            />
-          </div>
-
           <div className="h-72 w-full sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={data} syncId="finance-flow" margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barGap={2}>

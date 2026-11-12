@@ -9,6 +9,7 @@ import FarmDirectory from "./farms/FarmDirectory";
 import FarmProfile from "./farms/FarmProfile";
 import { EmptyState } from "@/components/EmptyState";
 import RegisterFarmerModal from "./forms/RegisterFarmerModal";
+import LocationPicker from "./forms/LocationPicker";
 import SeasonInsights from "./farms/SeasonInsights";
 import { METRICS, orderSeasons } from "./farms/shared";
 import { IconAction } from "./users/IconAction";
@@ -81,6 +82,7 @@ function FarmDetails({ farm, onSaved, onCancel }: { farm: AdminFarm; onSaved: (f
     upi: text(farm.upi),
     size: text(farm.size),
     soilType: farm.soilType,
+    province: farm.province ?? "",
     district: farm.district,
     sector: farm.sector,
     cell: farm.cell,
@@ -122,6 +124,7 @@ function FarmDetails({ farm, onSaved, onCancel }: { farm: AdminFarm; onSaved: (f
         upi: orNull(f.upi),
         size: f.size.trim() === "" ? undefined : Number(f.size),
         soilType: f.soilType,
+        province: f.province || undefined,
         district: f.district.trim() || undefined,
         sector: f.sector.trim() || undefined,
         cell: f.cell.trim() || undefined,
@@ -209,18 +212,12 @@ function FarmDetails({ farm, onSaved, onCancel }: { farm: AdminFarm; onSaved: (f
             <Field label="Irrigation">
               <input className={inputClass} value={f.irrigationMethod} onChange={set("irrigationMethod")} />
             </Field>
-            <Field label="District">
-              <input className={inputClass} value={f.district} onChange={set("district")} />
-            </Field>
-            <Field label="Sector">
-              <input className={inputClass} value={f.sector} onChange={set("sector")} />
-            </Field>
-            <Field label="Cell">
-              <input className={inputClass} value={f.cell} onChange={set("cell")} />
-            </Field>
-            <Field label="Village">
-              <input className={inputClass} value={f.village} onChange={set("village")} />
-            </Field>
+          </div>
+          <div className="mt-4 space-y-3">
+            <LocationPicker
+              value={{ province: f.province, district: f.district, sector: f.sector, cell: f.cell, village: f.village }}
+              onChange={(place) => setF((prev) => ({ ...prev, ...place }))}
+            />
           </div>
           <div className="mt-4">
             <Field label="Soil notes">

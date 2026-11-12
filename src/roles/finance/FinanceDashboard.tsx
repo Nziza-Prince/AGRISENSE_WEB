@@ -1,35 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { Link } from "react-router-dom";
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  Clock,
-  HandCoins,
-  Loader2,
-  Scale,
-  Wallet,
-} from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import FinanceShell from "./FinanceShell";
-import { Badge, Panel, StatCard } from "../ui";
+import { useFinanceAccess } from "./useFinanceAccess";
+import { Badge, Panel } from "../ui";
 import { DateRangeBar } from "./DateRangeBar";
+import { Figure, Figures } from "./Figure";
 import { FINANCE_ACCENT } from "./config";
 import {
   formatCompactDate,
   formatMonth,
-  ghostMethods,
   ghostMonths,
   formatRwf,
   paymentMethodColor,
@@ -37,59 +19,10 @@ import {
   statusBadgeColor,
   toDateInput,
 } from "./format";
-import {
-  ApiError,
-  financeService,
-  type FinanceCategoryTotal,
-  type FinanceDashboard,
-  type FinanceRangePreset,
-} from "@/api";
-
-const PIE_COLORS = ["#164E63", "#0F766E", "#B45309", "#BE123C", "#1D4ED8", "#7C3AED", "#334155"];
-
-function Breakdown({ title, rows }: { title: string; rows: FinanceCategoryTotal[] }) {
-  const total = rows.reduce((sum, row) => sum + row.amount, 0);
-  const ring = rows.length ? rows : [{ categoryId: "ghost", name: "", amount: 1, color: "#E5E7EB" }];
-  return (
-    <Panel title={title}>
-      {(
-        <>
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={ring} dataKey="amount" nameKey="name" innerRadius={44} outerRadius={72} paddingAngle={2}>
-                  {ring.map((entry, index) => (
-                    <Cell key={entry.categoryId} fill={entry.color || PIE_COLORS[index % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                {rows.length > 0 && <Tooltip formatter={(value) => formatRwf(Number(value))} />}
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-2 space-y-1.5">
-            {rows.map((row, index) => (
-              <div key={row.categoryId} className="flex items-center justify-between text-xs text-gray-600">
-                <span className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: row.color || PIE_COLORS[index % PIE_COLORS.length] }}
-                  />
-                  {row.name}
-                </span>
-                <span className="font-medium">
-                  {formatRwf(row.amount)}
-                  <span className="ml-1 text-gray-400">{total ? `${Math.round((row.amount / total) * 100)}%` : ""}</span>
-                </span>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </Panel>
-  );
-}
+import { ApiError, financeService, type FinanceDashboard, type FinanceRangePreset } from "@/api";
 
 const FinanceDashboard = () => {
+  const { readOnly } = useFinanceAccess();
   const [preset, setPreset] = useState<FinanceRangePreset>("month");
   const [from, setFrom] = useState(toDateInput(new Date(new Date().getFullYear(), new Date().getMonth(), 1)));
   const [to, setTo] = useState(toDateInput());
@@ -172,128 +105,78 @@ const FinanceDashboard = () => {
       ) : (
         <>
           {(data?.totals.pendingCount ?? 0) > 0 && (
-            <Link
-              to="/finance/transactions"
-              className="mb-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
-            >
-              <Clock className="h-4 w-4" />
-              {data?.totals.pendingCount} record{data?.totals.pendingCount === 1 ? "" : "s"} on hold (
-              {formatRwf(data?.totals.pendingAmount)}). They are not counted until recorded.
+            <Link to="/finance/transactions" className="mb-4 block rounded-lg bg-amber-50 px-4 py-2.5 text-sm text-amber-800 hover:bg-amber-100">
+              {data?.totals.pendingCount} record{data?.totals.pendingCount === 1 ? "" : "s"} on hold ({formatRwf(data?.totals.pendingAmount)}), not counted until recorded.
             </Link>
           )}
 
-          <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              icon={Wallet}
-              label="Money on hand, all time"
-              value={formatRwf(data?.totals.currentBalance)}
-              delta={`${formatRwf(data?.totals.lifetimeIncome)} in, ${formatRwf(data?.totals.lifetimeExpenses)} out`}
-              accent={FINANCE_ACCENT}
-            />
-            <StatCard
-              icon={ArrowUpRight}
-              label="Money in, this period"
-              value={formatRwf(data?.totals.totalIncome)}
-              deltaPositive
-              accent="#0F766E"
-            />
-            <StatCard
-              icon={ArrowDownRight}
-              label="Money out, this period"
-              value={formatRwf(data?.totals.totalExpenses)}
-              deltaPositive={false}
-              accent="#BE123C"
-            />
-            <StatCard
-              icon={Scale}
-              label="Net, this period"
-              value={formatRwf(net)}
-              delta={net >= 0 ? "More came in than went out" : "More went out than came in"}
-              deltaPositive={net >= 0}
-              accent={FINANCE_ACCENT}
-            />
-          </div>
+          <Figures>
+            <Figure label="Money left" value={formatRwf(data?.totals.currentBalance)} tone={(data?.totals.currentBalance ?? 0) < 0 ? "text-rose-700" : "text-gray-900"}>
+              <p>
+                {formatRwf(data?.totals.lifetimeIncome)} in, {formatRwf(data?.totals.lifetimeExpenses)} out, all time
+              </p>
+              {methods.length > 1 && (
+                <p className="flex flex-wrap gap-x-3">
+                  {methods.map((m) => (
+                    <span key={m.method}>
+                      {paymentMethodLabel(m.method)} <span className="font-medium text-gray-700">{formatRwf(m.onHand)}</span>
+                    </span>
+                  ))}
+                </p>
+              )}
+              {!data?.teamFund.recorded && !readOnly && (
+                <Link to="/finance/transactions?startingCapital=1" className="font-medium underline" style={{ color: FINANCE_ACCENT }}>
+                  Record the starting capital with its real date
+                </Link>
+              )}
+            </Figure>
 
-          <Panel title="Farmer payments" className="mb-5">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
-                <p className="text-xs font-medium text-emerald-800">Collected and recorded</p>
-                <p className="mt-1 text-xl font-bold text-emerald-900">{formatRwf(farmer?.recordedInBooks.amount)}</p>
-                <p className="text-xs text-emerald-700">{farmer?.recordedInBooks.count ?? 0} season passes</p>
-              </div>
-              <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-4">
-                <p className="text-xs font-medium text-amber-800">Awaiting confirmation</p>
-                <p className="mt-1 text-xl font-bold text-amber-900">{formatRwf(farmer?.submitted.amount)}</p>
-                <p className="text-xs text-amber-700">{farmer?.submitted.count ?? 0} farmer{farmer?.submitted.count === 1 ? "" : "s"} say they paid</p>
-              </div>
-              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <p className="text-xs font-medium text-gray-600">Requested, not yet paid</p>
-                <p className="mt-1 text-xl font-bold text-gray-900">{formatRwf(farmer?.awaitingPayment.amount)}</p>
-                <p className="text-xs text-gray-500">{farmer?.awaitingPayment.count ?? 0} open requests</p>
-              </div>
-              <Link
-                to="/finance/farmer-payments"
-                className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 p-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-              >
-                <HandCoins className="h-4 w-4" />
-                See every farmer payment
+            <Figure label="Spent this period" value={formatRwf(data?.totals.totalExpenses)}>
+              <p>
+                {formatRwf(data?.totals.totalIncome)} received
+                {net !== 0 && <span className={net > 0 ? " text-emerald-700" : " text-rose-700"}>{` · net ${net > 0 ? "+" : "−"}${formatRwf(Math.abs(net))}`}</span>}
+              </p>
+            </Figure>
+
+            <Figure label="Farmer payments to confirm" value={String(farmer?.submitted.count ?? 0)}>
+              <p>
+                {(farmer?.submitted.count ?? 0) > 0 ? `${formatRwf(farmer?.submitted.amount)} reported paid` : "Nothing waiting"}
+                {(farmer?.awaitingPayment.count ?? 0) > 0 && `, ${farmer?.awaitingPayment.count} still unpaid`}
+              </p>
+              <Link to="/finance/farmer-payments" className="inline-flex items-center gap-1 font-medium" style={{ color: FINANCE_ACCENT }}>
+                See farmer payments <ArrowRight className="h-3.5 w-3.5" />
               </Link>
+            </Figure>
+          </Figures>
+
+          <Panel title="Money in and out, by month" className="mb-6 shadow-none">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barGap={4} barCategoryGap="30%">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => `${Math.round(Number(v) / 1000)}k`} domain={data?.incomeVsExpenses?.length ? [0, "auto"] : [0, 100000]} />
+                  <Tooltip cursor={{ fill: "#f3f4f6" }} formatter={(value) => formatRwf(Number(value))} />
+                  <Bar dataKey="income" fill="#0F766E" name="Money in" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                  <Bar dataKey="expenses" fill="#BE123C" name="Money out" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-2 flex gap-4 text-xs text-gray-500">
+              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#0F766E]" />Money in</span>
+              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#BE123C]" />Money out</span>
             </div>
           </Panel>
 
-          <div className="mb-5 grid gap-4 xl:grid-cols-5">
-            <Panel title="Money in vs money out, by month" className="xl:col-span-3">
-              {(
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(Number(v) / 1000)}k`} domain={data?.incomeVsExpenses?.length ? [0, "auto"] : [0, 100000]} />
-                      <Tooltip formatter={(value) => formatRwf(Number(value))} />
-                      <Area type="monotone" dataKey="income" stroke="#0F766E" fill="#0F766E22" name="Money in" />
-                      <Area type="monotone" dataKey="expenses" stroke="#BE123C" fill="#BE123C18" name="Money out" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </Panel>
-
-            <Panel title="Where the money is" className="xl:col-span-2">
-              {(
-                <div className="space-y-3">
-                  {(methods.length ? methods : ghostMethods()).map((m) => (
-                    <div key={m.method} className="rounded-xl border border-gray-100 px-3 py-2.5">
-                      <div className="flex items-center justify-between">
-                        <Badge color={paymentMethodColor(m.method)}>{paymentMethodLabel(m.method)}</Badge>
-                        <p className="text-sm font-bold text-gray-900">{formatRwf(m.onHand)}</p>
-                      </div>
-                      <p className="mt-1.5 text-xs text-gray-500">
-                        This period: <span className="text-emerald-700">+{formatRwf(m.moneyIn)}</span> in,{" "}
-                        <span className="text-rose-700">−{formatRwf(m.moneyOut)}</span> out
-                      </p>
-                    </div>
-                  ))}
-                  <p className="text-[11px] text-gray-400">
-                    The large figure is what should be held that way, all time (money in minus money out).
-                  </p>
-                </div>
-              )}
-            </Panel>
-          </div>
-
-          <div className="mb-5 grid gap-4 lg:grid-cols-2">
-            <Breakdown
-              title="Money in by category"
-              rows={data?.incomeByCategory || []}
-            />
-            <Breakdown
-              title="Money out by category"
-              rows={data?.expensesByCategory || []}
-            />
-          </div>
-
-          <Panel title="Latest records">
+          <Panel
+            title="Latest records"
+            className="shadow-none"
+            action={
+              <Link to="/finance/transactions" className="text-sm font-medium" style={{ color: FINANCE_ACCENT }}>
+                See all
+              </Link>
+            }
+          >
             {(data?.recentTransactions || []).length === 0 ? (
               <EmptyState art="ledger" title="Your records will appear here" text="Start with Record money in or Record money out. Past entries can carry their real date." compact />
             ) : (
@@ -309,9 +192,9 @@ const FinanceDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data?.recentTransactions.map((txn) => (
+                    {data?.recentTransactions.slice(0, 6).map((txn) => (
                       <tr key={txn.id} className="border-b last:border-0">
-                        <td className="py-2.5 whitespace-nowrap text-gray-500">{formatCompactDate(txn.occurredAt)}</td>
+                        <td className="whitespace-nowrap py-2.5 text-gray-500">{formatCompactDate(txn.occurredAt)}</td>
                         <td className="py-2.5">
                           <p className="font-medium text-gray-800">{txn.description}</p>
                           <p className="text-xs text-gray-400">
@@ -319,19 +202,13 @@ const FinanceDashboard = () => {
                             {txn.counterparty ? ` · ${txn.counterparty}` : ""}
                           </p>
                         </td>
-                        <td className="py-2.5">
-                          <Badge color={paymentMethodColor(txn.paymentMethod)}>{paymentMethodLabel(txn.paymentMethod)}</Badge>
-                        </td>
+                        <td className="py-2.5"><Badge color={paymentMethodColor(txn.paymentMethod)}>{paymentMethodLabel(txn.paymentMethod)}</Badge></td>
                         <td className="py-2.5">
                           <Badge color={statusBadgeColor(txn.status)}>
                             {txn.status === "APPROVED" ? "Recorded" : txn.status === "PENDING" ? "On hold" : txn.status}
                           </Badge>
                         </td>
-                        <td
-                          className={`py-2.5 text-right font-semibold whitespace-nowrap ${
-                            txn.type === "INCOME" ? "text-emerald-700" : "text-rose-700"
-                          }`}
-                        >
+                        <td className={`whitespace-nowrap py-2.5 text-right font-semibold ${txn.type === "INCOME" ? "text-emerald-700" : "text-rose-700"}`}>
                           {txn.type === "INCOME" ? "+" : "−"}
                           {formatRwf(txn.amount)}
                         </td>

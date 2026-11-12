@@ -4,6 +4,7 @@ import { Download, Loader2 } from "lucide-react";
 import FinanceShell from "./FinanceShell";
 import { Panel } from "../ui";
 import { DateRangeBar } from "./DateRangeBar";
+import { Figure, Figures } from "./Figure";
 import { FINANCE_ACCENT } from "./config";
 import { downloadCsv, formatCompactDate, formatMonth, formatRwf, paymentMethodLabel, toDateInput } from "./format";
 import { ApiError, financeService, type FinanceRangePreset, type FinanceReport } from "@/api";
@@ -137,76 +138,73 @@ const FinanceReports = () => {
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
 
-      <div className="mb-5 grid gap-4 sm:grid-cols-4">
-        <Panel>
-          <p className="text-xs text-gray-500">Money in</p>
-          <p className="mt-1 text-xl font-bold text-emerald-700">{formatRwf(report?.summary.income)}</p>
-        </Panel>
-        <Panel>
-          <p className="text-xs text-gray-500">Money out</p>
-          <p className="mt-1 text-xl font-bold text-rose-700">{formatRwf(report?.summary.expenses)}</p>
-        </Panel>
-        <Panel>
-          <p className="text-xs text-gray-500">Net</p>
-          <p className="mt-1 text-xl font-bold text-gray-900">{formatRwf(report?.summary.net)}</p>
-        </Panel>
-        <Panel>
-          <p className="text-xs text-gray-500">Records</p>
-          <p className="mt-1 text-xl font-bold text-gray-900">{report?.summary.count ?? 0}</p>
-        </Panel>
-      </div>
+      <Figures>
+        <Figure label="Money in" value={formatRwf(report?.summary.income)} tone="text-emerald-700" />
+        <Figure label="Money out" value={formatRwf(report?.summary.expenses)} tone="text-rose-700" />
+        <Figure label="Net" value={formatRwf(report?.summary.net)} tone={(report?.summary.net ?? 0) < 0 ? "text-rose-700" : "text-gray-900"}>
+          <p>
+            {report?.summary.count ?? 0} record{report?.summary.count === 1 ? "" : "s"} in this report
+          </p>
+        </Figure>
+      </Figures>
 
       {!loading && report && (
-        <div className="mb-5 grid gap-4 lg:grid-cols-3">
-          <Panel title="Money in by category">
-            <CategoryRows rows={report.incomeByCategory} />
-          </Panel>
-          <Panel title="Money out by category">
-            <CategoryRows rows={report.expensesByCategory} />
-          </Panel>
-          <Panel title="By way of payment">
-            <div className="space-y-2 text-sm">
-              {report.byMethod.filter((m) => m.moneyIn || m.moneyOut).length === 0 && (
-                <EmptyState art="coins" title="Fills in as you record" compact />
-              )}
-              {report.byMethod
-                .filter((m) => m.moneyIn || m.moneyOut)
-                .map((m) => (
-                  <div key={m.method} className="flex items-center justify-between border-b pb-2 last:border-0">
-                    <span className="font-medium text-gray-800">{paymentMethodLabel(m.method)}</span>
-                    <span className="text-xs text-gray-500">
-                      <span className="text-emerald-700">+{formatRwf(m.moneyIn)}</span>{" "}
-                      <span className="text-rose-700">−{formatRwf(m.moneyOut)}</span>
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </Panel>
-        </div>
-      )}
+        <Panel className="mb-5">
+          <div className="grid gap-8 lg:grid-cols-3 lg:divide-x">
+            <section>
+              <h2 className="mb-3 text-sm font-semibold text-gray-900">Money in, by category</h2>
+              <CategoryRows rows={report.incomeByCategory} />
+            </section>
+            <section className="lg:pl-8">
+              <h2 className="mb-3 text-sm font-semibold text-gray-900">Money out, by category</h2>
+              <CategoryRows rows={report.expensesByCategory} />
+            </section>
+            <section className="lg:pl-8">
+              <h2 className="mb-3 text-sm font-semibold text-gray-900">By way of payment</h2>
+              <div className="space-y-2 text-sm">
+                {report.byMethod.filter((m) => m.moneyIn || m.moneyOut).length === 0 && (
+                  <EmptyState art="coins" title="Fills in as you record" compact />
+                )}
+                {report.byMethod
+                  .filter((m) => m.moneyIn || m.moneyOut)
+                  .map((m) => (
+                    <div key={m.method} className="flex items-center justify-between border-b pb-2 last:border-0">
+                      <span className="font-medium text-gray-800">{paymentMethodLabel(m.method)}</span>
+                      <span className="text-xs text-gray-500">
+                        <span className="text-emerald-700">+{formatRwf(m.moneyIn)}</span>{" "}
+                        <span className="text-rose-700">−{formatRwf(m.moneyOut)}</span>
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </section>
+          </div>
 
-      {!loading && report && report.byMonth.length > 0 && (
-        <Panel title="Month by month" className="mb-5">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-[11px] uppercase tracking-wide text-gray-400">
-                <th className="pb-2 font-medium">Month</th>
-                <th className="pb-2 text-right font-medium">Money in</th>
-                <th className="pb-2 text-right font-medium">Money out</th>
-                <th className="pb-2 text-right font-medium">Net</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.byMonth.map((row) => (
-                <tr key={row.period} className="border-b last:border-0">
-                  <td className="py-2.5 font-medium text-gray-800">{formatMonth(row.period)}</td>
-                  <td className="py-2.5 text-right text-emerald-700">{formatRwf(row.income)}</td>
-                  <td className="py-2.5 text-right text-rose-700">{formatRwf(row.expenses)}</td>
-                  <td className="py-2.5 text-right font-semibold">{formatRwf(row.net)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {report.byMonth.length > 0 && (
+            <div className="mt-6 border-t pt-5">
+              <h2 className="mb-3 text-sm font-semibold text-gray-900">Month by month</h2>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-[11px] uppercase tracking-wide text-gray-400">
+                    <th className="pb-2 font-medium">Month</th>
+                    <th className="pb-2 text-right font-medium">Money in</th>
+                    <th className="pb-2 text-right font-medium">Money out</th>
+                    <th className="pb-2 text-right font-medium">Net</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.byMonth.map((row) => (
+                    <tr key={row.period} className="border-b last:border-0">
+                      <td className="py-2.5 font-medium text-gray-800">{formatMonth(row.period)}</td>
+                      <td className="py-2.5 text-right text-emerald-700">{formatRwf(row.income)}</td>
+                      <td className="py-2.5 text-right text-rose-700">{formatRwf(row.expenses)}</td>
+                      <td className="py-2.5 text-right font-semibold">{formatRwf(row.net)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Panel>
       )}
 

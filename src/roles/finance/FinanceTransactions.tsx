@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState";
-import { ArrowDownRight, ArrowUpRight, Loader2, Plus, Scale, X } from "lucide-react";
+import { Loader2, Plus, X } from "lucide-react";
 import FinanceShell from "./FinanceShell";
 import { useFinanceAccess } from "./useFinanceAccess";
-import { Badge, PaginationControls, Panel, StatCard } from "../ui";
+import { Badge, PaginationControls, Panel } from "../ui";
+import { Figure, Figures } from "./Figure";
 import { DateRangeBar } from "./DateRangeBar";
 import { FinanceFlowChart } from "./FinanceFlowChart";
 import { FINANCE_ACCENT } from "./config";
@@ -60,6 +62,7 @@ const FinanceTransactions = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [sums, setSums] = useState({ income: 0, expenses: 0, net: 0 });
+  const [searchParams, setSearchParams] = useSearchParams();
   const [series, setSeries] = useState<FinanceSeries | undefined>();
   const [rows, setRows] = useState<FinanceTransaction[]>([]);
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
@@ -140,6 +143,26 @@ const FinanceTransactions = () => {
     setForm({ ...emptyForm, type: kind });
     setModalOpen(true);
   };
+
+  // "Record the starting capital" from the Overview opens the form filled in; the real date is left for the CFO.
+  useEffect(() => {
+    if (searchParams.get("startingCapital") !== "1" || readOnly || categories.length === 0) return;
+    const capital = categories.find((c) => c.name === "Starting capital");
+    setEditing(null);
+    setFormError(null);
+    setForm({
+      ...emptyForm,
+      type: "INCOME",
+      amount: "2000000",
+      occurredAt: "",
+      description: "Starting capital from the team's contributions",
+      categoryId: capital?.id || "",
+      notes: "The money the team started the company with. We take from it for activities.",
+    });
+    setModalOpen(true);
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, categories, readOnly]);
 
   const openEdit = (txn: FinanceTransaction) => {
     setViewing(null);
@@ -262,18 +285,13 @@ const FinanceTransactions = () => {
         <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{info}</div>
       )}
 
-      <div className="mb-5 grid gap-4 sm:grid-cols-3">
-        <StatCard icon={ArrowUpRight} label="Money in" value={formatRwf(sums.income)} accent="#0F766E" deltaPositive />
-        <StatCard icon={ArrowDownRight} label="Money out" value={formatRwf(sums.expenses)} accent="#BE123C" deltaPositive={false} />
-        <StatCard
-          icon={Scale}
-          label="Net"
-          value={formatRwf(sums.net)}
-          delta="Recorded items in this view"
-          deltaPositive={sums.net >= 0}
-          accent={FINANCE_ACCENT}
-        />
-      </div>
+      <Figures>
+        <Figure label="Money in" value={formatRwf(sums.income)} tone="text-emerald-700" />
+        <Figure label="Money out" value={formatRwf(sums.expenses)} tone="text-rose-700" />
+        <Figure label="Net" value={formatRwf(sums.net)} tone={sums.net < 0 ? "text-rose-700" : "text-gray-900"}>
+          <p>Recorded items in this view</p>
+        </Figure>
+      </Figures>
 
       <FinanceFlowChart series={series} loading={loading} />
 

@@ -65,7 +65,7 @@ export type FieldVisitInput = Partial<Omit<FieldVisit, "id" | "seasonRecordId">>
 export type FarmInput = Partial<
   Pick<
     AdminFarm,
-    | "name" | "farmCode" | "upi" | "soilType" | "district" | "sector" | "cell" | "village"
+    | "name" | "farmCode" | "upi" | "soilType" | "province" | "district" | "sector" | "cell" | "village"
     | "irrigationMethod" | "soilInformation"
   >
 > & { size?: number };

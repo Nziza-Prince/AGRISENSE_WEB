@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
-import { CheckCircle2, Clock, HandCoins, Loader2, XCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import FinanceShell from "./FinanceShell";
-import { Badge, PaginationControls, Panel, StatCard } from "../ui";
+import { Badge, PaginationControls, Panel } from "../ui";
+import { Figure, Figures } from "./Figure";
 import { FINANCE_ACCENT } from "./config";
 import {
   formatCompactDate,
@@ -79,39 +80,20 @@ const FinanceFarmerPayments = () => {
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
 
-      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={CheckCircle2}
-          label="Collected from farmers"
-          value={formatRwf(summary?.paid.amount)}
-          delta={`${summary?.paid.count ?? 0} confirmed payment${summary?.paid.count === 1 ? "" : "s"}`}
-          deltaPositive
-          accent="#15803D"
-        />
-        <StatCard
-          icon={Clock}
-          label="Awaiting confirmation"
-          value={formatRwf(summary?.submitted.amount)}
-          delta={`${summary?.submitted.count ?? 0} farmer${summary?.submitted.count === 1 ? "" : "s"} say they paid`}
-          deltaPositive={false}
-          accent="#B45309"
-        />
-        <StatCard
-          icon={HandCoins}
-          label="Requested, not yet paid"
-          value={formatRwf(summary?.awaitingPayment.amount)}
-          delta={`${summary?.awaitingPayment.count ?? 0} open requests`}
-          accent={FINANCE_ACCENT}
-        />
-        <StatCard
-          icon={XCircle}
-          label="Rejected"
-          value={formatRwf(summary?.rejected.amount)}
-          delta={`${summary?.rejected.count ?? 0} payments`}
-          deltaPositive={false}
-          accent="#BE123C"
-        />
-      </div>
+      <Figures>
+        <Figure label="Collected from farmers" value={formatRwf(summary?.paid.amount)} tone="text-emerald-700">
+          <p>{summary?.paid.count ?? 0} confirmed payment{summary?.paid.count === 1 ? "" : "s"}</p>
+        </Figure>
+        <Figure label="Waiting for you to confirm" value={formatRwf(summary?.submitted.amount)}>
+          <p>{summary?.submitted.count ?? 0} farmer{summary?.submitted.count === 1 ? "" : "s"} say they paid</p>
+        </Figure>
+        <Figure label="Requested, not yet paid" value={formatRwf(summary?.awaitingPayment.amount)}>
+          <p>
+            {summary?.awaitingPayment.count ?? 0} open request{summary?.awaitingPayment.count === 1 ? "" : "s"}
+            {(summary?.rejected.count ?? 0) > 0 && `, ${summary?.rejected.count} rejected`}
+          </p>
+        </Figure>
+      </Figures>
 
       <Panel>
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">

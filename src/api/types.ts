@@ -1083,6 +1083,7 @@ export interface FinanceDashboard {
     pendingAmount: number;
     pendingCount: number;
   };
+  teamFund: { startedWith: number; recorded: boolean; takenOut: number; left: number };
   farmerPayments: FarmerPaymentSummary & {
     recordedInBooks: { count: number; amount: number };
   };

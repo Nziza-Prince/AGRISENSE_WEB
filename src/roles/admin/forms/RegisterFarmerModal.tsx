@@ -1,16 +1,15 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle2, Copy, Loader2, MapPin, Sprout, User } from "lucide-react";
 import { adminService, ApiError } from "@/api";
-import { DISTRICTS } from "../rwandaMap";
 import { soilColor } from "../farms/shared";
 import Modal from "./Modal";
-import { ChipGroup, Field, PasswordField, SelectInput, TextInput } from "./inputs";
+import { ChipGroup, Field, PasswordField, TextInput } from "./inputs";
 import { PASSWORD_RULE } from "./password";
+import LocationPicker from "./LocationPicker";
 
 const SOILS = ["loamy", "clay", "sandy", "silty", "peaty", "chalky"] as const;
 const IRRIGATION = ["Rain-fed", "Drip", "Sprinkler", "Furrow", "Manual watering"];
-const PROVINCES = ["Northern Province", "Southern Province", "Eastern Province", "Western Province", "Kigali City"];
 
 const empty = () => ({
   firstName: "", lastName: "", phone: "", email: "", password: "",
@@ -34,7 +33,6 @@ export default function RegisterFarmerModal({ open, onClose, onCreated }: { open
   const [copied, setCopied] = useState(false);
 
   const set = (k: keyof ReturnType<typeof empty>) => (e: { target: { value: string } }) => setF((p) => ({ ...p, [k]: e.target.value }));
-  const districts = useMemo(() => DISTRICTS.filter((d) => d.province === f.province).map((d) => d.name).sort(), [f.province]);
   const ha = Number(f.size) > 0 ? (Number(f.size) / 10000).toFixed(2) : null;
 
   const close = () => {
@@ -60,7 +58,7 @@ export default function RegisterFarmerModal({ open, onClose, onCreated }: { open
     }
     if (s === 2) {
       if (!f.province || !f.district) return "Choose the province and district.";
-      if (!f.sector.trim() || !f.cell.trim() || !f.village.trim()) return "Fill in the sector, cell and village.";
+      if (!f.sector || !f.cell || !f.village) return "Choose the sector, cell and village from the lists.";
       if ((f.lat && !f.lng) || (!f.lat && f.lng)) return "Give both latitude and longitude, or leave both empty.";
     }
     return null;
@@ -213,25 +211,10 @@ export default function RegisterFarmerModal({ open, onClose, onCreated }: { open
               )}
               {step === 2 && (
                 <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Province">
-                      <SelectInput value={f.province} onChange={(e) => setF((s) => ({ ...s, province: e.target.value, district: "" }))}>
-                        <option value="">Choose…</option>
-                        {PROVINCES.map((p) => <option key={p}>{p}</option>)}
-                      </SelectInput>
-                    </Field>
-                    <Field label="District">
-                      <SelectInput value={f.district} onChange={set("district")} disabled={!f.province}>
-                        <option value="">{f.province ? "Choose…" : "Pick a province first"}</option>
-                        {districts.map((d) => <option key={d}>{d}</option>)}
-                      </SelectInput>
-                    </Field>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <Field label="Sector"><TextInput value={f.sector} onChange={set("sector")} /></Field>
-                    <Field label="Cell"><TextInput value={f.cell} onChange={set("cell")} /></Field>
-                    <Field label="Village"><TextInput value={f.village} onChange={set("village")} /></Field>
-                  </div>
+                  <LocationPicker
+                    value={{ province: f.province, district: f.district, sector: f.sector, cell: f.cell, village: f.village }}
+                    onChange={(place) => setF((s) => ({ ...s, ...place }))}
+                  />
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Latitude" optional><TextInput type="number" step="any" value={f.lat} onChange={set("lat")} placeholder="-1.2985" /></Field>
                     <Field label="Longitude" optional><TextInput type="number" step="any" value={f.lng} onChange={set("lng")} placeholder="30.3250" /></Field>
