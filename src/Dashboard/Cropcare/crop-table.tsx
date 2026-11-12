@@ -27,7 +27,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "1",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -35,7 +35,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "2",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -43,7 +43,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "3",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -51,7 +51,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "4",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -59,7 +59,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "5",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -67,7 +67,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "6",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -75,7 +75,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "7",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -83,7 +83,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "8",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -91,7 +91,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "9",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -99,7 +99,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "10",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -107,7 +107,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "10",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -115,7 +115,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "10",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",
@@ -123,7 +123,7 @@ export function CropTable({ onSelectCrop }: CropTableProps) {
     {
       id: "10",
       name: "Maize",
-      farmer: { name: "Shawn", image: "/assets/farmer.png" },
+      farmer: { name: "Shawn", image: "/assets/farmer.webp" },
       months: "Jan - May",
       funds: "$20",
       growthRate: "Middle",

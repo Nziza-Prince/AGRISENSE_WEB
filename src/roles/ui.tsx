@@ -99,37 +99,6 @@ export function Badge({
   );
 }
 
-/** Placeholder for sub-pages awaiting API integration. */
-export function PagePlaceholder({
-  icon: Icon,
-  title,
-  description,
-  accent,
-}: {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  accent: string;
-}) {
-  return (
-    <div className="flex min-h-[50vh] items-center justify-center">
-      <div className="max-w-md rounded-2xl border border-dashed bg-white p-10 text-center shadow-sm">
-        <div
-          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-          style={{ backgroundColor: `${accent}14`, color: accent }}
-        >
-          <Icon className="h-7 w-7" />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <p className="mt-2 text-sm text-gray-500">{description}</p>
-        <span className="mt-4 inline-block rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
-          Ready for API integration
-        </span>
-      </div>
-    </div>
-  );
-}
-
 /** Extract common Nest/API pagination fields from a response. */
 export function getPaginationMeta(
   data: unknown,

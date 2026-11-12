@@ -1,9 +1,11 @@
 import type { FC } from "react"
 import { ArrowRight } from "lucide-react"
 import { Card } from "@/components/ui/card"
-import AboutUsImage from "/assets/about-us-team.png"
+import AboutUsImage from "/assets/about-us-team.webp"
+import { usePublicStats } from "@/hooks/usePublicStats"
 
 const AboutUs: FC = () => {
+  const live = usePublicStats()
   return (
     <section className="flex flex-col md:flex-row items-center justify-center mt-24 sm:mt-24 md:mt-24 mb-20 gap-4 md:gap-8 lg:gap-16 xl:gap-24 px-6 md:px-16 lg:px-24 xl:px-48 py-6 bg-white">
       {/* Left Side: Image + overlapping cards */}
@@ -13,6 +15,8 @@ const AboutUs: FC = () => {
           <img
             src={AboutUsImage || "/placeholder.svg"}
             alt="AgriSense team in the field"
+            loading="lazy"
+            decoding="async"
             className="object-cover object-[center_20%] w-full h-full"
           />
         </div>
@@ -20,16 +24,16 @@ const AboutUs: FC = () => {
         {/* Overlapping Cards */}
         <div className="absolute text-lg font-semibold left-10 sm:-left-20 md:-left-10 lg:-left-20 top-10 flex flex-col space-y-4 z-10">
           <Card className="w-28 sm:w-32 text-center p-4 shadow-lg bg-white">
-            <div className="text-sm font-semibold">10</div>
+            <div className="text-sm font-semibold">{live ? live.farmers : "–"}</div>
             <div className="text-xs text-gray-600">Farmers Onboarded</div>
           </Card>
           <Card className="w-28 sm:w-32 text-center p-4 bg-[#377552] text-white shadow-lg">
-            <div className="text-sm font-semibold">120</div>
+            <div className="text-sm font-semibold">{live ? live.hectares : "–"}</div>
             <div className="text-xs">Hectares Covered</div>
           </Card>
           <Card className="w-28 sm:w-32 text-center p-4 shadow-lg bg-white">
-            <div className="text-sm font-semibold">1</div>
-            <div className="text-xs text-gray-600">Connected Cooperative</div>
+            <div className="text-sm font-semibold">{live ? live.partners : "–"}</div>
+            <div className="text-xs text-gray-600">Partner Organisations</div>
           </Card>
         </div>
       </div>

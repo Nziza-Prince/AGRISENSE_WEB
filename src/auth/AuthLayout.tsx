@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Logo from "/assets/logo.png";
-import HeroImage from "/assets/HeroImage.png";
-import SmartFarmingImage from "/assets/smartFarmingImage.png";
-import FarmerImage from "/assets/farmer.png";
-import WeatherImage from "/assets/WeatherMan.png";
+import HeroImage from "/assets/HeroImage.webp";
+import SmartFarmingImage from "/assets/smartFarmingImage.webp";
+import FarmerImage from "/assets/farmer.webp";
+import WeatherImage from "/assets/WeatherMan.webp";
 import { routes } from "@/lib/routes";
 
 interface AuthLayoutProps {

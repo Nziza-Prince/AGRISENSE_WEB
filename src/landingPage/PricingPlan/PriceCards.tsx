@@ -1,183 +1,89 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/useAuth";
 import { routes } from "@/lib/routes";
-import { billingService, type BillingPlan, type BillingPlanId } from "@/api";
 
-type Billing = "monthly" | "annual";
+/**
+ * Mirrors the backend billing rules (backend/src/billing/billing.enums.ts):
+ * one free analysis per farm per season, then a 20,000 RWF season pass per farm,
+ * paid by mobile money and confirmed by an admin. Keep these in sync.
+ */
+const SEASON_PASS_PRICE_RWF = 20000;
 
 interface Plan {
-  id: BillingPlanId;
+  id: "free" | "season" | "partners";
   title: string;
   description: string;
-  monthly: number | null;
-  annualPerMonth: number | null;
+  price: string;
+  priceNote: string;
   features: string[];
   popular?: boolean;
 }
 
-const FALLBACK_PLANS: Plan[] = [
+const PLANS: Plan[] = [
   {
-    id: "starter",
-    title: "Starter",
-    description: "For smallholder farmers getting started with smart farming.",
-    monthly: 0,
-    annualPerMonth: 0,
+    id: "free",
+    title: "First analysis free",
+    description: "Try AgriSense on your own farm before you pay anything.",
+    price: "Free",
+    priceNote: "One analysis per farm, each season",
     features: [
-      "1 farm profile",
-      "Basic soil & crop analysis",
-      "3-day weather forecast",
-      "Community access",
+      "Register your farm and its location",
+      "Soil and crop analysis with recommendations",
+      "Local weather for your farm",
+      "No payment details needed",
     ],
   },
   {
-    id: "pro",
-    title: "Pro",
-    description: "For active farmers who want the full picture, all season.",
-    monthly: 10000,
-    annualPerMonth: 8000,
+    id: "season",
+    title: "Season pass",
+    description: "Keep getting recommendations for one farm all season.",
+    price: `RWF ${SEASON_PASS_PRICE_RWF.toLocaleString("en-US")}`,
+    priceNote: "Per farm, per season",
     features: [
-      "Up to 10 farm profiles",
-      "Unlimited soil & crop reports",
-      "7-day weather & pest alerts",
-      "Personalised AI recommendations",
-      "Supplier & market insights",
-      "Priority support",
+      "Repeat soil and crop analyses for the season",
+      "Weather and pest alerts for your farm",
+      "Pay by mobile money (MTN MoMo)",
+      "Your payment is confirmed by our team",
     ],
     popular: true,
   },
   {
-    id: "enterprise",
-    title: "Enterprise",
-    description: "For cooperatives, suppliers, NGOs & government programs.",
-    monthly: null,
-    annualPerMonth: null,
+    id: "partners",
+    title: "Cooperatives & programs",
+    description: "For cooperatives, suppliers, NGOs and government programs.",
+    price: "Let's talk",
+    priceNote: "Arranged to fit your program",
     features: [
-      "Unlimited farms & team members",
-      "Regional & nationwide data",
-      "Program & impact dashboards",
-      "API access & integrations",
-      "Dedicated account manager",
+      "Support for many farmers and farms",
+      "Regional views of farm data",
+      "Onboarding help for your members",
     ],
   },
 ];
 
-function mapApiPlan(p: BillingPlan): Plan {
-  const fallback = FALLBACK_PLANS.find((f) => f.id === p.id);
-  const monthly =
-    p.priceMonthly !== undefined ? p.priceMonthly : p.monthly !== undefined ? p.monthly : fallback?.monthly ?? null;
-  const annualPerMonth =
-    p.priceAnnualPerMonth !== undefined
-      ? p.priceAnnualPerMonth
-      : p.annualPerMonth !== undefined
-        ? p.annualPerMonth
-        : fallback?.annualPerMonth ?? null;
-
-  return {
-    id: (p.id as BillingPlanId) || "starter",
-    title: p.title || p.name || fallback?.title || String(p.id),
-    description: p.description || fallback?.description || "",
-    monthly,
-    annualPerMonth,
-    features: p.features?.length ? p.features : fallback?.features || [],
-    popular: p.popular ?? p.id === "pro",
-  };
-}
-
 const PriceCards = () => {
-  const [billing, setBilling] = useState<Billing>("monthly");
-  const [plans, setPlans] = useState<Plan[]>(FALLBACK_PLANS);
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    let active = true;
-    billingService
-      .getPlans()
-      .then((rows) => {
-        if (!active || !rows.length) return;
-        setPlans(rows.map(mapApiPlan));
-      })
-      .catch(() => {
-        // Keep marketing fallbacks if catalog is unreachable.
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
   const resolveCta = (plan: Plan) => {
-    if (plan.id === "enterprise") {
+    if (plan.id === "partners") {
       return {
-        label: "Contact Sales",
+        label: "Contact us",
         to: routes.contact,
-        state: { plan: "enterprise", subject: "Enterprise enquiry" },
-      };
-    }
-    if (plan.id === "pro") {
-      return {
-        label: isAuthenticated ? "Subscribe to Pro" : "Start Free Trial",
-        to: isAuthenticated ? routes.app.subscription : routes.auth.login,
-        state: {
-          plan: "pro",
-          billing,
-          from: { pathname: routes.app.subscription },
-        },
+        state: { subject: "Cooperative or program enquiry" },
       };
     }
     return {
-      label: isAuthenticated ? "Manage subscription" : "Get Started Free",
+      label: isAuthenticated ? "Open my dashboard" : "Create a free account",
       to: isAuthenticated ? routes.app.subscription : routes.auth.register,
-      state: {
-        plan: "starter",
-        from: { pathname: routes.app.subscription },
-      },
+      state: undefined,
     };
-  };
-
-  const formatPrice = (plan: Plan) => {
-    if (plan.monthly === null) return "Custom";
-    const value = billing === "monthly" ? plan.monthly : plan.annualPerMonth!;
-    return value === 0 ? "Free" : `RWF ${value.toLocaleString()}`;
   };
 
   return (
     <div>
-      <div className="mb-10 flex items-center justify-center gap-3">
-        <span
-          className={`text-sm font-semibold ${
-            billing === "monthly" ? "text-gray-900" : "text-gray-400"
-          }`}
-        >
-          Monthly
-        </span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={billing === "annual"}
-          onClick={() => setBilling((b) => (b === "monthly" ? "annual" : "monthly"))}
-          className="relative h-7 w-14 rounded-full bg-[#2C6E49] transition-colors"
-        >
-          <span
-            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${
-              billing === "annual" ? "left-8" : "left-1"
-            }`}
-          />
-        </button>
-        <span
-          className={`text-sm font-semibold ${
-            billing === "annual" ? "text-gray-900" : "text-gray-400"
-          }`}
-        >
-          Annual
-        </span>
-        <span className="rounded-full bg-lime-100 px-2.5 py-0.5 text-xs font-semibold text-[#2C6E49]">
-          Save 20%
-        </span>
-      </div>
-
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {plans.map((plan) => {
+        {PLANS.map((plan) => {
           const cta = resolveCta(plan);
           return (
             <div
@@ -190,28 +96,17 @@ const PriceCards = () => {
             >
               {plan.popular && (
                 <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-[#2C6E49] px-3 py-1 text-xs font-semibold text-white shadow">
-                  <Sparkles className="h-3.5 w-3.5" /> Most Popular
+                  <Sparkles className="h-3.5 w-3.5" /> For continued use
                 </span>
               )}
 
               <h3 className="text-lg font-bold text-gray-900">{plan.title}</h3>
               <p className="mt-1.5 min-h-[40px] text-sm text-gray-500">{plan.description}</p>
 
-              <div className="mt-5 flex items-end gap-1">
-                <span className="text-4xl font-extrabold text-gray-900">{formatPrice(plan)}</span>
-                {plan.monthly !== null && plan.monthly > 0 && (
-                  <span className="mb-1 text-sm font-medium text-gray-400">/mo</span>
-                )}
+              <div className="mt-5">
+                <span className="text-4xl font-extrabold text-gray-900">{plan.price}</span>
+                <p className="mt-1 text-xs text-gray-500">{plan.priceNote}</p>
               </div>
-              {plan.monthly !== null && plan.monthly > 0 && billing === "annual" && (
-                <p className="mt-1 text-xs text-gray-400">
-                  Billed annually (RWF {(plan.annualPerMonth! * 12).toLocaleString()}/yr)
-                </p>
-              )}
-              {plan.monthly === 0 && <p className="mt-1 text-xs text-gray-400">Forever free</p>}
-              {plan.monthly === null && (
-                <p className="mt-1 text-xs text-gray-400">Tailored to your organization</p>
-              )}
 
               <Link
                 to={cta.to}
@@ -244,7 +139,7 @@ const PriceCards = () => {
       </div>
 
       <p className="mt-8 text-center text-sm text-gray-500">
-        No credit card required to start · Cancel anytime · Prices in RWF
+        Prices in Rwandan francs (RWF) · No card needed · No automatic renewals
       </p>
     </div>
   );

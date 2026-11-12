@@ -210,7 +210,7 @@ export interface CreateFarmCropDto {
   areaPlanted?: number;
 }
 
-export interface UpdateFarmCropDto extends Partial<CreateFarmCropDto> {}
+export type UpdateFarmCropDto = Partial<CreateFarmCropDto>;
 
 export interface FarmListResponse {
   count: number;
@@ -513,7 +513,7 @@ export interface CreateMarketplaceOrderDto {
 // Admin
 // ---------------------------------------------------------------------------
 
-export type AdminUserRole = "FARMER" | "SUPPLIER" | "ADMIN" | "NGO" | "GOVERNMENT" | "CFO";
+export type AdminUserRole = "FARMER" | "SUPPLIER" | "ADMIN" | "NGO" | "CFO";
 export type AdminUserStatus = "PENDING" | "ACTIVE" | "SUSPENDED" | "BANNED";
 
 export interface AdminUserSummary {
@@ -593,7 +593,7 @@ export interface JoinWaitlistDto {
   fullName: string;
   email: string;
   phoneNumber?: string;
-  interest?: "FARMER" | "SUPPLIER" | "NGO" | "GOVERNMENT" | "OTHER";
+  interest?: "FARMER" | "SUPPLIER" | "NGO" | "OTHER";
   organization?: string;
   province?: string;
   message?: string;
@@ -730,6 +730,7 @@ export interface OrgStatistics {
   totalFarms?: number;
   activeFarms?: number;
   regionsCovered?: number;
+  assignedRegions?: string[];
   activePrograms?: number;
   averageFarmSize?: number;
   cropsCultivated?: number;
@@ -748,8 +749,8 @@ export interface RegionalStatRow {
   totalFarmers?: number;
   mainCrop?: string;
   crop?: string;
-  diseaseRisk?: string;
-  harvestProgress?: number | string;
+  count?: number | string;
+  totalSize?: number | string;
   averageFarmSize?: number;
   [key: string]: unknown;
 }
@@ -791,6 +792,7 @@ export interface OrgFarmSummary {
   district?: string;
   cropType?: string;
   crop?: string;
+  recommendedCrop?: string | null;
   size?: number;
   sizeHa?: number;
   status?: string;
@@ -966,11 +968,11 @@ export interface AdminRevokeSubscriptionDto {
 // Finance (CFO portal)
 // ---------------------------------------------------------------------------
 
-export type FinanceAccountType =
-  | "BANK"
+export type FinancePaymentMethod =
   | "CASH"
   | "MOBILE_MONEY"
-  | "PAYMENT_PLATFORM"
+  | "BANK_TRANSFER"
+  | "CHEQUE"
   | "OTHER";
 
 export type FinanceCategoryKind = "INCOME" | "EXPENSE";
@@ -988,21 +990,7 @@ export type FinanceAuditAction =
   | "REJECTED"
   | "CANCELLED";
 export type FinanceAuditEntity = "TRANSACTION" | "ACCOUNT" | "CATEGORY";
-export type FinanceRangePreset = "week" | "month" | "quarter" | "year" | "custom";
-
-export interface FinanceAccount {
-  id: string;
-  name: string;
-  type: FinanceAccountType | string;
-  currency?: string;
-  institution?: string | null;
-  accountNumber?: string | null;
-  description?: string | null;
-  isActive?: boolean;
-  balance?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type FinanceRangePreset = "week" | "month" | "quarter" | "year" | "all" | "custom";
 
 export interface FinanceCategory {
   id: string;
@@ -1025,10 +1013,10 @@ export interface FinanceTransaction {
   notes?: string | null;
   reference?: string | null;
   counterparty?: string | null;
-  accountId: string;
+  paymentMethod: FinancePaymentMethod | string;
+  sourceType?: string | null;
   categoryId: string;
-  account?: { id: string; name: string; type?: string };
-  category?: { id: string; name: string; kind?: string };
+  category?: { id: string; name: string; kind?: string; color?: string | null };
   createdById?: string;
   createdBy?: {
     id: string;
@@ -1046,18 +1034,60 @@ export interface FinanceTransaction {
   updatedAt?: string;
 }
 
+export interface FinanceCategoryTotal {
+  categoryId: string;
+  name: string;
+  color?: string | null;
+  amount: number;
+  count?: number;
+}
+
+export interface FinanceMethodTotal {
+  method: FinancePaymentMethod | string;
+  moneyIn: number;
+  moneyOut: number;
+  onHand: number;
+}
+
+export interface FarmerPaymentSummary {
+  paid: { count: number; amount: number };
+  submitted: { count: number; amount: number };
+  awaitingPayment: { count: number; amount: number };
+  rejected: { count: number; amount: number };
+}
+
+export interface FinanceSeriesPoint {
+  /** First day of the bucket, YYYY-MM-DD. */
+  period: string;
+  income: number;
+  expenses: number;
+  net: number;
+  count: number;
+}
+
+export interface FinanceSeries {
+  granularity: "day" | "week" | "month";
+  points: FinanceSeriesPoint[];
+}
+
 export interface FinanceDashboard {
   currency: string;
   range: { preset: string; from: string; to: string };
   totals: {
     currentBalance: number;
+    lifetimeIncome: number;
+    lifetimeExpenses: number;
     totalIncome: number;
     totalExpenses: number;
     netCashFlow: number;
-    pendingExpenses: number;
-    pendingExpenseCount: number;
+    pendingAmount: number;
+    pendingCount: number;
   };
-  accounts: FinanceAccount[];
+  teamFund: { startedWith: number; recorded: boolean; takenOut: number; left: number };
+  farmerPayments: FarmerPaymentSummary & {
+    recordedInBooks: { count: number; amount: number };
+  };
+  paymentMethods: FinanceMethodTotal[];
   recentTransactions: FinanceTransaction[];
   incomeVsExpenses: Array<{
     period: string;
@@ -1065,12 +1095,8 @@ export interface FinanceDashboard {
     expenses: number;
     net: number;
   }>;
-  expensesByCategory: Array<{
-    categoryId: string;
-    name: string;
-    color?: string | null;
-    amount: number;
-  }>;
+  expensesByCategory: FinanceCategoryTotal[];
+  incomeByCategory: FinanceCategoryTotal[];
 }
 
 export interface FinanceReport {
@@ -1078,8 +1104,30 @@ export interface FinanceReport {
   currency: string;
   range: { preset: string; from: string; to: string };
   summary: { income: number; expenses: number; net: number; count: number };
-  expensesByCategory?: Array<{ categoryId: string; name: string; amount: number }>;
+  incomeByCategory: FinanceCategoryTotal[];
+  expensesByCategory: FinanceCategoryTotal[];
+  byMethod: Array<{ method: string; moneyIn: number; moneyOut: number; net: number }>;
+  byMonth: Array<{ period: string; income: number; expenses: number; net: number }>;
   rows: FinanceTransaction[];
+}
+
+export interface FarmerPayment {
+  id: string;
+  reference: string;
+  status: "paid" | "submitted" | "awaiting_payment" | "rejected" | string;
+  amount: number;
+  currency: string;
+  season: string;
+  seasonYear: number;
+  farmId: string;
+  farmName: string;
+  farmer: { id: string; name: string; email: string; phone: string | null };
+  momoTransactionId: string | null;
+  payerPhone: string | null;
+  submittedAt: string | null;
+  paidAt: string | null;
+  adminNote: string | null;
+  createdAt: string;
 }
 
 export interface FinanceAuditLog {
@@ -1098,18 +1146,6 @@ export interface FinanceAuditLog {
   createdAt: string;
 }
 
-export interface CreateFinanceAccountDto {
-  name: string;
-  type: FinanceAccountType;
-  institution?: string;
-  accountNumber?: string;
-  description?: string;
-}
-
-export interface UpdateFinanceAccountDto extends Partial<CreateFinanceAccountDto> {
-  isActive?: boolean;
-}
-
 export interface CreateFinanceCategoryDto {
   name: string;
   kind: FinanceCategoryKind;
@@ -1126,15 +1162,16 @@ export interface CreateFinanceTransactionDto {
   amount: number;
   occurredAt: string;
   description: string;
-  accountId: string;
   categoryId: string;
+  paymentMethod: FinancePaymentMethod;
   counterparty?: string;
   reference?: string;
   notes?: string;
   status?: FinanceTransactionStatus;
 }
 
-export interface UpdateFinanceTransactionDto
-  extends Partial<Omit<CreateFinanceTransactionDto, "status">> {}
+export type UpdateFinanceTransactionDto = Partial<
+  Omit<CreateFinanceTransactionDto, "status">
+>;
 
 

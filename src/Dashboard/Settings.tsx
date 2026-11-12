@@ -1,4 +1,5 @@
 import DashboardLayout from "./DashboardLayout"
+import { EmptyState } from "@/components/EmptyState";
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, Trash2, Plus } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -497,10 +498,10 @@ function FarmsSection() {
           <Field label="Farm name">
             <TextInput value={form.name} onChange={(v) => updateField('name', v)} required />
           </Field>
-          <Field label="Size (acres)">
+          <Field label="Size (square metres, m²)">
             <input
               type="number"
-              step="0.1"
+              step="1"
               value={form.size}
               onChange={(e) => updateField('size', Number(e.target.value))}
               className="w-full h-11 border border-gray-300 rounded-md px-3 outline-none focus:border-[#2C6E49]"
@@ -571,7 +572,7 @@ function FarmsSection() {
           <Loader2 className="h-7 w-7 animate-spin text-[#2C6E49]" />
         </div>
       ) : farms.length === 0 ? (
-        <p className="text-center text-gray-500 py-10">No farms yet. Add your first farm.</p>
+        <EmptyState art="seedling" title="Your farms will appear here" text="Add your first farm to get soil and crop advice." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {farms.map((farm) => (
@@ -580,7 +581,7 @@ function FarmsSection() {
                 <div>
                   <h3 className="font-semibold text-gray-800">{farm.name}</h3>
                   <p className="text-sm text-gray-500 capitalize">
-                    {farm.soilType} soil · {farm.size} acres
+                    {farm.soilType} soil · {Number(farm.size).toLocaleString()} m²
                   </p>
                   {farm.isActive && (
                     <span className="mt-2 inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">

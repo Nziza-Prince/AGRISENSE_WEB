@@ -1,4 +1,5 @@
 import DashboardLayout from "./DashboardLayout";
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, ShoppingCart } from "lucide-react";
 import {
@@ -120,8 +121,8 @@ export default function Marketplace() {
             <Loader2 className="h-8 w-8 animate-spin text-[#2C6E49]" />
           </div>
         ) : products.length === 0 ? (
-          <div className="rounded-2xl border border-dashed bg-white p-10 text-center text-gray-500">
-            No products available right now.
+          <div className="rounded-2xl border bg-white">
+            <EmptyState art="box" title="New products are on their way" text="Suppliers add seeds, fertiliser and tools here. Check back soon." />
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

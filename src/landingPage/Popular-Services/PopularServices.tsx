@@ -21,7 +21,7 @@ const PopularServices: React.FC = () => {
     {
       title: "Supplier & Market Insights",
       description: "Track produce demand and supplier pricing for smarter selling.",
-      imageUrl: `/assets/serviceImages/SupplierMarketInsights.png?v=${v}`,
+      imageUrl: `/assets/serviceImages/SupplierMarketInsights.webp?v=${v}`,
       icon: supplierMarketIcon,
     },
     {
@@ -33,7 +33,7 @@ const PopularServices: React.FC = () => {
     {
       title: "Farm Management",
       description: "Organize farms, acreage and field activities in one place.",
-      imageUrl: `/assets/serviceImages/FarmManagement.png?v=${v}`,
+      imageUrl: `/assets/serviceImages/FarmManagement.webp?v=${v}`,
       icon: farmManagementIcon,
     },
     {
@@ -51,7 +51,7 @@ const PopularServices: React.FC = () => {
     {
       title: "Farmer-Supplier Marketplace",
       description: "Connect growers with trusted input suppliers nearby.",
-      imageUrl: `/assets/serviceImages/Farmer-Suppliaer-MarketPlace.png?v=${v}`,
+      imageUrl: `/assets/serviceImages/Farmer-Suppliaer-MarketPlace.webp?v=${v}`,
       icon: farmerSupplierIcon,
     },
   ]

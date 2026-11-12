@@ -44,6 +44,7 @@ const NgoSettings = () => {
         setLoading(false);
       }
     })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch profile only when role changes; portal object is recreated each render
   }, [portal.role]);
 
   const save = async (e: React.FormEvent) => {

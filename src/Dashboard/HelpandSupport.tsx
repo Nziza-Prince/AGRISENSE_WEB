@@ -1,4 +1,5 @@
 import DashboardLayout from "./DashboardLayout"
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -130,7 +131,7 @@ const HelpandSupport = () => {
               <Card className="border shadow-sm">
                 <CardContent className="p-0 divide-y">
                   {filtered.length === 0 ? (
-                    <p className="text-sm text-gray-500 p-6">No results for “{query}”.</p>
+                    <EmptyState art="search" title="Let us help with that" text="Try other words, or contact support below." compact />
                   ) : (
                     filtered.map((faq, i) => (
                       <div key={faq.q}>

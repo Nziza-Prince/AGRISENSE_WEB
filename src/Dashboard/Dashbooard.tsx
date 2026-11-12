@@ -215,13 +215,8 @@ function growthFromRuns(runs: PredictionRun[]): { data: MonthPoint[]; keys: stri
 
 const SERIES_COLORS = ["#4D8D6E", "#111827", "#40916C"]
 
-function ChartEmpty({ text }: { text: string }) {
-  return (
-    <div className="flex h-[250px] items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-6 text-center text-sm text-gray-500">
-      {text}
-    </div>
-  )
-}
+/** A flat grey ring drawn before there is any data, so the chart is not a blank box. */
+const GHOST_RING = [{ name: "", value: 1, color: "#E5E7EB" }]
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -329,8 +324,8 @@ const Dashboard = () => {
   const cards: StatCard[] = [
     { title: "Total Farms", metrics: `${farms.length}`, percentage: "active" },
     {
-      title: "Total Acreage",
-      metrics: `${totalAcreage.toFixed(1)} acres`,
+      title: "Total area",
+      metrics: `${Math.round(totalAcreage).toLocaleString()} m²`,
       percentage: "tracked",
     },
     { title: "Prediction Runs", metrics: `${runs.length}`, percentage: "recorded" },
@@ -429,14 +424,12 @@ const Dashboard = () => {
                 <div className="flex h-[250px] items-center justify-center">
                   <Loader2 className="h-7 w-7 animate-spin text-[#2C6E49]" />
                 </div>
-              ) : harvestData.data.length === 0 ? (
-                <ChartEmpty text="No crop or soil data yet. Add farms and crops in Settings." />
               ) : (
                 <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={harvestData.data}
+                        data={harvestData.data.length ? harvestData.data : GHOST_RING}
                         cx="50%"
                         cy="50%"
                         innerRadius={60}
@@ -444,17 +437,19 @@ const Dashboard = () => {
                         paddingAngle={2}
                         dataKey="value"
                       >
-                        {harvestData.data.map((entry) => (
+                        {(harvestData.data.length ? harvestData.data : GHOST_RING).map((entry) => (
                           <Cell key={entry.name} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Legend
-                        layout="vertical"
-                        verticalAlign="middle"
-                        align="right"
-                        wrapperStyle={{ paddingLeft: "20px" }}
-                      />
-                      <Tooltip />
+                      {harvestData.data.length > 0 && (
+                        <Legend
+                          layout="vertical"
+                          verticalAlign="middle"
+                          align="right"
+                          wrapperStyle={{ paddingLeft: "20px" }}
+                        />
+                      )}
+                      {harvestData.data.length > 0 && <Tooltip />}
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -483,11 +478,7 @@ const Dashboard = () => {
               ))}
             </div>
 
-            {growthSeries.data.every((row) =>
-              growthSeries.keys.every((key) => !Number(row[key])),
-            ) ? (
-              <ChartEmpty text="No prediction trends yet. Run a soil/crop analysis to see growth over time." />
-            ) : (
+            {(
               <div className="h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={growthSeries.data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -530,11 +521,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {activitySeries.data.every((row) =>
-              activitySeries.keys.every((key) => !Number(row[key])),
-            ) ? (
-              <ChartEmpty text="No recent prediction activity. Your runs and recommendations will appear here." />
-            ) : (
+            {(
               <div className="h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart

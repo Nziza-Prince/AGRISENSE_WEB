@@ -1,4 +1,5 @@
 import DashboardLayout from "../DashboardLayout"
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useMemo, useState } from "react"
 import { YieldChart } from "./yield-chart"
 import { TemperatureGauge } from "./temperature-gauge"
@@ -102,10 +103,7 @@ const CropCare = () => {
                     <Loader2 className="h-6 w-6 animate-spin text-[#2C6E49]" />
                   </div>
                 ) : recommendations.length === 0 ? (
-                  <p className="py-6 text-sm text-gray-500">
-                    No recommendations yet. Add farm details in Settings and check back for crop care
-                    advice.
-                  </p>
+                  <EmptyState art="seedling" title="Crop care advice will appear here" text="Add your farm details in Settings and advice is prepared for you." compact />
                 ) : (
                   <div className="overflow-hidden rounded-md border">
                     <Table>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2 } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, PaginationControls, getPaginationMeta } from "../ui";
@@ -52,6 +53,7 @@ const NgoFarmers = () => {
 
   useEffect(() => {
     load(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- reload only when role changes; load is recreated each render
   }, [portal.role]);
 
   return (
@@ -83,7 +85,7 @@ const NgoFarmers = () => {
             <Loader2 className="h-8 w-8 animate-spin" style={{ color: NGO_ACCENT }} />
           </div>
         ) : farmers.length === 0 ? (
-          <p className="text-sm text-gray-500">No authorized farmers available.</p>
+          <EmptyState art="people" title="Farmers will appear here" text="Farmers in your regions who allow sharing show up in this list." compact />
         ) : (
           <>
             <div className="overflow-x-auto">

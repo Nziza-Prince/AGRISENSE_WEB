@@ -2,7 +2,7 @@ const partners = [
   {
     name: "RAB",
     fullName: "Rwanda Agriculture Board",
-    logo: "/assets/partners/rab.png",
+    logo: "/assets/partners/rab.webp",
   },
   {
     name: "MINAGRI",
@@ -17,7 +17,7 @@ const partners = [
   {
     name: "RCA",
     fullName: "Rwanda Coding Academy",
-    logo: "/assets/partners/rca.png",
+    logo: "/assets/partners/rca.webp",
   },
   {
     name: "MOYA",

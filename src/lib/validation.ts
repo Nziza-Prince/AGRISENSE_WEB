@@ -19,6 +19,7 @@ const RWANDA_NATIONAL_ID_RE = /^[0-9]{16}$/;
  */
 export function sanitizeText(value: string): string {
   return value
+    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001F\u007F]/g, "") // control chars
     .replace(/[<>]/g, "") // strip angle brackets
     .trim();

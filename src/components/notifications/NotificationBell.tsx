@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Link } from "react-router-dom";
 import { Bell, CheckCheck, Loader2 } from "lucide-react";
 import { ApiError, notificationService, type NotificationItem } from "@/api";
@@ -154,10 +155,7 @@ export function NotificationBell({
             ) : error ? (
               <p className="px-4 py-8 text-center text-sm text-red-600">{error}</p>
             ) : items.length === 0 ? (
-              <div className="px-4 py-10 text-center">
-                <Bell className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-                <p className="text-sm text-gray-500">No notifications yet</p>
-              </div>
+              <EmptyState art="bell" title="Alerts will appear here" text="Farm, order and account updates land here." compact />
             ) : (
               <ul>
                 {items.map((item) => {

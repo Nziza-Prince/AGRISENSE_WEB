@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 import { Loader2, Megaphone, Plus, X } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Panel, Badge } from "../ui";
@@ -60,6 +61,7 @@ const NgoAdvisories = () => {
 
   useEffect(() => {
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- reload only when role/filter changes; load is recreated each render
   }, [portal.role, regionsFilter]);
 
   const toggleRegion = (region: string) => {
@@ -249,7 +251,7 @@ const NgoAdvisories = () => {
                 <Loader2 className="h-7 w-7 animate-spin" style={{ color: NGO_ACCENT }} />
               </div>
             ) : items.length === 0 ? (
-              <p className="text-sm text-gray-500">No advisories found for these regions.</p>
+              <EmptyState art="bell" title="Your advisories will appear here" text="Publish one to alert farmers in your regions." compact />
             ) : (
               <ul className="space-y-3">
                 {items.map((item) => (

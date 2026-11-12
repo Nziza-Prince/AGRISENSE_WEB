@@ -10,7 +10,16 @@ const AdminNotifications = () => (
     title="Notifications"
     subtitle="Platform alerts, approvals, and system updates."
   >
-    <NotificationsInbox accent={ADMIN_ACCENT} />
+    <NotificationsInbox
+      accent={ADMIN_ACCENT}
+      linkFor={(item) => {
+        const text = `${item.type ?? ""} ${item.title ?? ""}`.toLowerCase();
+        if (/payment|season/.test(text)) return { to: "/admin/payments", label: "Review payment" };
+        if (/supplier|ngo|approv/.test(text)) return { to: "/admin/suppliers", label: "Review organisations" };
+        if (/report|moderat/.test(text)) return { to: "/admin/moderation", label: "Open moderation" };
+        return null;
+      }}
+    />
   </RoleLayout>
 );
 
