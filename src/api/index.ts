@@ -27,6 +27,8 @@ export type {
 } from "./services/farmRecords";
 export type { AdminSeasonPass, SeasonPassList, SeasonPassStatus } from "./services/billing";
 export { financeService } from "./services/finance";
+export { sensorService } from "./services/sensors";
+export type { AdminSensor, NewSensorSecrets, SensorStatus } from "./services/sensors";
 export {
   supplierService,
   formatRwf,

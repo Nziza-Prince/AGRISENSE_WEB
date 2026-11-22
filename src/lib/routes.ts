@@ -54,6 +54,7 @@ export const routes = {
     waitlist: "/admin/waitlist",
     billing: "/admin/billing",
     payments: "/admin/payments",
+    sensors: "/admin/sensors",
     farms: "/admin/farms",
     moderation: "/admin/moderation",
     analytics: "/admin/analytics",
