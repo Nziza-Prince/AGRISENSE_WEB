@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Check,
   Copy,
   Download,
@@ -9,6 +12,7 @@ import {
   Plus,
   Power,
   RefreshCw,
+  Search,
 } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Badge, Panel } from "../ui";
@@ -47,6 +51,33 @@ function downloadText(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
+type SortKey =
+  | "code"
+  | "model"
+  | "firmware"
+  | "status"
+  | "linked"
+  | "farm"
+  | "owner"
+  | "pairedAt"
+  | "lastSeenAt"
+  | "transport";
+
+const sortValue = (s: AdminSensor, k: SortKey): string | number => {
+  switch (k) {
+    case "code": return s.code;
+    case "model": return (s.model ?? "").toLowerCase();
+    case "firmware": return s.firmwareVersion ?? "";
+    case "status": return s.status;
+    case "linked": return s.farm ? 1 : 0;
+    case "farm": return (s.farm ?? "").toLowerCase();
+    case "owner": return (s.owner ?? "").toLowerCase();
+    case "pairedAt": return s.pairedAt ? Date.parse(s.pairedAt) : 0;
+    case "lastSeenAt": return s.lastSeenAt ? Date.parse(s.lastSeenAt) : 0;
+    case "transport": return TRANSPORT_LABEL[s.lastTransport ?? ""] ?? "";
+  }
+};
+
 /** A secret that is shown only now. Closing the dialog loses it, which is the point. */
 type Secret = { title: string; code: string; key: string; pin?: string };
 
@@ -60,6 +91,27 @@ const AdminSensors = () => {
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [rotating, setRotating] = useState<AdminSensor | null>(null);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "code", dir: 1 });
+
+  const toggleSort = (key: SortKey) =>
+    setSort((cur) => (cur.key === key ? { key, dir: cur.dir === 1 ? -1 : 1 } : { key, dir: key === "pairedAt" || key === "lastSeenAt" ? -1 : 1 }));
+
+  const SortHead = ({ k, children }: { k: SortKey; children: string }) => {
+    const Icon = sort.key !== k ? ArrowUpDown : sort.dir === 1 ? ArrowUp : ArrowDown;
+    return (
+      <th className="whitespace-nowrap px-3 py-3 font-semibold">
+        <button
+          type="button"
+          onClick={() => toggleSort(k)}
+          className={`inline-flex items-center gap-1.5 uppercase tracking-wide transition hover:text-gray-900 ${sort.key === k ? "text-gray-900" : ""}`}
+        >
+          {children}
+          <Icon className="h-3 w-3" />
+        </button>
+      </th>
+    );
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -150,6 +202,20 @@ const AdminSensors = () => {
     }
   };
 
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const shown = q
+      ? sensors.filter((x) =>
+          [x.code, x.model, x.firmwareVersion, x.farm, x.owner, x.status].some((v) => (v ?? "").toLowerCase().includes(q)),
+        )
+      : sensors;
+    return [...shown].sort((a, b) => {
+      const x = sortValue(a, sort.key);
+      const y = sortValue(b, sort.key);
+      return (x < y ? -1 : x > y ? 1 : a.code.localeCompare(b.code)) * sort.dir;
+    });
+  }, [sensors, query, sort]);
+
   const active = sensors.filter((s) => s.status === "active").length;
   const linked = sensors.filter((s) => s.farm).length;
 
@@ -213,73 +279,100 @@ const AdminSensors = () => {
               text="Register one, write its code on the label, and put its key in the sensor's firmware."
             />
           ) : (
-            <ul className="space-y-3">
-              {sensors.map((s) => (
-                <li
-                  key={s.id}
-                  className="rounded-xl border border-l-4 p-4"
-                  style={{ borderLeftColor: s.status === "active" ? (s.farm ? "#059669" : "#6366F1") : "#94A3B8" }}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-mono text-lg font-semibold text-gray-900">{s.code}</p>
-                      <p className="text-xs text-gray-500">
-                        {s.model || "Model not set"}
-                        {s.firmwareVersion ? ` · firmware ${s.firmwareVersion}` : ""}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge color={s.farm ? "green" : "blue"}>{s.farm ? "Linked" : "Not linked"}</Badge>
-                      <Badge color={s.status === "active" ? "green" : "gray"}>
-                        {s.status === "active" ? "On" : "Switched off"}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
-                    <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-500">Farm</dt>
-                      <dd className="text-gray-900">{s.farm ? `${s.farm}${s.owner ? ` · ${s.owner}` : ""}` : "none yet"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-500">Linked on</dt>
-                      <dd className="text-gray-900">{when(s.pairedAt)}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-500">Last reading</dt>
-                      <dd className="text-gray-900">
-                        {when(s.lastSeenAt)}
-                        {s.lastTransport ? ` · ${TRANSPORT_LABEL[s.lastTransport]}` : ""}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className="mt-4 flex flex-wrap justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setRotating(s)}
-                      disabled={busy === s.id}
-                      className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60"
-                    >
-                      <KeyRound className="h-4 w-4" /> New key
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggle(s)}
-                      disabled={busy === s.id}
-                      className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold disabled:opacity-60 ${
-                        s.status === "active"
-                          ? "border border-red-200 text-red-600 hover:bg-red-50"
-                          : "bg-emerald-600 text-white hover:bg-emerald-700"
-                      }`}
-                    >
-                      {busy === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Power className="h-4 w-4" />}
-                      {s.status === "active" ? "Switch off" : "Switch on"}
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="relative w-full max-w-xs">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search code, farm, owner, model"
+                    className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400"
+                  />
+                </div>
+                <p className="text-sm text-gray-500">
+                  <span className="font-semibold text-gray-800">{rows.length}</span> of{" "}
+                  <span className="font-semibold text-gray-800">{sensors.length}</span> sensors
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 text-left text-[11px] text-gray-500">
+                      <SortHead k="code">Code</SortHead>
+                      <SortHead k="model">Model</SortHead>
+                      <SortHead k="firmware">Firmware</SortHead>
+                      <SortHead k="status">Power</SortHead>
+                      <SortHead k="linked">Link</SortHead>
+                      <SortHead k="farm">Farm</SortHead>
+                      <SortHead k="owner">Owner</SortHead>
+                      <SortHead k="pairedAt">Linked on</SortHead>
+                      <SortHead k="lastSeenAt">Last reading</SortHead>
+                      <SortHead k="transport">Via</SortHead>
+                      <th className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.length === 0 ? (
+                      <tr>
+                        <td colSpan={11} className="py-10 text-center text-gray-500">
+                          No sensor matches "{query}".
+                        </td>
+                      </tr>
+                    ) : (
+                      rows.map((s) => (
+                        <tr key={s.id} className="border-b border-gray-50 transition-colors last:border-0 hover:bg-indigo-50/40">
+                          <td className="whitespace-nowrap px-3 py-3 font-mono font-semibold text-gray-900">{s.code}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-gray-700">{s.model || "—"}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-gray-700">{s.firmwareVersion || "—"}</td>
+                          <td className="px-3 py-3">
+                            <Badge color={s.status === "active" ? "green" : "gray"}>
+                              {s.status === "active" ? "On" : "Off"}
+                            </Badge>
+                          </td>
+                          <td className="px-3 py-3">
+                            <Badge color={s.farm ? "green" : "blue"}>{s.farm ? "Linked" : "Not linked"}</Badge>
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-3 text-gray-700">{s.farm || "—"}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-gray-700">{s.owner || "—"}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-gray-700">{s.pairedAt ? when(s.pairedAt) : "—"}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-gray-700">{s.lastSeenAt ? when(s.lastSeenAt) : "—"}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-gray-700">
+                            {s.lastTransport ? TRANSPORT_LABEL[s.lastTransport] : "—"}
+                          </td>
+                          <td className="px-3 py-3">
+                            <div className="flex justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setRotating(s)}
+                                disabled={busy === s.id}
+                                title="Issue a new key"
+                                className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-60"
+                              >
+                                <KeyRound className="h-3.5 w-3.5" /> New key
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => toggle(s)}
+                                disabled={busy === s.id}
+                                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-semibold disabled:opacity-60 ${
+                                  s.status === "active"
+                                    ? "border border-red-200 text-red-600 hover:bg-red-50"
+                                    : "bg-emerald-600 text-white hover:bg-emerald-700"
+                                }`}
+                              >
+                                {busy === s.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Power className="h-3.5 w-3.5" />}
+                                {s.status === "active" ? "Switch off" : "Switch on"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </Panel>
       </div>
