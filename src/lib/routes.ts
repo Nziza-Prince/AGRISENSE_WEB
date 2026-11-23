@@ -55,6 +55,7 @@ export const routes = {
     billing: "/admin/billing",
     payments: "/admin/payments",
     sensors: "/admin/sensors",
+    farmers: "/admin/farmers",
     farms: "/admin/farms",
     moderation: "/admin/moderation",
     analytics: "/admin/analytics",

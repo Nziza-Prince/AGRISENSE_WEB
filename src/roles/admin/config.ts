@@ -13,6 +13,7 @@ import {
   Sprout,
   ScrollText,
   Cpu,
+  Tractor,
 } from "lucide-react";
 import type { RoleNavLink } from "../RoleLayout";
 
@@ -22,6 +23,7 @@ export const adminLinks: RoleNavLink[] = [
   { title: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
   { title: "Users", to: "/admin/users", icon: Users },
   { title: "Suppliers", to: "/admin/suppliers", icon: Store },
+  { title: "Farmers", to: "/admin/farmers", icon: Tractor },
   { title: "Farms", to: "/admin/farms", icon: Sprout },
   { title: "Waitlist", to: "/admin/waitlist", icon: Mail },
   { title: "Payments", to: "/admin/payments", icon: Wallet },

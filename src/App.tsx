@@ -45,6 +45,7 @@ import AdminWaitlist from './roles/admin/AdminWaitlist'
 import AdminBilling from './roles/admin/AdminBilling'
 import AdminSeasonPayments from './roles/admin/AdminSeasonPayments'
 import AdminSensors from './roles/admin/AdminSensors'
+import AdminFarmers from './roles/admin/AdminFarmers'
 import AdminAudit from './roles/admin/AdminAudit'
 import AdminFarms from './roles/admin/AdminFarms'
 import AdminNotifications from './roles/admin/AdminNotifications'
@@ -130,6 +131,7 @@ function App() {
       <Route path={routes.admin.billing} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminBilling /></ProtectedRoute>} />
       <Route path={routes.admin.farms} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminFarms /></ProtectedRoute>} />
       <Route path={routes.admin.payments} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminSeasonPayments /></ProtectedRoute>} />
+      <Route path={routes.admin.farmers} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminFarmers /></ProtectedRoute>} />
       <Route path={routes.admin.sensors} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminSensors /></ProtectedRoute>} />
       <Route path={routes.admin.moderation} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminModeration /></ProtectedRoute>} />
       <Route path={routes.admin.analytics} element={<ProtectedRoute allowRoles={['ADMIN']}><AdminAnalytics /></ProtectedRoute>} />

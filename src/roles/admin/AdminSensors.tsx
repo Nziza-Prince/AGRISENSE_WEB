@@ -13,12 +13,15 @@ import {
   Power,
   RefreshCw,
   Search,
+  UserPlus,
+  UserMinus,
+  X,
 } from "lucide-react";
 import RoleLayout from "../RoleLayout";
 import { Badge, Panel } from "../ui";
 import { EmptyState } from "@/components/EmptyState";
 import { ADMIN_ACCENT, adminLinks } from "./config";
-import { ApiError, sensorService, type AdminSensor } from "@/api";
+import { ApiError, farmRecordsService, sensorService, type AdminFarm, type AdminSensor } from "@/api";
 
 const TRANSPORT_LABEL: Record<string, string> = {
   ble: "Bluetooth",
@@ -91,6 +94,10 @@ const AdminSensors = () => {
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [rotating, setRotating] = useState<AdminSensor | null>(null);
+  const [assigning, setAssigning] = useState<AdminSensor | null>(null);
+  const [farms, setFarms] = useState<AdminFarm[] | null>(null);
+  const [farmQuery, setFarmQuery] = useState("");
+  const [pickedFarm, setPickedFarm] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "code", dir: 1 });
 
@@ -172,6 +179,62 @@ const AdminSensors = () => {
       setBusy(null);
     }
   };
+
+  const openAssign = async (sensor: AdminSensor) => {
+    setAssigning(sensor);
+    setFarmQuery("");
+    setPickedFarm(sensor.farmId);
+    if (!farms) {
+      try {
+        const res = await farmRecordsService.listFarms();
+        setFarms(res.farms);
+      } catch (err) {
+        fail(err, "Could not load the farms.");
+        setAssigning(null);
+      }
+    }
+  };
+
+  const assign = async () => {
+    if (!assigning || !pickedFarm) return;
+    const sensor = assigning;
+    setBusy(sensor.id);
+    setError(null);
+    try {
+      const res = await sensorService.assign(sensor.id, pickedFarm);
+      setNotice(`${sensor.code} now belongs to ${res.farm}. The farmer will see it in the app.`);
+      setAssigning(null);
+      await load();
+    } catch (err) {
+      fail(err, "Could not assign the sensor.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const unassign = async (sensor: AdminSensor) => {
+    if (!window.confirm(`Take ${sensor.code} back from ${sensor.farm}? The farmer will no longer see it.`)) return;
+    setBusy(sensor.id);
+    setError(null);
+    try {
+      await sensorService.unassign(sensor.id);
+      setNotice(`${sensor.code} is unassigned.`);
+      await load();
+    } catch (err) {
+      fail(err, "Could not take the sensor back.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const farmChoices = useMemo(() => {
+    const q = farmQuery.trim().toLowerCase();
+    const list = farms ?? [];
+    return (q
+      ? list.filter((f) => [f.name, f.ownerName, f.ownerEmail, f.district, f.sector].some((v) => (v ?? "").toLowerCase().includes(q)))
+      : list
+    ).slice(0, 50);
+  }, [farms, farmQuery]);
 
   const rotate = async () => {
     if (!rotating) return;
@@ -344,6 +407,26 @@ const AdminSensors = () => {
                             <div className="flex justify-end gap-1.5">
                               <button
                                 type="button"
+                                onClick={() => openAssign(s)}
+                                disabled={busy === s.id}
+                                title={s.farm ? "Move to another farm" : "Give to a farmer"}
+                                className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+                              >
+                                <UserPlus className="h-3.5 w-3.5" /> {s.farm ? "Reassign" : "Assign"}
+                              </button>
+                              {s.farm && (
+                                <button
+                                  type="button"
+                                  onClick={() => unassign(s)}
+                                  disabled={busy === s.id}
+                                  title="Take it back"
+                                  className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-60"
+                                >
+                                  <UserMinus className="h-3.5 w-3.5" /> Unassign
+                                </button>
+                              )}
+                              <button
+                                type="button"
                                 onClick={() => setRotating(s)}
                                 disabled={busy === s.id}
                                 title="Issue a new key"
@@ -435,6 +518,71 @@ const AdminSensors = () => {
                 className="rounded-lg border px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
               >
                 {saved ? "Done" : "Close without downloading"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {assigning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <h2 className="text-lg font-bold text-gray-900">Give {assigning.code} to a farmer</h2>
+              <button type="button" onClick={() => setAssigning(null)} className="text-gray-400 hover:text-gray-700" aria-label="Close">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="mt-1 text-sm text-gray-600">Pick the farm the sensor will be used on. It will show up in that farmer's app.</p>
+            <div className="relative mt-4">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                value={farmQuery}
+                onChange={(e) => setFarmQuery(e.target.value)}
+                placeholder="Search farm, farmer, district"
+                className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400"
+              />
+            </div>
+            <div className="mt-3 max-h-72 overflow-y-auto rounded-lg border">
+              {!farms ? (
+                <div className="flex items-center justify-center py-10 text-gray-500">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading farms
+                </div>
+              ) : farmChoices.length === 0 ? (
+                <p className="py-8 text-center text-sm text-gray-500">No farm matches.</p>
+              ) : (
+                farmChoices.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setPickedFarm(f.id)}
+                    className={`flex w-full items-center justify-between gap-3 border-b px-3 py-2.5 text-left text-sm last:border-0 hover:bg-indigo-50/60 ${
+                      pickedFarm === f.id ? "bg-indigo-50" : ""
+                    }`}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold text-gray-900">{f.name}</span>
+                      <span className="block truncate text-xs text-gray-500">
+                        {f.ownerName || f.ownerEmail} · {[f.district, f.sector].filter(Boolean).join(", ") || "no location"}
+                      </span>
+                    </span>
+                    {pickedFarm === f.id && <Check className="h-4 w-4 shrink-0 text-indigo-600" />}
+                  </button>
+                ))
+              )}
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setAssigning(null)} className="rounded-lg border px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={assign}
+                disabled={!pickedFarm || pickedFarm === assigning.farmId || busy === assigning.id}
+                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+              >
+                {busy === assigning.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                Assign sensor
               </button>
             </div>
           </div>

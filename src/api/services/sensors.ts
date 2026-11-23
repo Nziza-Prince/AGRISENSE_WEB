@@ -9,7 +9,9 @@ export interface AdminSensor {
   model: string | null;
   status: SensorStatus;
   owner: string | null;
+  ownerId: string | null;
   farm: string | null;
+  farmId: string | null;
   pairedAt: string | null;
   lastSeenAt: string | null;
   lastTransport: "ble" | "mqtt" | "http" | null;
@@ -33,6 +35,12 @@ export const sensorService = {
     api.post<{ id: string; status: SensorStatus }>(
       `/admin/devices/${id}/${status === "active" ? "enable" : "disable"}`,
     ),
+
+  /** Gives the sensor to a farm, and so to that farm's farmer. */
+  assign: (id: string, farmId: string) =>
+    api.post<{ id: string; assigned: boolean; farmId: string; farm: string }>(`/admin/devices/${id}/assign`, { farmId }),
+
+  unassign: (id: string) => api.post<{ id: string; assigned: boolean }>(`/admin/devices/${id}/unassign`),
 
   /** Issues a new key; the old one stops working at once, so the sensor must be flashed again. */
   rotateKey: (id: string) =>
