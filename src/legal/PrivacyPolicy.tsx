@@ -25,7 +25,7 @@ const PrivacyPolicy = () => {
   return (
     <LegalLayout
       title="Privacy Policy"
-      lastUpdated="November 8, 2026"
+      lastUpdated="November 27, 2026"
       intro="This Privacy Policy explains what personal information AgriSense collects, why we collect it, who we share it with, and the choices and rights you have. It applies to our website (agrisense.rw), our mobile app, and our API."
       sections={sections}
     >
@@ -64,6 +64,11 @@ const PrivacyPolicy = () => {
             <strong>Farm and agricultural data:</strong> farm names, locations and coordinates,
             size, soil type, crops, planting details, prediction inputs, and the results and
             recommendations we generate for you.
+          </li>
+          <li>
+            <strong>Soil sensor data:</strong> if you link an AgriSense soil sensor, the readings it
+            takes (moisture, temperature, salinity, nitrogen, phosphorus, potassium and pH). The app
+            uses Bluetooth only to find and talk to the sensor, not to find your location.
           </li>
           <li>
             <strong>Photos and scans:</strong> soil or crop images you upload for analysis.
@@ -192,7 +197,7 @@ const PrivacyPolicy = () => {
           <li>Hosting and database infrastructure.</li>
           <li>Image storage for profile photos, ID documents, and scans.</li>
           <li>Weather data and map or geocoding services — coordinates you search for or share may be sent to them.</li>
-          <li>Payment processing, including mobile money and cards, through Flutterwave.</li>
+          <li>Payment processing: mobile money (MTN MoMo and Airtel Money) through PawaPay, and card payments through Flutterwave.</li>
           <li>Email delivery for verification codes and notifications.</li>
           <li>Google, for optional sign-in.</li>
         </ul>
